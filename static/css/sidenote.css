@@ -1,0 +1,77 @@
+:root {
+    --sidenote-width: 200px;
+    --sidenote-offset: 10px;
+    --container-width: 900px;
+}
+
+.sidenote {
+    &:hover {
+        background-color: var(--color-primary);
+
+        .sidenote-label {
+            text-decoration: none;
+        }
+
+        .sidenote-content {
+            text-decoration: underline solid var(--color-primary);
+            text-underline-offset: 0.3ex;
+            text-decoration-thickness: 0.3ex;
+            text-decoration-color: var(--color-primary);
+        }
+    }
+
+    .sidenote-label {
+        text-decoration: underline dashed var(--color-primary);
+        text-underline-offset: 0.3ex;
+        text-decoration-thickness: 0.3ex;
+        text-decoration-color: var(--color-primary);
+    }
+}
+
+.sidenote-checkbox {
+    display: none;
+}
+
+.sidenote-content {
+    display: block;
+    position: absolute;
+    width: var(--sidenote-width);
+    box-sizing: border-box;
+    margin-top: -2.5em;
+    padding: 0.5rem;
+    font-size: calc(var(--size) * 1.4);
+    text-align: justify;
+
+    .sidenote-checkbox:checked~& {
+        display: block;
+    }
+
+    &.sidenote-right {
+        margin-left: calc(var(--container-width) + var(--sidenote-offset));
+    }
+
+    &.sidenote-left {
+        margin-right: calc(var(--container-width) + var(--sidenote-offset));
+    }
+
+
+    @media screen and (max-width: 1340px) {
+        position: static;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+        width: 100%;
+        display: none;
+
+        .sidenote-checkbox:checked~& {
+            display: block;
+        }
+
+        &.sidenote-right {
+            margin-left: 0px;
+        }
+
+        &.sidenote-left {
+            margin-right: 0px;
+        }
+    }
+}

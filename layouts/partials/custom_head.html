@@ -1,0 +1,9 @@
+<!-- Conditionally call the math typesetting -->
+{{ if .Param "math" }}
+{{ partialCached "math.html" . }}
+{{ end }}
+
+<!-- Add in the extra CSS stylesheets -->
+{{ range .Site.Params.customCss -}}
+<link rel="stylesheet" href="{{ . | absURL }}">
+{{- end }}

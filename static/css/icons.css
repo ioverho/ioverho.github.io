@@ -1,0 +1,16 @@
+svg.logo{
+    width: 20px;
+    vertical-align: middle;
+    fill: var(color-light);
+
+    &.arxiv {
+        fill: #B31B1B;
+        color: white;
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    svg.logo{
+        fill: var(color-dark);
+    }
+}
