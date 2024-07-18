@@ -3,6 +3,11 @@ baseURL = "https://ivoverhoeven.com"
 theme = "hugo-bearcub"
 copyright = "This work is licensed as CC BY 4.0"
 defaultContentLanguage = "en"
+canonifyURLs = true
+
+[sitemap]
+changefreq = "weekly"
+priority = 0.5
 
 # Generate a nice robots.txt for SEO
 enableRobotsTXT = true
@@ -28,8 +33,9 @@ lineNumbersInTable = false
 noClasses = false
 
 [markup.tableOfContents]
-startLevel = 3
-endLevel = 5
+startLevel = 2
+endLevel = 3
+ordered = true
 
 # Multilingual mode config. More for information about how to setup translation,
 # see https://gohugo.io/content-management/multilingual/
@@ -47,7 +53,7 @@ madeWith = "Made with [Bear Cub](https://github.com/clente/hugo-bearcub)"
 description = "Ivo Verhoeven's personal page"
 
 # The path to your favicon
-favicon = "icons/favicon.png"
+favicon = "favicon.ico"
 
 # These images will show up when services want to generate a preview of a link
 # to your site. Ignored if `generateSocialCard = true`. For more information
@@ -86,13 +92,14 @@ customCss = [
   "css/syntax.css",
   "css/sidenote.css",
   "css/icons.css",
+  "css/toc.css"
 ]
 
 # Enable MathJax
-math = true
+math = false
 
 # Enable ToC
-toc = true
+tableOfContents = false
 
 [params.social]
 
@@ -101,7 +108,7 @@ toc = true
 # link by using a `hideReply` param in front matter.
 [params.author]
 name = "Ivo Verhoeven" # Your name as shown in the RSS feed metadata
-#email = "me@example.com" # Added to the footer so readers can reply to posts
+#email = "verhio@mailbox.org" # Added to the footer so readers can reply to posts
 
 [module]
 [[module.imports]]

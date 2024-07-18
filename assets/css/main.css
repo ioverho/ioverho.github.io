@@ -6,6 +6,7 @@
     --color-primary: #1a8fe3;
     --size: 1rem;
     --spacing: calc(var(--size) * 2.4);
+    --max-width: 900px;
 }
 
 html {
@@ -23,7 +24,7 @@ body {
     font-size: calc(var(--size) * 1.8);
     line-height: 1.5;
     min-height: 80vh;
-    max-width: 900px;
+    max-width: var(--max-width);
     margin: 0 auto;
     word-wrap: break-word;
     position: relative;
@@ -32,7 +33,7 @@ body {
 header,
 main,
 footer {
-    max-width: 900px;
+    max-width: var(--max-width);
     margin-inline: auto;
 }
 
@@ -221,9 +222,50 @@ figcaption>p {
     font-style: italic;
 }
 
-/* Icons for outgoing links */
-a:not(.footer_social)[href^="http"]::after,
-a:not(.footer_social)[href^="https://"]::after {
+/* =============================================================================
+| Text alignment
+============================================================================= */
+main {
+    p {
+        text-align: justify;
+    }
+}
+
+/* =============================================================================
+| Mobile
+============================================================================= */
+@media screen and (max-width: 700px) {
+    p {
+        font-size: calc(var(--size) * 1.6);
+    }
+
+    h1 {
+        font-size: calc(var(--size) * 3.2);
+    }
+
+    h2 {
+        font-size: calc(var(--size) * 2.6);
+    }
+
+    h3 {
+        font-size: calc(var(--size) * 2.2);
+    }
+
+    h4 {
+        font-size: calc(var(--size) * 1.6);
+    }
+
+    code {
+        font-size: calc(var(--size) * 1.2);
+    }
+
+}
+
+/* =============================================================================
+| Icons for outgoing links
+============================================================================= */
+a:not(header a):not(.footer_socials a)[href^="http"][href^="http"]::after,
+a:not(header a):not(.footer_socials a)[href^="http"][href^="https://"]::after {
     content: " ";
     width: calc(var(--size) * 1.2);
     height: calc(var(--size) * 1.2);
@@ -234,7 +276,9 @@ a:not(.footer_social)[href^="https://"]::after {
     display: inline-block;
 }
 
-/* Footer */
+/* =============================================================================
+| Footer
+============================================================================= */
 nav.footer_table {
     display: table;
     width: 100%;
@@ -270,8 +314,11 @@ a.footer_social {
     text-decoration: none;
 }
 
+/* =============================================================================
+| Light theme
+============================================================================= */
 @media (prefers-color-scheme: dark) {
-    code {
+    code:not(pre code) {
         color: var(--color-dark);
         background-color: #eff1f5;
     }
@@ -283,7 +330,7 @@ a.footer_social {
         color: var(--color-dark);
     }
 
-    code {
+    code:not(pre code) {
         color: var(--color-light);
         background-color: var(--color-dark);
     }
@@ -298,12 +345,18 @@ a.footer_social {
         background-color: var(--color-light);
     }
 
-    a:not(.footer_social)[href^="http"]::after,
-    a:not(.footer_social)[href^="https://"]::after {
+    a:not(header a):not(.footer_socials a):not([href*="localhost"])[href^="http"]::after,
+    a:not(header a):not(.footer_socials a):not([href*="localhost"])[href^="https://"]::after {
         background-image: url("/icons/external-link-black.svg");
     }
 
     svg.footer_social {
         fill: var(--color-dark);
     }
+
+    div.toc {
+        background-color: var(--color-dark);
+        color: var(--color-light);
+    }
+
 }

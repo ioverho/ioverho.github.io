@@ -4,15 +4,14 @@ date: 2024-04-10
 tags:
   - nlp
   - code
-toc: true
+toc: false
 draft: true
+math: true
 ---
 
-[External link](https://www.psv.nl)
+{{< toc >}}
 
-{{< sidenote "This is an example sidenote, but now with some text to fill out the line..." right >}}
-Sidenotes are pretty cool, this is how they work. Maybe I could make them look a little better, though.
-{{< /sidenote >}} continued with text that is not wrapped in the aside short. Nice to see that only the aside is highlighted
+
 
 At a first glance, this sounds like a particularly bad idea. For a set of $m$ lists, sequentially searching through its $n$ entries gives us a time complexity of $\mathcal{O}\left(m\cdot n^2\right)$. Natural language is (in principle) infinitely productive, and for even moderately sized corpora, the number of distinct token n-grams will explode.
 
@@ -47,6 +46,8 @@ The devil, as they say, lies in the details. Let's assume the vocabulary lists a
 3. **Find**: scan through the remaining rows in the list, and return the count of the token in that list if it exists, or return 0 if the token is definitely not in the list
 
 Efficient is the operative term here. We do not want to load the entire list into memory. Instead, we want to just load in single rows, and then move ever further down the list. Python allows moving down the file stream using the `tell` (returns the current position in the data stream) and `seek` methods (moves the data stream to the provided position). The caching prevents repeating work when choosing which token to process at each iteration.
+
+### Subheader
 
 The Python backbone for this [[snippets/VocabReader]] would look something like:
 
@@ -154,7 +155,6 @@ def collate_vocabs(
   vocab = list(sorted(vocab_heap, key=lambda x: x[0])[::-1])
 
   return vocab
-
 ```
 
 The returned list now contains a sorted collection of `(count, token)` tuples, from which one can easily construct the final vocabulary. At no point did the memory consumption exceed the number of tokens present in a single batch, allowing for work on very large datasets without RAM being too large a constraint.
