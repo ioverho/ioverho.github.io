@@ -4,26 +4,49 @@ date: 2024-04-10
 tags:
   - nlp
   - code
-toc: false
-draft: true
+draft: false
 math: true
 ---
 
 {{< toc >}}
 
+For an ongoing project I had to perform topic clustering on a large corpus of diverse and very long news articles. [BERTopic](https://maartengr.github.io/BERTopic/index.html) usually works very well for such use-cases, with a variety of memory saving techniques already being implemented. Where I ran into trouble is a failry innocuous intermediate step.
 
+After embedding the documents, reducing the embedding feature dimensions and clustering the corpus, a second set of features are estimated for each cluster. Specifically, BERTopic uses the class-based TF-IDF scores to generate a topic-token matrix. The clustering in document embedding space is assumed to be non-convex, making estimation of a central tendency infeasible[^non-convex-central-tendency]. By extent, computing the distance between topics is diffcult or intractable. [By using the topic-token TF-IDF representations, inter topic distance can be estimated in a more reliable and interpretable manner](https://maartengr.github.io/BERTopic/algorithm/algorithm.html#4-bag-of-words). [Another benefit is that we immediately get access to textual representations of our topics](https://maartengr.github.io/BERTopic/algorithm/algorithm.html#5-topic-representation).
 
-At a first glance, this sounds like a particularly bad idea. For a set of $m$ lists, sequentially searching through its $n$ entries gives us a time complexity of $\mathcal{O}\left(m\cdot n^2\right)$. Natural language is (in principle) infinitely productive, and for even moderately sized corpora, the number of distinct token n-grams will explode.
+[^non-convex-central-tendency]: for example, imagine our cluster is a [thin ring](https://scikit-learn.org/stable/auto_examples/cluster/plot_cluster_comparison.html#sphx-glr-auto-examples-cluster-plot-cluster-comparison-py) (or its $k$-dimensional equivalent). The mean would lie in the middle, far away from the cluster. The mode is spread evenly across the surface of the ring, and the median is not clearly [defined](https://en.wikipedia.org/wiki/Geometric_median). Choosing a single point to represent the cluster remains difficult
+
+But this assumes access to a vocabulary estimated over the entire corpus. For most cases, this vocabulary needs to include higher order n-grams, while simultaneously removing semantically poor words. Human language being what it is, this means the vocabulary size will quickly exceed working memory.
+
+## The Problem
+
+Using the default `CountVectorizer` (a standard [sklearn](https://scikit-learn.org/stable/) function). It simply iterates over the corpus and tracks how often each n-gram token occurs. Once ran, it only keeps the top $n$ tokens. For my corpus, however, this proved to be a problem, with an intermediate vocabulary that just would not fit into memory.
+
+In general, the issue of open-ended vocabularies has been solved by using sub-word tokenization. After all, language models are more or less required to hold two $d\times |\mathcal{V}|$ layers in memory; one to encode each token $t\in\mathcal{V}$ and one to convert the $d$ dimensional contextual embeddings into $|\mathcal{V}|$-sized softmax. Reasonable sized vocabularies are essentially a pre-requisite. Sub-word tokenization strikes a trade-off between vocabulary size and sequence length, at the cost of tokens that are (indivually) semantically meaningless. This invalidates this approach; I'm interested in semantic topic similarity, not whether or not their counts of sub-word tokens happen to overlap.
+
+Using `HashingVectorizer`, I could retain the full word tokens, and it keeps no state, greatly reducing the memory strain. Specifically, it only retains a token's hash while discarding the actual orthographic form of the tokens. This makes post-hoc inspection of the features also impossible. In the end, I would like to have a representation of each topic available. Not mention, we'd still have to have keep a $|\mathcal{V}|$ dictionary in memory.
+
+To it's merit, BERTopic provides an `OnlineCountVectorizer` meant to solve exactly this problem. Instead of estimating a vocabulary over the entire corpus, it uses small batches sampled from the corpus to learn an intermediate vocabulary, dropping any tokens that are occured too infrequently or exceed the desired vocabulary size. While mini-batching, as usual, alleviates the memory woes, it results in an inexact vocabulary at the end. Intermediate counts are forgotten, and which words make the vocabulary and which don't largely relies on the order of documents. Ususally, the words that occur less frequently are also exactly the words that carry the most semantic information.
+
+I'd like to think we can do better.
+
+## The Solution (?)
+
+Online estimation, or mini-batching, is not a bad idea altogether though. If we iterate through our corpus until we have a vocabulary of size $|\mathcal{V}_{i}|=n_{\text{max_terms}}$, we'd be left with $m$ separate relatively small vocabularies. Each of these we can easily store as a list on disk, meaning the memory footprint is as small as possible. At the end, to construct our final vocabulary we'd just have to search through the $m$ lists and sum their occurences to get their exact count.
+
+... except that this incurs a $\mathcal{O}\left(m\cdot n \cdot n_{\text{max_terms}}\right)$ cost search operation. For each one of $n$ words, we'd have to look through (at worst) $n_{\text{max_terms}}$ words in $m$. For infrequent words (again, exactly the class of words we care most about) the probability of a word being in a list is relatively small, meaning we're bound to hit worst-case performance often.
 
 Luckily, we can exploit two properties:
 
-1. We tend to repeat ourselves
-2. alphabetic ordering exists
+1. We mostly tend to repeat ourselves
+2. Alphabetic ordering exists
 
-Neither of these should be a revelation to you, but both will prove crucial. The latter provides a convenient early termination condition. While scanning through the auxiliary lists, as soon as we find a token that has an alphabetic value greater than the token we are searching for, we can stop, as the token is not present in the list. In the example below, we scan from 'aa' to 'ac'. Upon reaching 'ac', we can be certain we would have matched 'ab' if it had been in the list.
+Neither is a particularly profound statement, but both will prove crucial. Alphabetic ordering implies a natural early termination condition. While scanning through the $m$ intermediate *sorted* vocabularies, we can stop as soon as the key term exceeds the value of the query term, secure in knowing that the term did not occur in that list.
+
+In the example below, we scan from 'aa' to 'ac'. Upon reaching 'ac', we know that we *would have* matched 'ab' if it had been in the list.
 
 ```txt
-Token | List
+Query | Keys
       | aa
       | aaa
       | aab
@@ -31,43 +54,51 @@ Token | List
    ab | ac
 ```
 
-Of course, any number of tokens might appear between 'aa' and 'ab', after all 'antidisestablishmentarianism' has a lower alphabetic order than 'aorta', and allowing n-grams only worsens this.
+Of course, any number of tokens might appear between 'aa' and 'ab'. 'antidisestablishmentarianism' technically has a lower alphabetic order than 'ax'. Language is (in theory) infinitely productive, and including n-grams only exacerbates this behaviour.
 
-This is where the former property comes into play. While each list contains the vocabulary of a random subset of the entire corpus, each list individually likely introduces few new tokens, purely because effective communication requires using common enough words. Tokens that are unique to a subset, are likely less important to the overall corpus (again, assuming a random distribution of documents across the batches). By removing closed class or stop words, we can strengthen this effect further, as non-semantically relevant token n-grams get culled from the list, and the sparsity increases.
+This is where the other property comes into play. Effective communication requires using common enough words; a text full of new or unseen words is unreadable. As a result, we'll likely only see a few misses across the vocabulary lists.
 
-These two facts put together, the average case performance is likely sub-quadratic, i.e., a much more tractable $\mathcal{O}\left(m\cdot n\cdot n_{\text{search}}\right)$, where $n_{\text{search}}$ is the average length of the list to traverse before a match, which should ideally be $n_{\text{search}}<<< n$.
+It also has a second consequence. While each list contains the vocabulary of a random subset of the entire corpus, each list individually likely introduces few new tokens. As a result, once we know the location of a token in a list, the same token in other lists is likely to be in a relatively similar position.
 
-## Implementing a vocabulary reader
+These facts put together, the average search length likely scales far, *far* under quadratic. Instead, we have a much more tractable $\Theta\left(m\cdot n\cdot n_{\text{search}}\right)$[^average_case], where $n_{\text{search}}$ is the average length of the list to traverse before a match, where I've argued $n_{\text{search}}\ll n$. We either find the term we're looking for, other terminate after a few misses.
 
-The devil, as they say, lies in the details. Let's assume the vocabulary lists are stored as `.csv` files, with each row containing just the token, and its count within the batch. We can *efficiently* achieve the desired behaviour by writing a class with three methods:[^1]
+[^average_case]: the $\Theta$ is meant to denote a tight upper and lower bound on performance. In other words, I'm fairly confident that average performance scales like this
 
-1. **Peek**: look at just the next line of the vocabulary list, return the token on that line, and cache the token count
+### Implementing a vocabulary reader
+
+The devil lies in the (implementation) details. Let's assume the vocabulary lists are stored as `.csv` files, with each row containing just the token, and its count within the batch. We can *efficiently* achieve the desired behaviour by writing a class with three methods:[^peek_and_keep]
+
+[^peek_and_keep]: peek and keep being antigrams here is a happy, but unintended coincidence
+
+1. **Peek**: look at the next line of the vocabulary list, return the token on that line, and cache the token count
 2. **Keep**: return the peeked token's count and empty the cache
 3. **Find**: scan through the remaining rows in the list, and return the count of the token in that list if it exists, or return 0 if the token is definitely not in the list
 
-Efficient is the operative term here. We do not want to load the entire list into memory. Instead, we want to just load in single rows, and then move ever further down the list. Python allows moving down the file stream using the `tell` (returns the current position in the data stream) and `seek` methods (moves the data stream to the provided position). The caching prevents repeating work when choosing which token to process at each iteration.
+Efficient is the operative term here. We do not want to load all lists into memory. Instead, we want to just load in single rows, and move ever further down the list. Python allows moving down the file stream using the `tell` (returns the current position in the data stream) and `seek` methods (moves the data stream to the provided position).
 
-### Subheader
-
-The Python backbone for this [[snippets/VocabReader]] would look something like:
+The Python backbone for this would look something like:
 
 ```python
 class VocabReader:
-  def peek(self):
-    # Look at the next line, and caches it
-    # Returns (str), the next token
+
+  def __init__(self):
+    # Set a pointer
+    # This is the line of the list we're currently at
+    self.i = 0
+
+  def peek(self) -> str:
+    # Look at the next token, and cache it
+    # Returns the token
     ...
 
-  def keep(self):
+  def keep(self) -> int:
     # Empty the cache
-    # Returns (int), the cached token's count
+    # Returns the cached token's count
     ...
 
-  def find(self, token):
+  def find(self, token: str) -> int:
     # Iterate through the vocab list, looking for a specific token
-    # Args:
-    #   token (str), the token to match
-    # Returns (int), the token's count if it exists, or 0
+    # Returns the token's count if it exists, or 0
     ...
 
   @property
@@ -75,17 +106,17 @@ class VocabReader:
     ...
 ```
 
-We want the `VocabReader` instances to be roughly in sync throughout the iterations, while ensuring that we can stop iterating once we exceed the alphabetic order of the token we're looking for. This is where the `peek` and `keep` methods come into play. When choosing a token to process, we can iterate through all the `VocabReader` and use `peek` to find the token with the smallest alphabetic order. Then we use `keep` to fetch the count, and allow the reader to move to the next line, and finally iterate through all remaining `VocabReader` instances and use `find` to fetch the count of that token in the other lists.
+We want each of the $m$ `VocabReader` instances to be roughly in sync throughout the iterations, while ensuring that we can stop iterating once we exceed the alphabetic order of the token we're looking for. This is where the `peek` and `keep` methods come into play. When choosing a token to process, we can iterate through all the `VocabReader` and use `peek` to find the token with the smallest alphabetic order. Then we use `keep` to fetch its count, increase the pointer by 1, and iterate through all $m-1$ remaining `VocabReader` instances and use `find` to fetch the count of that token in the other lists.
+
+At this point we have thus expended very little memory to storing the vocabularies, while ensuring that the additional processing cost is as little as possible.
 
 ## Putting it all together
 
-We now have most of the tools necessary to collate all the independent vocab lists together. Remember, ultimately we want a vocabulary list of tokens of at most length `max_features`, and where each token occurs in at least `min_df` documents.
+Ultimatel, all we want is a vocabulary list of tokens with at most length `n_{\text{max_terms}}`. We can process the intermediate vocabularies fairly efficiently, but we still need to track and store the large collated vocabulary somehow. For that we only need two more, relatively simple data structures.
 
-To get there, we need two more, relatively simple data structures.
+1. **Heap**: quickly insert tokens into a 'sorted' vocabulary, with $\mathcal{O}(1)$ access to the least frequent tokens. Python implements this through the `heapq` module.
 
-1. A heap to quickly insert tokens into a 'sorted' vocabulary, and $\mathcal{O}(1)$ access to the least frequent token. Python implements this through the `heapq` module.
-
-2. Some data structure tracking which tokens we've already processed. A `set` or `dict` wouldn't work, as this would inevitably cache all found tokens, the exact issue we want to avoid. Rather, we define a special instance of a `Counter` that deletes an entry once it has been seen a certain number of times. In our case, that is the number of vocab lists we have; if a token has been seen $n$ times, we can be certain it has been seen by all `VocabReader` instances, and won't appear again.
+2. **LimitedCounter**: Some data structure tracking which tokens we've already processed. A `set` or `dict` wouldn't work, as this would inevitably hash all $n$ tokens, the exact issue we want to avoid. Rather, we define a special instance of a `Counter` that deletes an entry once it has been seen $m$ times. Once we've seen a token $m$ times, we can be certain it has been seen by all $m$ `VocabReader` instances, and won't appear again.
 
 Putting it all together, the vocabulary collation function would look something like this:
 
@@ -157,10 +188,10 @@ def collate_vocabs(
   return vocab
 ```
 
-The returned list now contains a sorted collection of `(count, token)` tuples, from which one can easily construct the final vocabulary. At no point did the memory consumption exceed the number of tokens present in a single batch, allowing for work on very large datasets without RAM being too large a constraint.
+Voilà, we have a dictionary of exactly $n_{\text{max_terms}}$ where the count of each item is the same as if we'd computed on the entire corpus in one go.At no point did the memory consumption exceed the number of tokens present in a single batch, allowing for work on very large datasets without RAM being too large a constraint.
 
-That said, this vocabulary is not exact. Tokens that, simply due to chance, occur fewer times than `min_df` in a single batch will get removed early in the process, whether or not it occurs often enough in the entire corpus. However, the error is at most $(\mathtt{max\_df}-1)(m-1)$, and is probably much smaller for frequent of tokens[^2].
+I added one more variable here than strictly necessary: `min_df`. Very infrequent words likely only add noise, so the user can (somewhat arbitrarily) already cull those terms before being added to the heap. As a result, we can also be certain that all tokens in our dictionary occur at least `min_df`.
 
-[^1]: Peek and keep effectively being antigrams here is a happy coincidence.
+<!-- That said, this vocabulary is not exact. Tokens that, simply due to chance, occur fewer times than `min_df` in a single batch will get removed early in the process, whether or not it occurs often enough in the entire corpus. However, the error is at most $(\mathtt{max\_df}-1)(m-1)$, and is probably much smaller for frequent of tokens[^2].
 
-[^2]: For a proper analysis, the error rate probably involves the use of a [multinomial](https://en.wikipedia.org/wiki/Multinomial_distribution) or [multivariate hypergeometric](https://en.wikipedia.org/wiki/Hypergeometric_distribution#Multivariate_hypergeometric_distribution) distribution.
+[^2]: For a proper analysis, the error rate probably involves the use of a [multinomial](https://en.wikipedia.org/wiki/Multinomial_distribution) or [multivariate hypergeometric](https://en.wikipedia.org/wiki/Hypergeometric_distribution#Multivariate_hypergeometric_distribution) distribution. -->

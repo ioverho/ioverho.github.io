@@ -23,7 +23,7 @@ body {
         "Segoe UI Symbol", "Noto Color Emoji";
     font-size: calc(var(--size) * 1.8);
     line-height: 1.5;
-    min-height: 80vh;
+    min-height: 60vh;
     max-width: var(--max-width);
     margin: 0 auto;
     word-wrap: break-word;
@@ -51,7 +51,7 @@ a.blog-tags {
 }
 
 main {
-    padding-bottom: var(--spacing);
+    padding-bottom: 0;
 }
 
 footer {
@@ -312,6 +312,14 @@ a.footer_social {
     margin-left: .5rem;
     margin-right: .5rem;
     text-decoration: none;
+}
+
+/* =============================================================================
+| List spacing
+============================================================================= */
+
+content li {
+    margin-top: calc(0.2 * var(--spacing));
 }
 
 /* =============================================================================

@@ -71,3 +71,8 @@ details.toc[open] {
         font-size: calc(var(--size) * 2.2);
     }
 }
+
+.toc li {
+    margin-top: calc(var(--spacing));
+    margin-bottom: calc(var(--spacing));
+}
