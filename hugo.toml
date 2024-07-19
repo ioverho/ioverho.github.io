@@ -59,7 +59,7 @@ favicon = "favicon.ico"
 # to your site. Ignored if `generateSocialCard = true`. For more information
 # about previews, see https://gohugo.io/templates/internal#twitter-cards and
 # https://gohugo.io/templates/internal#open-graph
-images = ["images/share.webp"]
+images = ["share_personal.webp"]
 
 # This title is used as the site_name on the Hugo's internal opengraph
 # structured data template
@@ -84,7 +84,7 @@ themeStyle = "herman"
 # for posts that don't have `images` defined in their front matter; By setting
 # `generateSocialCard` to false, you can prevent this behavior. For more
 # information see layouts/partials/social_card.html
-generateSocialCard = true
+generateSocialCard = false
 
 # Custom CSS files
 customCss = [

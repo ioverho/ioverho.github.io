@@ -4,8 +4,8 @@ date: 2024-04-10
 tags:
   - nlp
   - code
-draft: true
 math: true
+draft: false
 ---
 
 {{< toc >}}
@@ -113,7 +113,7 @@ At this point we have offloaded the vocabulary entirely to the disk, while the a
 
 ## Finishing Touches
 
-Ultimately, all we want is a list with at most `n_{\text{max_terms}}` tokens in it. We can process the intermediate vocabularies efficiently, but we still need to track and store the large collated vocabulary somehow. For that, we only need three more, relatively simple data structures.
+Ultimately, all we want is a list with at most $n_{\text{max_terms}}$ tokens in it. We can process the intermediate vocabularies efficiently, but we still need to track and store the large collated vocabulary somehow. For that, we only need three more, relatively simple data structures.
 
 1. **Heap**: quickly insert tokens into a 'sorted' vocabulary, with $\mathcal{O}(1)$ access to the least frequent tokens. Python implements this through the `heapq` module.
 
