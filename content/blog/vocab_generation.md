@@ -4,15 +4,15 @@ date: 2024-04-10
 tags:
   - nlp
   - code
-draft: false
+draft: true
 math: true
 ---
 
 {{< toc >}}
 
-For an ongoing project I had to perform topic clustering on a large corpus of diverse and very long news articles. [BERTopic](https://maartengr.github.io/BERTopic/index.html) usually works very well for such use-cases, with a variety of memory saving techniques already being implemented. Where I ran into trouble is a failry innocuous intermediate step.
+For an ongoing project, I had to perform topic clustering on a large corpus of diverse and very long news articles. [BERTopic](https://maartengr.github.io/BERTopic/index.html) usually works very well for such use-cases, with a variety of memory saving techniques already being implemented. Where I ran into trouble was a usually innocuous intermediate step.
 
-After embedding the documents, reducing the embedding feature dimensions and clustering the corpus, a second set of features are estimated for each cluster. Specifically, BERTopic uses the class-based TF-IDF scores to generate a topic-token matrix. The clustering in document embedding space is assumed to be non-convex, making estimation of a central tendency infeasible[^non-convex-central-tendency]. By extent, computing the distance between topics is diffcult or intractable. [By using the topic-token TF-IDF representations, inter topic distance can be estimated in a more reliable and interpretable manner](https://maartengr.github.io/BERTopic/algorithm/algorithm.html#4-bag-of-words). [Another benefit is that we immediately get access to textual representations of our topics](https://maartengr.github.io/BERTopic/algorithm/algorithm.html#5-topic-representation).
+After embedding the documents, reducing the embedding feature dimensions, and clustering the corpus, a second set of features is estimated for each cluster. Specifically, BERTopic uses the class-based TF-IDF scores to generate a topic-token matrix. The clustering in document embedding space is assumed to be non-convex, making estimation of a central tendency infeasible[^non-convex-central-tendency]. By extension, computing the distance between topics is diffcult or intractable. [Using topic-token TF-IDF representations instead, inter topic distance can be robustly estimated](https://maartengr.github.io/BERTopic/algorithm/algorithm.html#4-bag-of-words). [Another benefit is that we immediately get access to textual representations of our topics](https://maartengr.github.io/BERTopic/algorithm/algorithm.html#5-topic-representation).
 
 [^non-convex-central-tendency]: for example, imagine our cluster is a [thin ring](https://scikit-learn.org/stable/auto_examples/cluster/plot_cluster_comparison.html#sphx-glr-auto-examples-cluster-plot-cluster-comparison-py) (or its $k$-dimensional equivalent). The mean would lie in the middle, far away from the cluster. The mode is spread evenly across the surface of the ring, and the median is not clearly [defined](https://en.wikipedia.org/wiki/Geometric_median). Choosing a single point to represent the cluster remains difficult
 
@@ -20,28 +20,28 @@ But this assumes access to a vocabulary estimated over the entire corpus. For mo
 
 ## The Problem
 
-Using the default `CountVectorizer` (a standard [sklearn](https://scikit-learn.org/stable/) function). It simply iterates over the corpus and tracks how often each n-gram token occurs. Once ran, it only keeps the top $n$ tokens. For my corpus, however, this proved to be a problem, with an intermediate vocabulary that just would not fit into memory.
+Using the default `CountVectorizer` (a standard [sklearn](https://scikit-learn.org/stable/) function) proved to be a problem, with an intermediate vocabulary that just would not fit into memory. It simply iterates over the corpus and tracks how often each n-gram token occurs. Once ran, it only keeps the top $n$ tokens.
 
-In general, the issue of open-ended vocabularies has been solved by using sub-word tokenization. After all, language models are more or less required to hold two $d\times |\mathcal{V}|$ layers in memory; one to encode each token $t\in\mathcal{V}$ and one to convert the $d$ dimensional contextual embeddings into $|\mathcal{V}|$-sized softmax. Reasonable sized vocabularies are essentially a pre-requisite. Sub-word tokenization strikes a trade-off between vocabulary size and sequence length, at the cost of tokens that are (indivually) semantically meaningless. This invalidates this approach; I'm interested in semantic topic similarity, not whether or not their counts of sub-word tokens happen to overlap.
+In general, the issue of open-ended vocabularies has been solved by using sub-word tokenization. After all, language models are more or less required to hold two $d\times |\mathcal{V}|$ layers in memory; one to encode each token $t\in\mathcal{V}$ and one to convert the $d$ dimensional contextual embeddings into $|\mathcal{V}|$-sized softmax. Reasonable sized vocabularies are essentially a prerequisite. Sub-word tokenization strikes a trade-off between vocabulary size and sequence length, at the cost of tokens that are (individually) semantically meaningless. This invalidates this approach; I'm interested in semantic topic similarity, not whether or not their counts of sub-word tokens happen to overlap.
 
 Using `HashingVectorizer`, I could retain the full word tokens, and it keeps no state, greatly reducing the memory strain. Specifically, it only retains a token's hash while discarding the actual orthographic form of the tokens. This makes post-hoc inspection of the features also impossible. In the end, I would like to have a representation of each topic available. Not mention, we'd still have to have keep a $|\mathcal{V}|$ dictionary in memory.
 
-To it's merit, BERTopic provides an `OnlineCountVectorizer` meant to solve exactly this problem. Instead of estimating a vocabulary over the entire corpus, it uses small batches sampled from the corpus to learn an intermediate vocabulary, dropping any tokens that are occured too infrequently or exceed the desired vocabulary size. While mini-batching, as usual, alleviates the memory woes, it results in an inexact vocabulary at the end. Intermediate counts are forgotten, and which words make the vocabulary and which don't largely relies on the order of documents. Ususally, the words that occur less frequently are also exactly the words that carry the most semantic information.
+To it's merit, BERTopic provides an `OnlineCountVectorizer` meant to solve exactly this problem. Instead of estimating a vocabulary over the entire corpus, it uses small batches sampled from the corpus to learn an intermediate vocabulary, dropping any tokens that occur too infrequently or exceed the desired vocabulary size. Mini-batching alleviates the memory woes, but it results in an inexact token frequencies at the end. Intermediate counts are forgotten, and which words make the vocabulary and which don't largely relies on the order of documents. Ususally, the words that occur less frequently are also exactly the words that carry the most semantic information, and it is here that this approach is most likely to err.
 
 I'd like to think we can do better.
 
 ## The Solution (?)
 
-Online estimation, or mini-batching, is not a bad idea altogether though. If we iterate through our corpus until we have a vocabulary of size $|\mathcal{V}_{i}|=n_{\text{max_terms}}$, we'd be left with $m$ separate relatively small vocabularies. Each of these we can easily store as a list on disk, meaning the memory footprint is as small as possible. At the end, to construct our final vocabulary we'd just have to search through the $m$ lists and sum their occurences to get their exact count.
+Online estimation, or mini-batching, is not a bad idea altogether, though. If we iterate through our corpus until we have a vocabulary of size $|\mathcal{V}_{i}|=n_{\text{max_terms}}$, we'd be left with $m$ separate relatively small vocabularies. Each of these we can easily store as a list on disk, meaning the memory footprint is as small as possible. In the end, to construct our final vocabulary, we'd just have to search through the $m$ lists and sum their occurrences to get their exact count.
 
-... except that this incurs a $\mathcal{O}\left(m\cdot n \cdot n_{\text{max_terms}}\right)$ cost search operation. For each one of $n$ words, we'd have to look through (at worst) $n_{\text{max_terms}}$ words in $m$. For infrequent words (again, exactly the class of words we care most about) the probability of a word being in a list is relatively small, meaning we're bound to hit worst-case performance often.
+... except that this incurs a $\mathcal{O}\left(m\cdot n \cdot n_{\text{max_terms}}\right)$ cost search operation. For each one of $n$ words, we'd have to look through (at worst) $n_{\text{max_terms}}$ words in $m$. For infrequent words (again, exactly the class of words we care most about), the probability of a word being in a list is relatively small, meaning we're bound to hit worst-case performance often.
 
 Luckily, we can exploit two properties:
 
 1. We mostly tend to repeat ourselves
 2. Alphabetic ordering exists
 
-Neither is a particularly profound statement, but both will prove crucial. Alphabetic ordering implies a natural early termination condition. While scanning through the $m$ intermediate *sorted* vocabularies, we can stop as soon as the key term exceeds the value of the query term, secure in knowing that the term did not occur in that list.
+Neither is a particularly profound statement, but both will prove crucial. Alphabetic ordering implies a natural early termination condition. While scanning through the $m$ *sorted* intermediate vocabularies, we can stop as soon as the key term exceeds the value of the query term, secure in knowing that the term did not occur in that list.
 
 In the example below, we scan from 'aa' to 'ac'. Upon reaching 'ac', we know that we *would have* matched 'ab' if it had been in the list.
 
@@ -60,9 +60,13 @@ This is where the other property comes into play. Effective communication requir
 
 It also has a second consequence. While each list contains the vocabulary of a random subset of the entire corpus, each list individually likely introduces few new tokens. As a result, once we know the location of a token in a list, the same token in other lists is likely to be in a relatively similar position.
 
-These facts put together, the average search length likely scales far, *far* under quadratic. Instead, we have a much more tractable $\Theta\left(m\cdot n\cdot n_{\text{search}}\right)$[^average_case], where $n_{\text{search}}$ is the average length of the list to traverse before a match, where I've argued $n_{\text{search}}\ll n$. We either find the term we're looking for, other terminate after a few misses.
+These facts put together, the average search length likely scales far, *far* under quadratic. Instead, we have a much more tractable $\Theta\left(m\cdot n\cdot n_{\text{search}}\right)$[^average_case], where $n_{\text{search}}$ is the average length of the list to traverse before a match, where I've argued $n_{\text{search}}\ll n$. We either find the term we're looking for, or terminate after a few misses.
 
 [^average_case]: the $\Theta$ is meant to denote a tight upper and lower bound on performance. In other words, I'm fairly confident that average performance scales like this
+
+Having access to sorted lists already cuts down compute, with binary searching $m$ separate lists incurring a $\mathcal{O}(m\log_2 n_{\text{max_terms}})$ cost. However, as argued, we don't need to run a full list search each and every time. The $m$ lists are likely highly correlated, with the position of any word in a list being roughly the position of that word in all other lists as well. Furthermore,by keeping tracking where in the lists we are, we can smartly choose the starting position of our search, skipping any words that have already been processed. As a result, I'd expect[^formal_proof] $n_{\text{search}}<\log_2 n_{\text{max_terms}}$, meaning we're faster than a full binary search as well.
+
+[^formal_proof]: proving this is probably difficult. I'd expect it scales with the expected overlap between the vocabulary lists; the more overlap, the fewer expected misses. According to this [StackOverflow answer](https://stats.stackexchange.com/a/554937) that would be $$|\mathcal{V}|\left(\dfrac{n_{\text{max_terms}}}{|\mathcal{V}|}\right)^{m}$$ In other words, the larger our intermediate vocabularies are, relative to the full corpus vocabulary, the higher the overlap, the fewer expected misses
 
 ### Implementing a vocabulary reader
 
@@ -108,11 +112,11 @@ class VocabReader:
 
 We want each of the $m$ `VocabReader` instances to be roughly in sync throughout the iterations, while ensuring that we can stop iterating once we exceed the alphabetic order of the token we're looking for. This is where the `peek` and `keep` methods come into play. When choosing a token to process, we can iterate through all the `VocabReader` and use `peek` to find the token with the smallest alphabetic order. Then we use `keep` to fetch its count, increase the pointer by 1, and iterate through all $m-1$ remaining `VocabReader` instances and use `find` to fetch the count of that token in the other lists.
 
-At this point we have thus expended very little memory to storing the vocabularies, while ensuring that the additional processing cost is as little as possible.
+At this point we have a very low memory footprint for storing the vocabularies, while the additional processing cost incurred remains as low as possible. What we haven't covered yet is storing the intermediate vocabularies efficiently.
 
 ## Putting it all together
 
-Ultimatel, all we want is a vocabulary list of tokens with at most length `n_{\text{max_terms}}`. We can process the intermediate vocabularies fairly efficiently, but we still need to track and store the large collated vocabulary somehow. For that we only need two more, relatively simple data structures.
+Ultimately, all we want is a vocabulary list of tokens with at most length `n_{\text{max_terms}}`. We can process the intermediate vocabularies fairly efficiently, but we still need to track and store the large collated vocabulary somehow. For that, we only need two more, relatively simple data structures.
 
 1. **Heap**: quickly insert tokens into a 'sorted' vocabulary, with $\mathcal{O}(1)$ access to the least frequent tokens. Python implements this through the `heapq` module.
 
@@ -188,10 +192,16 @@ def collate_vocabs(
   return vocab
 ```
 
-Voilà, we have a dictionary of exactly $n_{\text{max_terms}}$ where the count of each item is the same as if we'd computed on the entire corpus in one go.At no point did the memory consumption exceed the number of tokens present in a single batch, allowing for work on very large datasets without RAM being too large a constraint.
+Voilà, we have a dictionary of exactly $n_{\text{max_terms}}$ where the count of each item is the same as if we'd computed on the entire corpus in one go. At no point did the memory consumption exceed the number of tokens present in a single batch, allowing for work on very large datasets without RAM being too large a constraint.
 
 I added one more variable here than strictly necessary: `min_df`. Very infrequent words likely only add noise, so the user can (somewhat arbitrarily) already cull those terms before being added to the heap. As a result, we can also be certain that all tokens in our dictionary occur at least `min_df`.
 
 <!-- That said, this vocabulary is not exact. Tokens that, simply due to chance, occur fewer times than `min_df` in a single batch will get removed early in the process, whether or not it occurs often enough in the entire corpus. However, the error is at most $(\mathtt{max\_df}-1)(m-1)$, and is probably much smaller for frequent of tokens[^2].
 
 [^2]: For a proper analysis, the error rate probably involves the use of a [multinomial](https://en.wikipedia.org/wiki/Multinomial_distribution) or [multivariate hypergeometric](https://en.wikipedia.org/wiki/Hypergeometric_distribution#Multivariate_hypergeometric_distribution) distribution. -->
+
+## Conclusion
+
+I wanted to share this approach not because it revealed any particularly deep insights or its innate elegance, but because it defies expectations. I've been trained to think about algorithms in terms of worst case performance, but for non-critical, single use applications like these, I really only care about the average case.
+
+My main takeaway is probably to choose my data-structures using the [average case Wikipedia table](https://en.wikipedia.org/wiki/Best,_worst_and_average_case#Data_structures), not the [more easily found one](https://en.wikipedia.org/wiki/Search_data_structure#Asymptotic_worst-case_analysis).
