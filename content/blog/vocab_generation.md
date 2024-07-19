@@ -34,93 +34,92 @@ I'd like to think we can do better.
 
 Online estimation, or mini-batching, is not a bad idea altogether, though. If we iterate through our corpus until we have a vocabulary of size $|\mathcal{V}_{i}|=n_{\text{max_terms}}$, we'd be left with $m$ separate relatively small vocabularies. Each of these we can easily store as a list on disk, meaning the memory footprint is as small as possible. In the end, to construct our final vocabulary, we'd just have to search through the $m$ lists and sum their occurrences to get their exact count.
 
-... except that this incurs a $\mathcal{O}\left(m\cdot n \cdot n_{\text{max_terms}}\right)$ cost search operation. For each one of $n$ words, we'd have to look through (at worst) $n_{\text{max_terms}}$ words in $m$. For infrequent words (again, exactly the class of words we care most about), the probability of a word being in a list is relatively small, meaning we're bound to hit worst-case performance often.
+... except that this incurs a $\mathcal{O}\left(m\cdot n \cdot n_{\text{max_terms}}\right)$ cost search operation. For each one of $n$ words, we'd possibly have to look through $n_{\text{max_terms}}$ words in $m$. For infrequent words (again, exactly the class of words we care most about), the probability of a word being in each mini-batch vocabulary list is relatively small, meaning we're bound to hit worst-case performance often.
 
-Luckily, we can exploit two properties:
-
-1. We mostly tend to repeat ourselves
-2. Alphabetic ordering exists
-
-Neither is a particularly profound statement, but both will prove crucial. Alphabetic ordering implies a natural early termination condition. While scanning through the $m$ *sorted* intermediate vocabularies, we can stop as soon as the key term exceeds the value of the query term, secure in knowing that the term did not occur in that list.
-
-In the example below, we scan from 'aa' to 'ac'. Upon reaching 'ac', we know that we *would have* matched 'ab' if it had been in the list.
+Luckily, we can sort words alphabetically. Once sorted, we can find the token in each independent list in $\mathcal{O}(1)$ time. The sorted lists can been seen a set of stacks, each with an independent pointer. At the top of the stack we have the smallest value item, i.e. the vocabulary's lowest order token.
 
 ```txt
-Query | Keys
-      | aa
-      | aaa
-      | aab
-      | ...
-   ab | ac
+       0    0    0    0
+--> [  a | aa |  a | ab ] smallest = a
+    [ aa |  b | ab | ac ]
+    [ ac | ba | ac | ba ]
+
+processed = []
 ```
 
-Of course, any number of tokens might appear between 'aa' and 'ab'. 'antidisestablishmentarianism' technically has a lower alphabetic order than 'ax'. Language is (in theory) infinitely productive, and including n-grams only exacerbates this behaviour.
+At this point we scan the top of the stacks for the smallest token, 'a', and for stacks that have it at the top we pop it off (or equivalently increase the pointer by 1). All stacks that *did not* have that token at the top are guaranteed to only have higher value tokens, and we ignore those stacks. In other words, if the stack does not have the token on top, it simply does not have it.
 
-This is where the other property comes into play. Effective communication requires using common enough words; a text full of new or unseen words is unreadable. As a result, we'll likely only see a few misses across the vocabulary lists.
+```txt
+       1    0    1    0
+--> [ aa | aa | ab | ab ] smallest = aa
+    [ ac |  b | ac | ac ]
+    [ ba | ba |  c | ba ]
 
-It also has a second consequence. While each list contains the vocabulary of a random subset of the entire corpus, each list individually likely introduces few new tokens. As a result, once we know the location of a token in a list, the same token in other lists is likely to be in a relatively similar position.
+processed = [a]
+```
 
-These facts put together, the average search length likely scales far, *far* under quadratic. Instead, we have a much more tractable $\Theta\left(m\cdot n\cdot n_{\text{search}}\right)$[^average_case], where $n_{\text{search}}$ is the average length of the list to traverse before a match, where I've argued $n_{\text{search}}\ll n$. We either find the term we're looking for, or terminate after a few misses.
+After processing the tokens, we get to a situation that is remarkably similar to the start. Once again, the smallest value token for each stack is guaranteed to be at the top, and we need only scan the top layer. Rinse, lather and repeat.
 
-[^average_case]: the $\Theta$ is meant to denote a tight upper and lower bound on performance. In other words, I'm fairly confident that average performance scales like this
+```txt
+       2    1    1    0
+--> [ ac |  b | ab | ab ] smallest = ab
+    [ ba | ba | ac | ac ]
+    [ bc | bb |  c | ba ]
 
-Having access to sorted lists already cuts down compute, with binary searching $m$ separate lists incurring a $\mathcal{O}(m\log_2 n_{\text{max_terms}})$ cost. However, as argued, we don't need to run a full list search each and every time. The $m$ lists are likely highly correlated, with the position of any word in a list being roughly the position of that word in all other lists as well. Furthermore,by keeping tracking where in the lists we are, we can smartly choose the starting position of our search, skipping any words that have already been processed. As a result, I'd expect[^formal_proof] $n_{\text{search}}<\log_2 n_{\text{max_terms}}$, meaning we're faster than a full binary search as well.
+processed = [a, aa]
+```
 
-[^formal_proof]: proving this is probably difficult. I'd expect it scales with the expected overlap between the vocabulary lists; the more overlap, the fewer expected misses. According to this [StackOverflow answer](https://stats.stackexchange.com/a/554937) that would be $$|\mathcal{V}|\left(\dfrac{n_{\text{max_terms}}}{|\mathcal{V}|}\right)^{m}$$ In other words, the larger our intermediate vocabularies are, relative to the full corpus vocabulary, the higher the overlap, the fewer expected misses
+To process the entire vocabulary, we simply gradually move down each stack until exhausting the values within it. In each iteration, because we started with sorted stacks and we select the smallest element, we have guarantees that eliminate the need for search the rest of the list.
 
 ### Implementing a vocabulary reader
 
-The devil lies in the (implementation) details. Let's assume the vocabulary lists are stored as `.csv` files, with each row containing just the token, and its count within the batch. We can *efficiently* achieve the desired behaviour by writing a class with three methods:[^peek_and_keep]
+The devil lies in the (implementation) details. Let's assume the vocabulary lists are stored as `.csv` files, with each row containing just the token, and its count within the batch. We can *efficiently* achieve the desired behaviour by writing a class with just two methods:[^peek_and_keep]
 
 [^peek_and_keep]: peek and keep being antigrams here is a happy, but unintended coincidence
 
 1. **Peek**: look at the next line of the vocabulary list, return the token on that line, and cache the token count
 2. **Keep**: return the peeked token's count and empty the cache
-3. **Find**: scan through the remaining rows in the list, and return the count of the token in that list if it exists, or return 0 if the token is definitely not in the list
 
-Efficient is the operative term here. We do not want to load all lists into memory. Instead, we want to just load in single rows, and move ever further down the list. Python allows moving down the file stream using the `tell` (returns the current position in the data stream) and `seek` methods (moves the data stream to the provided position).
+Efficient is the operative term here. We do not want to load all lists into memory. Instead, we want to just load in single rows, and move ever further down the list. Python allows moving along the file stream using the `tell` and `seek` methods. The former returns the current position in the data stream, whereas the latter moves the data stream to the provided position. We can use these to set our pointer.
 
 The Python backbone for this would look something like:
 
 ```python
 class VocabReader:
 
-  def __init__(self):
-    # Set a pointer
-    # This is the line of the list we're currently at
-    self.i = 0
+    def __init__(self):
+        # Set a pointer
+        # This is the current location in the data stream
+        self.pointer = 0
 
-  def peek(self) -> str:
-    # Look at the next token, and cache it
-    # Returns the token
-    ...
+    def peek(self) -> str:
+        # Look at token located at `self.pointer`
+        # Returns the token
+        ...
 
-  def keep(self) -> int:
-    # Empty the cache
-    # Returns the cached token's count
-    ...
+    def keep(self) -> int:
+        # Returns the count of the peeked token
+        ...
 
-  def find(self, token: str) -> int:
-    # Iterate through the vocab list, looking for a specific token
-    # Returns the token's count if it exists, or 0
-    ...
-
-  @property
-  def terminated(self):
-    ...
+    @property
+    def terminated(self) -> bool:
+        # Whether or not the list has been exhausted
+        ...
 ```
 
-We want each of the $m$ `VocabReader` instances to be roughly in sync throughout the iterations, while ensuring that we can stop iterating once we exceed the alphabetic order of the token we're looking for. This is where the `peek` and `keep` methods come into play. When choosing a token to process, we can iterate through all the `VocabReader` and use `peek` to find the token with the smallest alphabetic order. Then we use `keep` to fetch its count, increase the pointer by 1, and iterate through all $m-1$ remaining `VocabReader` instances and use `find` to fetch the count of that token in the other lists.
+In the background, the `VocabReader` instances can cache the result of peek, only opening the file when the cache is empty. This way, we're only opening the file once per token.
 
-At this point we have a very low memory footprint for storing the vocabularies, while the additional processing cost incurred remains as low as possible. What we haven't covered yet is storing the intermediate vocabularies efficiently.
+At this point we have offloaded the vocabulary entirely to the disk, while the added compute cost is $\mathcal{O}(|\mathcal{V}|)$. The initial processing has the same cost, so we've essentially doubled the compute cost (neglibe in big-O terms).
 
-## Putting it all together
+## Finishing Touches
 
-Ultimately, all we want is a vocabulary list of tokens with at most length `n_{\text{max_terms}}`. We can process the intermediate vocabularies fairly efficiently, but we still need to track and store the large collated vocabulary somehow. For that, we only need two more, relatively simple data structures.
+Ultimately, all we want is a list with at most `n_{\text{max_terms}}` tokens in it. We can process the intermediate vocabularies efficiently, but we still need to track and store the large collated vocabulary somehow. For that, we only need three more, relatively simple data structures.
 
 1. **Heap**: quickly insert tokens into a 'sorted' vocabulary, with $\mathcal{O}(1)$ access to the least frequent tokens. Python implements this through the `heapq` module.
 
 2. **LimitedCounter**: Some data structure tracking which tokens we've already processed. A `set` or `dict` wouldn't work, as this would inevitably hash all $n$ tokens, the exact issue we want to avoid. Rather, we define a special instance of a `Counter` that deletes an entry once it has been seen $m$ times. Once we've seen a token $m$ times, we can be certain it has been seen by all $m$ `VocabReader` instances, and won't appear again.
+
+3. **token2reader**: a mapping from all tokens on top of a stack to the readers that have that token on top. This way, we can quickly fetch which `VocabReader` instances need updating. This is easily implemented using a `collections.defaultdict[list]`
 
 Putting it all together, the vocabulary collation function would look something like this:
 
@@ -130,78 +129,64 @@ def collate_vocabs(
   min_df: int,
   max_features: int
 ) -> typing.List[typing.Tuple[int, str]]:
-  # Import all the stored dicts as a collection of data streams
-  readers = {VocabReader(vocab_fp) for vocab_fp in vocab_fps}
+    # Gather all of the `VocabReader` instances
+    readers = [VocabReader(vocab_fp) for vocab_fp in vocabs]
 
-  # Use a limited counter to track which tokens have been seen already
-  seen_tokens = LimitedCounter(limit=len(readers))
+    # Use a limited counter to track which tokens have been seen already
+    seen_tokens = LimitedCounter(limit=len(readers))
 
-  # Use a heap to construct the vocabulary
-  vocab_heap = []
-  heapq.heapify(vocab_heap)
+    # Use a heap to keep track of the most frequent tokens
+    # This allows for fast inserts and fast access to minimum
+    vocab_heap = []
+    heapq.heapify(vocab_heap)
 
-  # Continue until all data streams have been exhausted
-  while not all(reader.terminated for reader in readers):
-      # Iterate over each data stream, looking only at the next line
-      # and cache the result
-      possible_continuations = []
-      for reader in readers:
-          try:
-              possible_continuations.append((reader.peek(), reader))
-          # Handle a stream ending early
-          except StopIteration:
-              continue
+    # Iterate until we've exhausted every vocabulary stack
+    while not all(reader.terminated for reader in readers):
+        # Create a new token2reader instance
+        token2reader = create_token2reader()
 
-      # From all the next lines, choose the 'smallest' token
-      # This is the token we process in this iteration
-      token, cur_reader = min(possible_continuations, key=lambda x: x[0])
+        # Peek at the next token on each reader's stack
+        for reader in readers:
+            try:
+                reader_token = reader.peek()
+            except StopIteration:
+                continue
 
-      # Tell stream from which the current token came to clear its cache
-      count = cur_reader.keep()
+            # Add the token and reader to the `token2reader` mapping
+            token2reader[reader_token].append(reader)
 
-      # Check if we've seen the term already
-      # If so finish this iteration
-      if token in seen_tokens:
-          seen_tokens.add(token)
-          continue
+        # Find the token with the minimum value across all readers
+        min_val_token = min(token2reader.keys())
 
-      # If not, we scan through all the other streams until
-      # we find the same token and its count
-      for other_reader in readers - {cur_reader}:
-          try:
-              count += other_reader.find(token)
-          except StopIteration:
-                  continue
+        # Fetch all the readers that have the min_val_token on top
+        vocab_readers_with_matches = token2reader[min_val_token]
 
-      # If the count is too small to include, don't add it
-      if count < min_df:
-          continue
+        # Sum up the counts for the min_val_token in each stack
+        token_count = 0
+        for reader in vocab_readers_with_matches:
+            token_count += reader.keep()
 
-      # Finally, add the (count, token) tuple to the heap, removing the
-      # lowest count token when necessary
-      elif len(vocab_heap) < max_features:
-          heapq.heappush(vocab_heap, (count, token))
+        # If the count is too small to include it in the final vocab,
+        # remove it
+        if token_count < min_df:
+            continue
 
-      elif len(vocab_heap) == max_features:
-          heapq.heappushpop(vocab_heap, (count, token))
+        # Finally, add the (count, token) tuple to the heap,
+        # removing the lowest count token when necessary
+        elif len(vocab_heap) < max_features:
+            heapq.heappush(vocab_heap, (token_count, min_val_token))
 
-      seen_tokens.add(token)
+        elif len(vocab_heap) == max_features:
+            heapq.heappushpop(vocab_heap, (token_count, min_val_token))
 
-  vocab = list(sorted(vocab_heap, key=lambda x: x[0])[::-1])
+        # Add the token to the seen tokens collection
+        seen_tokens.add(min_val_token)
 
-  return vocab
+    # Finally construct and output the final vocabulary
+    # `vocab_heap` stores the tokens as (count, token) tuples
+    vocab = {term: i for i, term in enumerate(sorted(map(lambda x: x[1], vocab_heap)))}
+
+    return vocab
 ```
 
-Voilà, we have a dictionary of exactly $n_{\text{max_terms}}$ where the count of each item is the same as if we'd computed on the entire corpus in one go. At no point did the memory consumption exceed the number of tokens present in a single batch, allowing for work on very large datasets without RAM being too large a constraint.
-
-I added one more variable here than strictly necessary: `min_df`. Very infrequent words likely only add noise, so the user can (somewhat arbitrarily) already cull those terms before being added to the heap. As a result, we can also be certain that all tokens in our dictionary occur at least `min_df`.
-
-<!-- That said, this vocabulary is not exact. Tokens that, simply due to chance, occur fewer times than `min_df` in a single batch will get removed early in the process, whether or not it occurs often enough in the entire corpus. However, the error is at most $(\mathtt{max\_df}-1)(m-1)$, and is probably much smaller for frequent of tokens[^2].
-
-[^2]: For a proper analysis, the error rate probably involves the use of a [multinomial](https://en.wikipedia.org/wiki/Multinomial_distribution) or [multivariate hypergeometric](https://en.wikipedia.org/wiki/Hypergeometric_distribution#Multivariate_hypergeometric_distribution) distribution. -->
-
-## Conclusion
-
-I wanted to share this approach not because it revealed any particularly deep insights or its innate elegance, but because it defies expectations. I've been trained to think about algorithms in terms of worst case performance, but for non-critical, single use applications like these, I really only care about the average case.
-
-My main takeaway is probably to choose my data-structures using the [average case Wikipedia table](https://en.wikipedia.org/wiki/Best,_worst_and_average_case#Data_structures), not the [more easily found one](https://en.wikipedia.org/wiki/Search_data_structure#Asymptotic_worst-case_analysis).
+Voilà, we have a dictionary of exactly $n_{\text{max_terms}}$ where the count of each item is the same as if we'd computed on the entire corpus in one go. At no point did the memory consumption exceed the number of tokens present in a single batch, allowing for work on very large datasets without RAM being a constraint. I added one more variable here than strictly necessary: `min_df`. Very infrequent words likely only add noise, so the user can (somewhat arbitrarily) cull those terms before being added to the heap. As a result, we can also be certain that all tokens in our dictionary occur at least `min_df` times.
