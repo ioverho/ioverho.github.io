@@ -1,3 +1,6 @@
 [submodule "themes/hugo-bearcub"]
 	path = themes/hugo-bearcub
 	url = https://github.com/clente/hugo-bearcub
+[submodule "themes/hugo-simplecite"]
+	path = themes/hugo-simplecite
+	url = https://github.com/joksas/hugo-simplecite
