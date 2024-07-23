@@ -8,3 +8,8 @@
 {{ $extra := resources.Get . | minify }}
 <link href="{{ $extra.RelPermalink }}" rel="stylesheet">
 {{- end }}
+
+<!-- Add in the extra CSS stylesheet for simplecite -->
+{{ $simpleciteStyle := resources.Get "scss/hugo-simplecite.scss" | resources.ToCSS | resources.Minify |
+resources.Fingerprint }}
+<link rel="stylesheet" type="text/css" href="{{ $simpleciteStyle.Permalink }}">

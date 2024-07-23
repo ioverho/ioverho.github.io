@@ -1,0 +1,24 @@
+/* Put square brackets around indices in the reference list */
+ol.hugo-simplecite-vancouver>li,
+.hugo-simplecite-reference-list {
+    list-style: none;
+    counter-increment: list;
+}
+
+ol.hugo-simplecite-vancouver>li::marker {
+    content: "[" counter(list) "]  ";
+}
+
+/* Break long strings of text (especially in hyperlinks) */
+.hugo-simplecite-break-words,
+.hugo-simplecite-doi-hyperlink,
+.hugo-simplecite-url-hyperlink {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    -ms-word-break: break-all;
+    word-break: break-word;
+    -ms-hyphens: auto;
+    -moz-hyphens: auto;
+    -webkit-hyphens: auto;
+    hyphens: auto;
+}

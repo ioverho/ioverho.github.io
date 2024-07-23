@@ -1,6 +1,6 @@
 # Basic config
 baseURL = "https://ivoverhoeven.com"
-theme = "hugo-bearcub"
+theme = ["hugo-bearcub", "hugo-simplecite"]
 copyright = "This work is licensed as CC BY 4.0"
 defaultContentLanguage = "en"
 canonifyURLs = true
@@ -92,7 +92,7 @@ customCss = [
   "css/syntax.css",
   "css/sidenote.css",
   "css/icons.css",
-  "css/toc.css"
+  "css/toc.css",
 ]
 
 # Enable MathJax

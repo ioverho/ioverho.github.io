@@ -1,0 +1,202 @@
+[
+  {
+    "id": "devlinBERTPretrainingDeep2019a",
+    "author": [
+      {
+        "family": "Devlin",
+        "given": "Jacob"
+      },
+      {
+        "family": "Chang",
+        "given": "Ming-Wei"
+      },
+      {
+        "family": "Lee",
+        "given": "Kenton"
+      },
+      {
+        "family": "Toutanova",
+        "given": "Kristina"
+      }
+    ],
+    "citation-key": "devlinBERTPretrainingDeep2019a",
+    "issued": {
+      "date-parts": [
+        [
+          "2019",
+          5,
+          24
+        ]
+      ]
+    },
+    "language": "en",
+    "number": "arXiv:1810.04805",
+    "publisher": "arXiv",
+    "source": "arXiv.org",
+    "title": "BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding",
+    "title-short": "BERT",
+    "type": "article",
+    "URL": "http://arxiv.org/abs/1810.04805"
+  },
+  {
+    "id": "eikemaSamplingBasedApproximationsMinimum2022",
+    "author": [
+      {
+        "family": "Eikema",
+        "given": "Bryan"
+      },
+      {
+        "family": "Aziz",
+        "given": "Wilker"
+      }
+    ],
+    "citation-key": "eikemaSamplingBasedApproximationsMinimum2022",
+    "issued": {
+      "date-parts": [
+        [
+          "2022",
+          10,
+          25
+        ]
+      ]
+    },
+    "language": "en",
+    "number": "arXiv:2108.04718",
+    "publisher": "arXiv",
+    "source": "arXiv.org",
+    "title": "Sampling-Based Approximations to Minimum Bayes Risk Decoding for Neural Machine Translation",
+    "type": "article",
+    "URL": "http://arxiv.org/abs/2108.04718"
+  },
+  {
+    "id": "kiegelandRevisitingWeaknessesReinforcement2021",
+    "author": [
+      {
+        "family": "Kiegeland",
+        "given": "Samuel"
+      },
+      {
+        "family": "Kreutzer",
+        "given": "Julia"
+      }
+    ],
+    "citation-key": "kiegelandRevisitingWeaknessesReinforcement2021",
+    "container-title": "Proceedings of the 2021 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies",
+    "DOI": "10.18653/v1/2021.naacl-main.133",
+    "issued": {
+      "date-parts": [
+        [
+          "2021"
+        ]
+      ]
+    },
+    "language": "en",
+    "page": "1673-1681",
+    "source": "arXiv.org",
+    "title": "Revisiting the Weaknesses of Reinforcement Learning for Neural Machine Translation",
+    "type": "paper-conference",
+    "URL": "http://arxiv.org/abs/2106.08942"
+  },
+  {
+    "id": "leeDeterministicNonAutoregressiveNeural2018",
+    "author": [
+      {
+        "family": "Lee",
+        "given": "Jason"
+      },
+      {
+        "family": "Mansimov",
+        "given": "Elman"
+      },
+      {
+        "family": "Cho",
+        "given": "Kyunghyun"
+      }
+    ],
+    "citation-key": "leeDeterministicNonAutoregressiveNeural2018",
+    "issued": {
+      "date-parts": [
+        [
+          "2018",
+          8,
+          27
+        ]
+      ]
+    },
+    "language": "en",
+    "number": "arXiv:1802.06901",
+    "publisher": "arXiv",
+    "source": "arXiv.org",
+    "title": "Deterministic Non-Autoregressive Neural Sequence Modeling by Iterative Refinement",
+    "type": "article",
+    "URL": "http://arxiv.org/abs/1802.06901"
+  },
+  {
+    "id": "ranzatoSequenceLevelTraining2016",
+    "author": [
+      {
+        "family": "Ranzato",
+        "given": "Marc'Aurelio"
+      },
+      {
+        "family": "Chopra",
+        "given": "Sumit"
+      },
+      {
+        "family": "Auli",
+        "given": "Michael"
+      },
+      {
+        "family": "Zaremba",
+        "given": "Wojciech"
+      }
+    ],
+    "citation-key": "ranzatoSequenceLevelTraining2016",
+    "issued": {
+      "date-parts": [
+        [
+          "2016",
+          5,
+          6
+        ]
+      ]
+    },
+    "language": "en",
+    "number": "arXiv:1511.06732",
+    "publisher": "arXiv",
+    "source": "arXiv.org",
+    "title": "Sequence Level Training with Recurrent Neural Networks",
+    "type": "article",
+    "URL": "http://arxiv.org/abs/1511.06732"
+  },
+  {
+    "id": "wangExposureBiasHallucination2020",
+    "author": [
+      {
+        "family": "Wang",
+        "given": "Chaojun"
+      },
+      {
+        "family": "Sennrich",
+        "given": "Rico"
+      }
+    ],
+    "citation-key": "wangExposureBiasHallucination2020",
+    "issued": {
+      "date-parts": [
+        [
+          "2020",
+          5,
+          7
+        ]
+      ]
+    },
+    "language": "en",
+    "number": "arXiv:2005.03642",
+    "publisher": "arXiv",
+    "source": "arXiv.org",
+    "title": "On Exposure Bias, Hallucination and Domain Shift in Neural Machine Translation",
+    "type": "article",
+    "URL": "http://arxiv.org/abs/2005.03642"
+  }
+]
