@@ -13,3 +13,4 @@ hugo.linux
 /.hugo_build.lock
 
 go.sum
+content/blog/Sampling Maximally Diverse Subsets/clustering_example.ipynb
