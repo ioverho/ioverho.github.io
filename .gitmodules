@@ -4,3 +4,6 @@
 [submodule "themes/hugo-simplecite"]
 	path = themes/hugo-simplecite
 	url = https://github.com/joksas/hugo-simplecite
+[submodule "themes/hugo-notice"]
+	path = themes/hugo-notice
+	url = https://github.com/martignoni/hugo-notice.git
