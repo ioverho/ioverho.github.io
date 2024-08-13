@@ -89,10 +89,13 @@ generateSocialCard = false
 # Custom CSS files
 customCss = [
   "css/main.css",
+  "css/color.css",
   "css/syntax.css",
-  "css/sidenote.css",
+  # "css/sidenote.css",
   "css/icons.css",
   "css/toc.css",
+  "css/notice.css",
+  "css/outgoing_links.css",
 ]
 
 # Enable MathJax

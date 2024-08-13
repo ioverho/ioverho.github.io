@@ -1,0 +1,155 @@
+/* Div =======================================================================*/
+/* .notice {
+    border: var(--notice-color-primary) 1px solid;
+    border-left: var(--notice-color-primary) 5px solid;
+    border-radius: 5px;
+
+    margin-top: 0.0;
+    margin-bottom: 0.0;
+    margin-left: 0.0;
+    margin-right: 0.0;
+
+    padding-top: 0.0;
+    padding-bottom: 0.0;
+    padding-left: 2rem;
+    padding-right: 2rem;
+
+    color: var(--notice-color-text);
+    background-color: var(--notice-color-background);
+} */
+
+.notice {
+    border: var(--notice-color-primary) 1px solid;
+    border-left: var(--notice-color-primary) 5px solid;
+    border-radius: 5px;
+
+    padding-left: 2rem;
+    padding-right: 2rem;
+}
+
+/* Title =====================================================================*/
+/* p.notice-title {
+    margin-top: 0.0;
+    margin-bottom: 0.0;
+    margin-left: -2rem;
+    margin-right: -2rem;
+
+    padding-top: calc(0.5 * var(--spacing));
+    padding-bottom: calc(0.5 * var(--spacing));
+    padding-left: 2rem;
+    padding-right: 2rem;
+
+    font-weight: bold;
+
+    font-size: calc(var(--size) * 1.8);
+
+    color: var(--notice-color-title);
+    background-color: var(--notice-color-title-background);
+} */
+
+p.notice-title {
+    text-align: middle;
+    display: table-cell;
+    box-sizing: border-box;
+
+    padding-right: 1rem;
+}
+
+div.notice-content {
+    text-align: left;
+    display: table-cell;
+    box-sizing: border-box;
+}
+
+/* Icon ======================================================================*/
+.icon-notice {
+    /* display: inline-flex; */
+    margin-right: 10px;
+    align-self: center;
+    vertical-align: baseline;
+}
+
+.icon-notice img,
+.icon-notice svg {
+    height: 1em;
+    width: 1em;
+
+    fill: var(--notice-color-icon);
+
+    path {
+        fill: var(--notice-color-icon);
+    }
+}
+
+.icon-notice img,
+.icon-notice.baseline svg {
+    top: .125em;
+    position: relative;
+}
+
+/* Colours ===================================================================*/
+@media (prefers-color-scheme: light) {
+    .notice {
+        --notice-color-primary: #24273a;
+        --notice-color-background: inherit;
+        --notice-color-title: inherit;
+        --notice-color-icon: inherit;
+        --notice-color-text: inherit;
+        --notice-color-title-background: inherit;
+    }
+
+    .notice-info {
+        --notice-color-primary: #fb7;
+        --notice-color-background: #fec;
+    }
+
+    .notice-tip {
+        --notice-color-primary: #5a5;
+        --notice-color-background: #efe;
+    }
+
+    .notice-warning {
+        --notice-color-primary: #c33;
+        --notice-color-background: #fee;
+    }
+
+    .notice-update {
+        --notice-color-primary: #1a8fe3;
+        --notice-color-background: #e2f3ff;
+        --notice-color-title: white;
+        --notice-color-title-background: #1a8fe3;
+        --notice-color-icon: white;
+        --notice-color-text: inherit;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .notice {
+        --notice-color-primary: #24273a;
+        --notice-color-background: inherit;
+        --notice-color-title: inherit;
+        --notice-color-icon: inherit;
+        --notice-color-text: inherit;
+        --notice-color-title-background: inherit;
+    }
+
+    .notice-info {
+        --notice-color-primary: #a50;
+        --notice-color-background: #420;
+    }
+
+    .notice-tip {
+        --notice-color-primary: #363;
+        --notice-color-background: #121;
+    }
+
+    .notice-warning {
+        --notice-color-primary: #800;
+        --notice-color-background: #400;
+    }
+
+    .notice-update {
+        --notice-color-primary: #1a8fe3;
+        --notice-color-title-background: #a5c8e0;
+    }
+}

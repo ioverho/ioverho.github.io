@@ -76,3 +76,10 @@ details.toc[open] {
     margin-bottom: calc(var(--spacing)); */
     line-height: var(--spacing);
 }
+
+/* Colour ====================================================================*/
+/* Assumes color.css is loaded */
+div.toc {
+    background-color: var(--color-text);
+    color: var(--color-light);
+}

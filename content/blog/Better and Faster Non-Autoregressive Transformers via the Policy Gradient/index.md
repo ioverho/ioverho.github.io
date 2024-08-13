@@ -1,6 +1,6 @@
 ---
 title: DRAFT Better and Faster Non-Autoregressive Transformers via the Policy Gradient
-date: 2024-04-10
+date: 2022-10-27
 tags:
   - nlp
   - reinforcement-learning
@@ -73,8 +73,6 @@ Specifically, if we sample $K$ candidate translation from the decoding algorithm
 ## Improving NATs
 
 NATs with iterative refinement likely suffer from this exposure bias too. During training, it is only exposed to the masked language modelling objective, which tries to pull the model's output distribution closer to the ground truth distribution. At inference time, though, we use iterative refinement as a decoding algorithm to gradually build and improve our candidate translation. Since these processes can differ quite a bit, it is plausible that exposure bias is present in NATs.
-
-
 
 ### Implementation
 

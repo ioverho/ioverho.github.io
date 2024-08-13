@@ -729,16 +729,6 @@
     }
 }
 
-div.highlight {
-    @media (prefers-color-scheme: dark) {
-        background-color: var(--color-dark);
-    }
-
-    @media (prefers-color-scheme: light) {
-        background-color: var(--color-light);
-    }
-}
-
 pre code {
     border-radius: 20px;
 

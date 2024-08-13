@@ -1,0 +1,16 @@
+{{/* Available notice types: warning, info, note, tip */}}
+{{- $noticeType := .Get "type" | default "note" -}}
+
+{{/* Workaround markdownify inconsistency for single/multiple paragraphs */}}
+{{- $raw := (markdownify .Inner | chomp) -}}
+{{- $block := findRE "(?is)^<(?:address|article|aside|blockquote|canvas|dd|div|dl|dt|fieldset|figcaption|figure|footer|form|h(?:1|2|3|4|5|6)|header|hgroup|hr|li|main|nav|noscript|ol|output|p|pre|section|table|tfoot|ul|video)\\b" $raw 1 -}}
+
+<!-- {{ if len .Params | eq 2 }} id="{{ .Get 2 }}" {{ end }} -->
+<div class="notice {{ $noticeType }}" >
+    <span class="icon-notice baseline">
+        {{ printf "/static/icons/notice/%s.svg" $noticeType | readFile | safeHTML }}
+    </span>
+    <div class="notice-content">
+        {{- if or $block (not $raw) }}{{ $raw }}{{ else }}<p>{{ $raw }}</p>{{ end -}}
+    </div>
+</div>

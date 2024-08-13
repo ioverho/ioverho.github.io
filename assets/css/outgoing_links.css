@@ -1,0 +1,24 @@
+a:not(
+	[href^="#"],
+	[href^="/"],
+	[href*="localhost"],
+	[href*="ivoverhoeven.com"]
+):not(
+    .footer_socials a
+):not(
+    .blog-tags
+)::after {
+    width: calc(var(--size) * 1.2);
+    height: calc(var(--size) * 1.2);
+    display: inline-block;
+    content: "";
+
+    /* Uses a mask to overlay an svg on top of the 'content' */
+    -webkit-mask: url("/icons/external-link.svg") no-repeat 50% 50%;
+    mask: url("/icons/external-link.svg") no-repeat 50% 50%;
+    -webkit-mask-size: cover;
+    mask-size: cover;
+
+    /* Assumes color.css is loaded */
+    background-color: var(--color-text);
+}

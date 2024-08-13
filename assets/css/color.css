@@ -1,0 +1,59 @@
+@media (prefers-color-scheme: light) {
+    :root {
+        --color-text: #181a20;
+        --color-background: #fafafa;
+
+        --color-primary: #1a8fe3;
+
+        --color-highlight-text: #fafafa;
+        --color-highlight-background: #181a20;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --color-text: #fafafa;
+        --color-background: #181a20;
+
+        --color-primary: #1a8fe3;
+
+        --color-highlight-text: #181a20;
+        --color-highlight-background: #fafafa;
+    }
+}
+
+/* Document default */
+body {
+    background: var(--color-background);
+    color: var(--color-text);
+}
+
+a {
+    color: currentColor;
+    text-decoration-color: var(--color-primary);
+}
+
+/* Inline code */
+code:not(pre code) {
+    color: var(--color-highlight-text);
+    background-color: var(--color-highlight-background);
+}
+
+/* Fill of SVG icons */
+svg {
+    path {
+        fill: var(--color-text);
+    }
+}
+
+/* Table */
+table,
+th,
+td {
+    border-color: var(--color-text);
+}
+
+/* Skip link? idk */
+.skip-link {
+    background-color: var(--color-text);
+}

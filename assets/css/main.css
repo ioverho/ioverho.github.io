@@ -1,32 +1,20 @@
 :root {
-    font-size: 62.5%;
-    /* 10px */
-    --color-dark: #181a20;
-    --color-light: #fafafa;
-    --color-primary: #1a8fe3;
-    --size: 1rem;
-    --spacing: calc(var(--size) * 2.4);
+    /* Set the maximum width of the page to 900px */
     --max-width: 900px;
 }
 
 html {
+    /*
+    Add a fixed scrollbar, even if invisible
+    Avoids a jerk after loading from page without scroll bar
+    */
     overflow-y: auto;
     scrollbar-gutter: stable;
 }
 
 body {
-    background: var(--color-dark);
-    color: var(--color-light);
-    padding: 4rem;
-    font-family: Avenir, 'Avenir Next LT Pro', Montserrat, Corbel, 'URW Gothic',
-        source-sans-pro, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
-        "Segoe UI Symbol", "Noto Color Emoji";
-    font-size: calc(var(--size) * 1.8);
-    line-height: 1.5;
     min-height: 60vh;
     max-width: var(--max-width);
-    margin: 0 auto;
-    word-wrap: break-word;
     position: relative;
 }
 
@@ -34,194 +22,13 @@ header,
 main,
 footer {
     max-width: var(--max-width);
-    margin-inline: auto;
-}
-
-header {
-    padding-bottom: var(--spacing);
-}
-
-nav a,
-a.blog-tags {
-    margin-right: calc(var(--spacing) / 2);
-}
-
-a.blog-tags {
-    line-height: 2;
 }
 
 main {
     padding-bottom: 0;
 }
 
-footer {
-    text-align: center;
-    padding-top: var(--spacing);
-}
-
-a {
-    color: currentColor;
-    text-decoration-color: var(--color-primary);
-    text-decoration-thickness: 0.3ex;
-    text-underline-offset: 0.3ex;
-}
-
-a:hover {
-    text-decoration-thickness: 0.4ex;
-}
-
-img {
-    display: block;
-    max-width: 100%;
-    height: auto;
-}
-
-h1,
-h2,
-h3,
-h4 {
-    font-weight: 700;
-    line-height: 1.3;
-}
-
-h1 {
-    font-size: calc(var(--size) * 4.2);
-}
-
-h2 {
-    font-size: calc(var(--size) * 3.4);
-}
-
-h3 {
-    font-size: calc(var(--size) * 2.6);
-}
-
-h4 {
-    font-size: calc(var(--size) * 1.8);
-}
-
-ul,
-ol {
-    padding-inline-start: var(--spacing);
-}
-
-li {
-    margin-block-start: var(--spacing);
-}
-
-blockquote {
-    padding-inline-start: var(--spacing);
-    border-inline-start: 0.2em solid;
-    font-style: italic;
-    max-width: 50ch;
-}
-
-:is(h1, h2, h3, h4, blockquote) {
-    margin-block-end: calc(var(--spacing) / 2);
-}
-
-:is(h1, h2, h3, h4)+* {
-    margin-block-start: calc(var(--spacing) / 3);
-}
-
-:is(h1, h2, h3, h4)+ :where(h2, h3, h4) {
-    margin-block-start: calc(var(--spacing) * 2);
-}
-
-.title {
-    text-decoration: none;
-}
-
-.title h1 {
-    font-size: calc(var(--size) * 3.4);
-    margin-top: calc(var(--spacing) / 2);
-}
-
-ul.blog-posts {
-    list-style-type: none;
-    padding: unset;
-}
-
-ul.blog-posts li {
-    display: flex;
-    flex-direction: column;
-}
-
-ul.blog-posts li span {
-    min-width: 11ch;
-}
-
-p.byline {
-    opacity: 0.5;
-}
-
-code {
-    font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro',
-        Menlo, Consolas, 'DejaVu Sans Mono', monospace;
-    padding: 2px calc(var(--spacing) / 4);
-    background-color: var(--color-dark);
-    font-size: calc(var(--size) * 1.4);
-}
-
-pre code {
-    display: block;
-    padding: var(--spacing);
-    overflow-x: auto;
-    -webkit-text-size-adjust: 100%;
-    -moz-text-size-adjust: 100%;
-}
-
-table {
-    width: 100%;
-}
-
-table,
-th,
-td {
-    border: 1px solid;
-    border-collapse: collapse;
-    border-color: var(--color-light);
-    padding: calc(var(--spacing) / 2);
-}
-
-.disabled {
-    color: currentColor;
-    cursor: not-allowed;
-    opacity: 0.5;
-}
-
-@media screen and (min-width: 600px) {
-    ul.blog-posts li {
-        flex-direction: row;
-        gap: calc(var(--spacing) / 2);
-    }
-}
-
-/* "Skip to main content" link */
-.skip-link {
-    position: absolute;
-    top: 5;
-    transform: translateY(-600%);
-    transition: transform 0.5s;
-    background-color: var(--color-dark);
-    padding: 6px;
-}
-
-.skip-link:focus {
-    transform: translateY(0%);
-}
-
-figure {
-    margin-inline-start: 0em;
-    margin-inline-end: 0em;
-}
-
-figcaption>p {
-    margin-block-start: 9px;
-    text-align: center;
-    font-style: italic;
-}
-
+/* Remove link styling from footnote back to content icons */
 a.footnote-backref {
     text-decoration: none;
 }
@@ -239,6 +46,13 @@ main {
 | Mobile
 ============================================================================= */
 @media screen and (max-width: 700px) {
+    body {
+        padding-top: 4rem;
+        padding-bottom: 4rem;
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+
     p {
         font-size: calc(var(--size) * 1.6);
     }
@@ -263,21 +77,6 @@ main {
         font-size: calc(var(--size) * 1.2);
     }
 
-}
-
-/* =============================================================================
-| Icons for outgoing links
-============================================================================= */
-a:not(header a):not(.footer_socials a)[href^="http"][href^="http"]::after,
-a:not(header a):not(.footer_socials a)[href^="http"][href^="https://"]::after {
-    content: " ";
-    width: calc(var(--size) * 1.2);
-    height: calc(var(--size) * 1.2);
-    background-image: url("/icons/external-link-white.svg");
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: contain;
-    display: inline-block;
 }
 
 /* =============================================================================
@@ -306,7 +105,6 @@ div.footer_socials {
 }
 
 svg.footer_social {
-    fill: var(--color-light);
     width: 20px;
     height: 20px;
 }
@@ -324,51 +122,4 @@ a.footer_social {
 
 content li {
     margin-top: calc(0.2 * var(--spacing));
-}
-
-/* =============================================================================
-| Light theme
-============================================================================= */
-@media (prefers-color-scheme: dark) {
-    code:not(pre code) {
-        color: var(--color-dark);
-        background-color: #eff1f5;
-    }
-}
-
-@media (prefers-color-scheme: light) {
-    body {
-        background: var(--color-light);
-        color: var(--color-dark);
-    }
-
-    code:not(pre code) {
-        color: var(--color-light);
-        background-color: var(--color-dark);
-    }
-
-    table,
-    th,
-    td {
-        border-color: var(--color-dark);
-    }
-
-    .skip-link {
-        background-color: var(--color-light);
-    }
-
-    a:not(header a):not(.footer_socials a):not([href*="localhost"])[href^="http"]::after,
-    a:not(header a):not(.footer_socials a):not([href*="localhost"])[href^="https://"]::after {
-        background-image: url("/icons/external-link-black.svg");
-    }
-
-    svg.footer_social {
-        fill: var(--color-dark);
-    }
-
-    div.toc {
-        background-color: var(--color-dark);
-        color: var(--color-light);
-    }
-
 }
