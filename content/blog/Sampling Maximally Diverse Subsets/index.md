@@ -12,19 +12,21 @@ draft: false
 
 Applied machine-learning often requires reasoning about points in high-dimensional spaces, where distances encode some form of information. A few times now I've needed to summarize such semantically rich spaces using a very small subset of samples. In such cases, ideally you want samples that come from diverse, non-overlapping regions in the space, maximizing the information content per sample.
 
-Succinctly, this yields an optimization problem of the form,
+Symbolically, we can express this as an optimization problem of the following form:
 $$
 \begin{align}
     \underset{\mathcal{X}}{\operatorname{arg max}}\quad&\min\quad\{d(x, x^\prime)|x, x^{\prime}\in\mathcal{X}, x\not= x^\prime\}\\ &\text{s.t.}\quad|\mathcal{X}|=k
 \end{align}
 $$
-or put otherwise, we want to find a subset $\mathcal{X}$ of size $k$, where the nearest neighbours are as distant from each other as possible. Visually, this looks something like:
+Put otherwise, we want to find a subset $\mathcal{X}$ of size $k$, where the nearest neighbours are as distant from each other as possible. So we want to go from the left image to the right.
 
 ![A visual depiction of maximally diverse subsampling of a uniformly distributed square.](figures/some_points.svg)
 
-As it happens, such problems crop up all over the place. Unfortunately, similar problems (e.g., the [maximally diverse grouping problem](https://grafo.etsii.urjc.es/optsicom/mdgp.html), [bin packing](https://en.wikipedia.org/wiki/Bin_packing_problem)) are understood to have NP-hard exact solutions. Given that our dataset is going to comprise thousands or millions of datapoints, brute search is probably out of the question.
+While the chosen samples in the right image come from the left image, the points are nicely spread out. The sample does not exhibit clumpiness, and each region of the space is fairly represented.
 
-Then again, exact solutions are overrated. Is it possible to find a good enough approximation quickly?
+As it happens, such problems crop up all over the place. Unfortunately, similar problems (e.g., the [maximally diverse grouping problem](https://grafo.etsii.urjc.es/optsicom/mdgp.html), [bin packing](https://en.wikipedia.org/wiki/Bin_packing_problem)) are understood to be NP-hard. Given that our dataset is going to comprise thousands or millions of datapoints, brute search is probably out of the question.
+
+Then again, exact solutions are overrated. Can we find an approximation that is good enough, as quickly as possible?
 
 ## Space-Filling Designs
 
@@ -46,7 +48,7 @@ Experimental designs that maximize the diversity in responses like this, are oft
 
 We can easily implement something like this is Python. Assuming we have access to the pairwise distance matrix, and have an initial guess for `min_dist`, the code should look something like this[^jaxtyping],
 
-[^jaxtyping]: `jtyping`, the import I use to annotate arrays is the amazing [`jaxtyping`](https://docs.kidger.site/jaxtyping/). The general syntax is `dtype[type, "dimensions"]`. I find it massively increases the readability of numpy/pytorch/jax code. Consider checking it out
+[^jaxtyping]: `jtyping`, the import I use to annotate arrays is shorthand for the amazing [jaxtyping](https://docs.kidger.site/jaxtyping/) library. The general syntax is `dtype[type, "dimensions"]`. I find it massively increases the readability of numpy/pytorch/jax code. Consider checking it out
 
 ```python
 def wsp_space_filling_design(
@@ -93,7 +95,7 @@ def wsp_space_filling_design(
     return chosen_points
 ```
 
-We can nicely visualize this as below. You can identify each seed point as the only point without an incoming arrow. The arrows indicate the point chosen at each iteration, being the closest point at least `min_dist` away. The circles have radius `0.5 * min_dist`, giving nicely 'packed' solutions.
+We can nicely visualize this as below. You can identify each seed point as the only point without an incoming arrow. The arrows indicate the point chosen at each iteration, being the closest point at least `min_dist` away. The plotted circles have radius `0.5 * min_dist`, giving nicely 'packed' solutions. Two touching circles have points that are exactly `min_dist` away.
 
 ![Some WSP space-filling designs](figures/some_wsp_solutions.svg)
 
@@ -190,9 +192,11 @@ Finally, so far I've only looked at uniformly distributed points. This is probab
 
 However, in high-density regions it might be beneficial to use smaller distances locally than used globally, i.e. to focus on details. I'd assume this could be implemented by using some distances suited to non-Euclidean spaces, like the RBF kernel.
 
+Another approach might be to explicitly compute a density estimate, sampling points inversely proportional to their density {{< cite "shangDiversitySubsamplingCustom2023" >}}.
+
 {{< notice type="code" >}}
 
-I've put a copy of the notebook used to generate these figures in a public GitHub gist. Feel free to check it out here: https://gist.github.com/ioverho/2855e83edca1dd86e1860d7e0575bf17
+I've put a copy of the notebook used to generate these figures in a [public GitHub gist](https://gist.github.com/ioverho/2855e83edca1dd86e1860d7e0575bf17)
 
 {{< /notice >}}
 

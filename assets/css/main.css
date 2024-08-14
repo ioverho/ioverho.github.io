@@ -46,6 +46,10 @@ main {
 | Mobile
 ============================================================================= */
 @media screen and (max-width: 700px) {
+    :root {
+            font-size: clamp(8px, 1.5vw, 18px);
+        }
+
     body {
         padding-top: 4rem;
         padding-bottom: 4rem;
@@ -54,27 +58,27 @@ main {
     }
 
     p {
-        font-size: calc(var(--size) * 1.6);
+        font-size: 1.6rem;
     }
 
     h1 {
-        font-size: calc(var(--size) * 3.2);
+        font-size: 3.2rem;
     }
 
     h2 {
-        font-size: calc(var(--size) * 2.6);
+        font-size: 2.6rem;
     }
 
     h3 {
-        font-size: calc(var(--size) * 2.2);
+        font-size: 2.2rem;
     }
 
     h4 {
-        font-size: calc(var(--size) * 1.6);
+        font-size: 1.6rem;
     }
 
     code {
-        font-size: calc(var(--size) * 1.2);
+        font-size: 1.2rem;
     }
 
 }
@@ -122,4 +126,12 @@ a.footer_social {
 
 content li {
     margin-top: calc(0.2 * var(--spacing));
+}
+
+/* =============================================================================
+| Mathjax for mobile
+============================================================================= */
+mjx-container {
+    overflow-x: auto;
+    overflow-y: hidden;
 }

@@ -59,6 +59,11 @@ div.notice-content {
     text-align: left;
     display: table-cell;
     box-sizing: border-box;
+
+    p {
+        overflow: hidden;
+        display: block;
+    }
 }
 
 /* Icon ======================================================================*/
