@@ -18,7 +18,7 @@ $$
     \underset{\mathcal{X}}{\operatorname{arg max}}\quad&\min\quad\{d(x, x^\prime)|x, x^{\prime}\in\mathcal{X}, x\not= x^\prime\}\\ &\text{s.t.}\quad|\mathcal{X}|=k
 \end{align}
 $$
-Put otherwise, we want to find a subset $\mathcal{X}$ of size $k$, where the nearest neighbours are as distant from each other as possible. So we want to go from the left image to the right.
+Put otherwise, we want to find a subset $\mathcal{X}$ of size $k$, where the nearest neighbours are as distant from each other as possible. From the left image to the right.
 
 ![A visual depiction of maximally diverse subsampling of a uniformly distributed square.](figures/some_points.svg)
 

@@ -6,6 +6,7 @@ tags:
   - meta-learning
   - graph-neural-networks
   - generalisation
+  - PhD
 ---
 
 {{< icons/icon vendor=simple name="arxiv" className="logo arxiv" >}}[Arxiv](https://arxiv.org/abs/2404.01822) | {{< icons/icon vendor=bootstrap name="link" className="logo" >}}[ACL Anthology](https://aclanthology.org/2024.findings-naacl.30/) | {{< icons/icon vendor=simple name="github" className="github logo" >}}[Github](https://github.com/rahelbeloch/meta-learning-gnns)

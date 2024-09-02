@@ -5,6 +5,7 @@ tags:
   - meta-learning
   - machine-translation
   - morphology
+  - MSc
 ---
 
 {{< icons/icon vendor=bootstrap name="journal-text" className="logo" >}}[UvA Dare](https://scripties.uba.uva.nl/search?id=record_50777) | {{< icons/icon vendor=simple name="github" className="github logo" >}}[Github](https://github.com/ioverho/morph_tag_lemmatize)

@@ -47,8 +47,8 @@ main {
 ============================================================================= */
 @media screen and (max-width: 700px) {
     :root {
-            font-size: clamp(8px, 1.5vw, 18px);
-        }
+        font-size: clamp(8px, 1.5vw, 18px);
+    }
 
     body {
         padding-top: 4rem;
@@ -134,4 +134,13 @@ content li {
 mjx-container {
     overflow-x: auto;
     overflow-y: hidden;
+}
+
+/* =============================================================================
+| Center images
+============================================================================= */
+img[src$='#center'] {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 }
