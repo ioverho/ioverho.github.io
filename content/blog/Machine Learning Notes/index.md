@@ -118,7 +118,7 @@ $$\begin{align}
 \end{align}$$
 which we can summarize in a pleasing diagram. Each circle represents the entropy of a variable. The intersections give some mutual information quantity. Conditioning visually equates to taking a difference between two areas.
 
-![A diagram of some information theoretic quantities and how they relate.](figures/information-theory-diagram.svg#center)
+![A diagram of some information theoretic quantities and how they relate.](figures/information-theory-diagram.svg)
 
 The **Data Processing Inequality** states that processing of data can never *increase* the information content. Specifically, if we have a [Markov chain](#bayesian-networks) $X \rightarrow Y \rightarrow Z$, where each step is some transformation, such that $X \perp\!\!\!\perp Z | Y$, we have that,
 $$ I[X;Y] \geq I[Y;Z] .$$
@@ -141,7 +141,7 @@ Let $\mathcal{C}\subset \mathcal{V}$ be a set of nodes in the graph. We say that
 
 Visually, we just need to identify one of the following 3 situations for each node in $\mathcal{C}$:
 
-![A diagram of the three d-separation triplets.](figures/d-separation.svg#center)
+![A diagram of the three d-separation triplets.](figures/d-separation.svg)
 
 In a chain or fork, the non-colliders, $z$ d-separates nodes $x$ and $y$. In the collider it does not. The nodes would be d-separated if not for $z$; here $z$ enables the flow of information.
 
