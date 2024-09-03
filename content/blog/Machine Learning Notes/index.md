@@ -74,7 +74,7 @@ or, put otherwise, given $y$, variable $z$ provides no additional information ab
 | Weak Union    | $ X \perp\!\!\!\perp (Y, W) \mid Z \Rightarrow X \perp\!\!\!\perp W \mid (Z, Y) $                                  |
 | Contraction   | $X\perp\!\!\!\perp W \mid (Y, Z) \wedge X \perp\!\!\!\perp Y \mid Z \Rightarrow X \perp\!\!\!\perp (Y, W) \mid Z $ |
 
-We can summarize this table succinctly as,
+We can summarize the last three rows succinctly as,
 $$ X \perp\!\!\!\perp (Y, W) | Z \Leftrightarrow X \perp\!\!\!\perp W | (Y, Z) \wedge X \perp\!\!\!\perp Y | Z .$$
 
 Note that conditional independence neither implies nor is implied by statistical independence,
@@ -90,7 +90,7 @@ The base of the logarithm used can cause some confusion. Usually, for discrete v
 
 If the variable is discrete, entropy is positive, $H[p(x)] \geq 0.$
 
-We can similariy define information entropy for joint and conditional distributions,
+We can similarly define information entropy for joint and conditional distributions,
 $$\begin{align}
 H[p(x, y)] &= \mathbb{E}_{p(x, y)}[-\log p(x, y)], \\
 H[p(x|y)] &= \mathbb{E}_{p(x, y)}[-\log p(x|y)].
@@ -125,16 +125,16 @@ $$ I[X;Y] \geq I[Y;Z] .$$
 
 ## Bayesian Networks
 
-A **Bayesian Network** is defined as a combination of a directed-acyclic graph, and a joint probability distribution. Specifically,
+A **Bayesian Network** is defined as a combination of a directed-acyclic graph, and a joint probability distribution which **factorizes** according to the graph. Specifically,
 $$\begin{align}
     \mathcal{G}&=(\mathcal{V}, \mathcal{E})\quad\text{s.t. DAG} \\
     p(\mathbf{X}_{\mathcal{V}})&=\prod_{v\in \mathcal{V}} p(x_v|\{x_u|u\in\text{Parents}(v;\mathcal{G})\})
 \end{align}$$
-The probability may be decomposed into parent-child relationships; each node is dependent only on its direct ancestors.
+The probability distribution may be decomposed into parent-child relationships; each node is dependent only on its direct ancestors.
 
 Bayesian networks can help us reason visually about [conditional independence](#conditional-independence) relationships between variables. We say that two nodes are **d-separated** if they cannot influence each other.
 
-Let $\mathcal{C}\subset \mathcal{V}$ be a set of nodes in the graph. We say that $\mathcal{C}$ d-separates nodes $v$ and $u$, $v\perp^{\mathcal{G}}_{d} u | \mathcal{C}$, iff.
+Let $\mathcal{C}\subset \mathcal{V}$ be a set of nodes in the graph. We say that $\mathcal{C}$ d-separates nodes $v$ and $u$, $v\perp^{d}_{\mathcal{G}} u | \mathcal{C}$, iff.
 1. either node is in $\mathcal{C}$, $v\in\mathcal{C}\vee u\in\mathcal{C}$
 2. any node that *is not* a mutual descendant of $u$ and $v$ is in $\mathcal{C}$, which we call non-colliders
 3. any node that *is* a mutual descendant of $u$ and $v$ is in $\mathcal{C}$, which we call colliders
@@ -146,19 +146,56 @@ Visually, we just need to identify one of the following 3 situations for each no
 In a chain or fork, the non-colliders, $z$ d-separates nodes $x$ and $y$. In the collider it does not. The nodes would be d-separated if not for $z$; here $z$ enables the flow of information.
 
 Thanks to the **Global Markov Property**, if we find d-separation, we may assume conditional independence,
-$$v\perp^{\mathcal{G}}_{d} u | \mathcal{C} \Rightarrow v\perp\!\!\!\perp u | \mathcal{C}. $$
+$$v\perp^{d}_{\mathcal{G}} u | \mathcal{C} \Rightarrow v\perp\!\!\!\perp u | \mathcal{C}. $$
 Note that the opposite is not guaranteed to hold.
 
-The same properties governing conditional independence hold for d-separation,
+The same properties governing conditional independence hold for d-separation. Let $A, B, C, F$ be sets of nodes in the graph.
 
 | Name          | Property                                                                            |
 | ------------- | :---------------------------------------------------------------------------------: |
 | Redundancy    | $ A \perp B \mid A $                                                                |
 | Symmetry      | $ A \perp B \mid C \Rightarrow B \perp A \mid C $                                   |
-| Decomposition | $ A \perp (B, F) \mid C \Rightarrow A \perp B \mid C $                              |
-| Weak Union    | $ A \perp (B, F) \mid C \Rightarrow A \perp F \mid (C, B) $                         |
-| Contraction   | $ A \perp F \mid (B, C) \wedge A \perp B \mid C \Rightarrow A \perp (B, F) \mid C $ |
+| Decomposition | $ A \perp B \cup F \mid C \Rightarrow A \perp B \mid C $                              |
+| Weak Union    | $ A \perp B \cup F \mid C \Rightarrow A \perp F \mid (C, B) $                         |
+| Contraction   | $ A \perp F \mid B \cup C \wedge A \perp B \mid C \Rightarrow A \perp B \cup F \mid C $ |
 
----
+Where, again, we can summarize the last three rows as,
+$$ A \perp B \cup F \mid C \Leftrightarrow A \perp F \mid C \cup B \wedge A \perp B \mid C .$$
 
-More to come...
+## Markov Random Fields
+
+A **Markov Random Field** (MRF) is a combination of an undirected graph, and a joint probability distribution which factorizes according to the graph. Specifically,
+$$\begin{align}
+    \mathcal{G}&=(\mathcal{V}, \mathcal{E}) \\
+    p(\mathbf{X}_{\mathcal{V}})&=\frac{1}{Z}\prod_{\mathcal{C}\in \text{Cliques}(\mathcal{G})} \phi(X_{\mathcal{C}})
+\end{align}$$
+where $\mathcal{C}$ is a clique in the graph, $\phi$ some affinity function and $Z$ the partition function. The affinity function must yield large numbers when two variables are strongly associated.
+
+A **clique** is a subset of nodes in a graph, where all nodes are incident to each other: $(u, v)\in\mathcal{E}\quad\forall u, v\in\mathcal{C}$.
+
+It is generally assumed that $\phi(X_{\mathcal{C}})>0$. This is also called a **Gibbs Random Field**.
+
+Let $A, B, C$ be three sets of nodes. If all possible paths $a\in A\rightarrow v \rightarrow \ldots \rightarrow u \rightarrow b \in B$ contain a node from $C$, we can say $A, B$ are $C$-blocked:
+$$A\perp_{\mathcal{G}} B | C.$$
+This extends the notion of d-separation to MRFs. The same separoid axioms apply here, which can be summarised as,
+$$A\perp_{\mathcal{G}} B\cup F | C \Leftrightarrow A\perp_{\mathcal{G}} F | C\cup B \wedge A\perp_{\mathcal{G}} B | C.$$
+
+Like d-separation, the **Global Markov Property** implies,
+$$A\perp_{\mathcal{G}} B | C \Rightarrow X_A\perp\!\!\!\perp X_B|X_C.$$
+Generally, the opposite does not hold. However, unlike Bayesian Networks, if the MRF is also a Gibbs Random Field, the [**Hammersley-Clifford**](https://en.wikipedia.org/wiki/Hammersley%E2%80%93Clifford_theorem) theorem applies. It states that a probability distribution with strictly positive mass or density, and which satisfies the [**Pairwise Markov Property**](https://en.wikipedia.org/wiki/Markov_random_field#Definition), must also be an MRF. The pairwise Markov property simply means that all non-adjacent nodes, $v, w\not\in\mathcal{G}$,
+$$X_{v}\perp\!\!\!\perp X_{w} | X_{\mathcal{V}/\{v, w\}},$$
+holds. Thus, as a result
+$$MRF \Rightarrow \text{Global Markov Property} \Rightarrow \text{Pairwise Markov Property} \wedge \phi(X_{\mathcal{C}})>0 \Rightarrow MRF.$$
+
+
+It is possible to convert any Bayesian Network, $(\mathcal{G}, p(X))$, into a Markov Random Field, $(\tilde{\mathcal{G}}, p(X))$, through a process called **moralization**. It requires only two steps:
+1. for each $v\in\mathcal{V}$, connect all parents, $u,w\in \text{Pa}(v)$ with undirected edges
+2. replace all directed edges with undirected edges
+
+Or simply put, marry all parents and knock of any heads. This is shown in the following figure. The parents of $v$ in the Bayesian Network now form a clique with each other and $v$.
+
+![A Bayesian Network and its MRF moralization, side-by-side.](figures/moralization.svg)
+
+Converting MRFs to BNs is generally not possible. If a **perfect elimination ordering** exists, however, it is possible to generate candidate (non-unique) BNs that factorize as the MRF. Some information is lost in the translation process.
+
+## To be continued ...
