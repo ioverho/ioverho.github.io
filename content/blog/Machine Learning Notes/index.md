@@ -187,7 +187,6 @@ $$X_{v}\perp\!\!\!\perp X_{w} | X_{\mathcal{V}/\{v, w\}},$$
 holds. Thus, as a result
 $$MRF \Rightarrow \text{Global Markov Property} \Rightarrow \text{Pairwise Markov Property} \wedge \phi(X_{\mathcal{C}})>0 \Rightarrow MRF.$$
 
-
 It is possible to convert any Bayesian Network, $(\mathcal{G}, p(X))$, into a Markov Random Field, $(\tilde{\mathcal{G}}, p(X))$, through a process called **moralization**. It requires only two steps:
 1. for each $v\in\mathcal{V}$, connect all parents, $u,w\in \text{Pa}(v)$ with undirected edges
 2. replace all directed edges with undirected edges

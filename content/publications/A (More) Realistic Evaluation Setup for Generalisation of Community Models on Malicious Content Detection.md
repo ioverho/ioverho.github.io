@@ -9,7 +9,7 @@ tags:
   - PhD
 ---
 
-{{< icons/icon vendor=simple name="arxiv" className="logo arxiv" >}}[Arxiv](https://arxiv.org/abs/2404.01822) | {{< icons/icon vendor=bootstrap name="link" className="logo" >}}[ACL Anthology](https://aclanthology.org/2024.findings-naacl.30/) | {{< icons/icon vendor=simple name="github" className="github logo" >}}[Github](https://github.com/rahelbeloch/meta-learning-gnns)
+{{< icons/icon vendor=simple name="arXiv" className="logo arxiv" >}}[ArXiv](https://arxiv.org/abs/2404.01822) | {{< icons/icon vendor=bootstrap name="link" className="logo" >}}[ACL Anthology](https://aclanthology.org/2024.findings-naacl.30/) | {{< icons/icon vendor=simple name="github" className="github logo" >}}[Github](https://github.com/rahelbeloch/meta-learning-gnns)
 
 ## Abstract
 
@@ -19,12 +19,12 @@ Community models for malicious content detection, which take into account the co
 
 ```bibtex
 @misc{verhoeven2024morerealisticevaluationsetup,
-      title={A (More) Realistic Evaluation Setup for Generalisation of Community Models on Malicious Content Detection}, 
+      title={A (More) Realistic Evaluation Setup for Generalisation of Community Models on Malicious Content Detection},
       author={Ivo Verhoeven and Pushkar Mishra and Rahel Beloch and Helen Yannakoudakis and Ekaterina Shutova},
       year={2024},
       eprint={2404.01822},
       archivePrefix={arXiv},
       primaryClass={cs.LG},
-      url={https://arxiv.org/abs/2404.01822}, 
+      url={https://arxiv.org/abs/2404.01822},
 }
 ```

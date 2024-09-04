@@ -7,7 +7,7 @@ tags:
   - BSc
 ---
 
-{{< icons/icon vendor=bootstrap name="journal-text" className="logo" >}}[Ad Astra](https://issuu.com/adastraucr/docs/ad_astra_issue_fourteen/43)
+{{< icons/icon vendor=bootstrap name="journal-text" className="logo" >}}[Ad Astra](https://issuu.com/adastraucr/docs/ad_astra_issue_fourteen/43) | {{< icons/icon vendor=bootstrap name="journal-text" className="logo" >}}[Document](/unlisted/adoption%20of%20solar%20panels%20by%20dutch%20households.pdf)
 
 ## Abstract
 

@@ -8,7 +8,7 @@ tags:
   - BSc
 ---
 
-{{< icons/icon vendor=bootstrap name="journal-text" className="logo" >}}[Document](https://github.com/ioverho/Probabilistic-Graphical-Models-for-Automatic-Speech-Recognition/blob/master/LASSPF301%20-%20Probabilistic%20Graphical%20Models%20%5BIvo%20Verhoeven%5D.pdf)
+{{< icons/icon vendor=bootstrap name="journal-text" className="logo" >}}[Document](/unlisted/bsc%20thesis.pdf)
 
 ## Abstract
 
