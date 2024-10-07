@@ -1,3 +1,14 @@
 {
-    "svg.preview.background": "custom"
+  "svg.preview.background": "custom",
+  "ltex.enabled": [
+    "bibtex",
+    "context",
+    "context.tex",
+    "latex",
+    "markdown",
+    "org",
+    "restructuredtext",
+    "rsweave"
+  ],
+  "ltex.disabled": ["html"]
 }

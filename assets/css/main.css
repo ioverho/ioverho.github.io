@@ -51,6 +51,7 @@ main {
     }
 
     body {
+        font-family: Corbel;
         padding-top: 4rem;
         padding-bottom: 4rem;
         padding-left: 2rem;

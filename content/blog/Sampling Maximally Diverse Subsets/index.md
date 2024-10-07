@@ -194,11 +194,11 @@ However, in high-density regions it might be beneficial to use smaller distances
 
 Another approach might be to explicitly compute a density estimate, sampling points inversely proportional to their density {{< cite "shangDiversitySubsamplingCustom2023" >}}.
 
-{{< notice type="code" >}}
+## Implementation
 
-I've put a copy of the notebook used to generate these figures in a [public GitHub gist](https://gist.github.com/ioverho/2855e83edca1dd86e1860d7e0575bf17)
+I've put a copy of the notebook used to generate these figures in a [public GitHub gist](https://gist.github.com/ioverho/2855e83edca1dd86e1860d7e0575bf17):
 
-{{< /notice >}}
+{{< gist ioverho 2855e83edca1dd86e1860d7e0575bf17 >}}
 
 ## References
 
