@@ -6,3 +6,4 @@
 {"rule":"POSSESSIVE_APOSTROPHE","sentence":"^\\QAny hope for a nicely intuitive metric went out the window as soon as we went to an odds ratio, and adding a logarithm only makes it worse.\\E$"}
 {"rule":"POSSESSIVE_APOSTROPHE","sentence":"^\\QOdds are already a ratio of ratios, so the odds ratio is a ratio of ratios of ratios???\\E$"}
 {"rule":"PHRASE_REPETITION","sentence":"^\\QOdds are already a ratio of ratios, so the odds ratio is a ratio of ratios of ratios???\\E$"}
+{"rule":"PHRASE_REPETITION","sentence":"^\\QOdds are already a ratio of ratios, so the log odds ratio is a logarithm of a ratio of ratios of ratios???\\E$"}

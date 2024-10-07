@@ -1,5 +1,5 @@
 ---
-title: Comparing Ratios
+title: WIP Comparing Models using Ratios
 date: 2024-10-01
 tags:
   - statistics
@@ -23,8 +23,8 @@ $$\Delta(r_1, r_2)=???$$
 
 Many such ratio difference functions exist, and I list some common ones below. Most of these come from the biomedical field, hence the somewhat morbid naming conventions.
 
-| Metric                                                                           | Formula                                                             |
-| -------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| Metric                                                                           | Formula                                                           |
+| -------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
 | [Risk Difference](https://en.wikipedia.org/wiki/Risk_difference)                 | $\text{RD}(r_1,r_2)=r_2-r_1$                                      |
 | [Number Needed to Treat](https://en.wikipedia.org/wiki/Number_needed_to_harm)    | $\text{NNH}(r_1, r_2)=\dfrac{1}{r_2-r_1}$                         |
 | [Relative Risk](https://en.wikipedia.org/wiki/Relative_risk)                     | $\text{RR}(r_{1}, r_{2})=\dfrac{r_2}{r_1}$                        |
@@ -90,7 +90,9 @@ $$\log \text{OR}(0.9, 0.99)=\log11, \quad\log\text{OR}(0.1, 0.01)=\log\frac{1}{1
 
 This comes at a price though. Any hope for a nicely intuitive metric went out the window as soon as we went to an odds ratio, and adding a logarithm only makes it worse. Odds are already a ratio of ratios, so the log odds ratio is a logarithm of a ratio of ratios of ratios???
 
-Luckily, the log odds ratio has [plenty of other properties that make up for this defect](https://stats.stackexchange.com/a/452844).
+The log odds ratio is a good choice if you care about correctness, but indeed less so if you care about interpretability. Newspaper headlines sometimes state things like “dog owners are twice as likely to get into car accidents”. These are usually statements about odds ratios, and can be used to 'lie' with otherwise sound statistics. For example, for a probability of 1 in a million (1e-6) to 2 in a million (2e-6), the odds ratio is $2$ (pretty large). While this is factually correct, it is also practically meaningless.
+
+So why use the (log) odds ratio? Simply because it has [plenty of other properties that make statistical inference very easy](https://stats.stackexchange.com/a/452844).
 
 1. The log odds ratio has access to the entire real line, and can take any value in $[-\infty, \infty]$
 2. The variance of the log odds distribution does **not** depend on the mean[^1]
@@ -103,39 +105,46 @@ Luckily, the log odds ratio has [plenty of other properties that make up for thi
 
 While each of these properties is useful, the last supersedes them all. The distribution of all the other ratio difference functions are unknown but probably intractable. In comparison, the log odds ratio is nicely defined with an abundance of summary statistics available.
 
-The word “asymptotic” is doing a lot of lifting in that sentence. For ratios estimated using few samples (the $N$ in our first formula the approximation falls apart. The following figure shows a histogram of 10,000 samples of draws from a binomial distributions with ratios $r_1=0.7$ and $r_2=0.8$ of various sizes $N$.
+The word “asymptotic” is doing a lot of lifting in that sentence. For ratios estimated using few samples (the $N$ in our first formula) the approximation falls apart. The following figure shows a histogram of 10,000 samples of draws from a binomial distribution with ratios $r_1=0.7$ and $r_2=0.8$ of various sizes $N$.
 
 {{< figure-dynamic
     dark-src="./figures/odds_and_log_odds_ratio_distributions_dark.webp"
     light-src="./figures/odds_and_log_odds_ratio_distributions_light.webp"
-    alt="Histograms drawn from samples of the odds and log odds ratio at various $n$."
+    alt="Histograms drawn from samples of the odds (top) and log odds ratio (bottom) at various $n$. For the log odds ratio, the asymptotic normal distribution approximation is also shown using an outline."
+    caption="Histograms drawn from samples of the odds (top) and log odds ratio (bottom) at various $n$. For the log odds ratio, the asymptotic normal distribution approximation is also shown using an outline."
 >}}
 
-As the size of the samples increases, the approximation becomes better and better, but for smaller $N$, the histograms are clearly discrete. What    size of $N$ is enough for the approximation to hold up? From stats 101, the number 30 is a good rule of thumb.
+As the size of the samples increases, the approximation becomes better and better, but for smaller $N$, the histograms are clearly discrete. What size of $N$ is enough for the approximation to hold up? From stats 101, the number 30 is a good rule of thumb.
 
-Regardless, inference with the log odds ratio is easy. All of a sudden, we take a difficult quantity, remove ambiguity and transport it to the comfortable realm of normally distributed statistics. Means and medians become sensible measures of central tendency; we can compute variances and derive confidence intervals; we can add or subtract under closure, etc.
+Regardless, inference with the log odds ratio is easy. All of a sudden, we take a family of difficult quantities, and transport it to the comfortable realm of normally distributed statistics. All of a sudden, means and medians become sensible measures of central tendency; we can compute variances and derive confidence intervals; we can add or subtract under closure; etc. These properties allow us to reason about log odds ratios and ask natural question about their quantity. One important one might whether the value is statistically significant or not. We can achieve this through the $z$-test.
 
-### Inference with the $z$-test
-
-These properties allow us to reason about log odds ratios and ask natural question about their quantity. One important one might whether the value is statistically significant or not. We can achieve this through the $z$-test.
-
-The asymptotic[^2] standard error for the log odds ratio is defined as,
+The *asymptotic* standard error for the log odds ratio is defined as,
 $$\text{SE}(\log \text{OR}(r_1, r_2))=\sqrt{\frac{1}{r_1N_1}+\frac{1}{N_1-r_1N_1}+\frac{1}{N_2-r_2N_2}+\frac{1}{N_2-r_2N_2}}$$
 Here $rN$ is a proxy for the number of wins, $\#\text{hits}$, and $N-rN$ for the number of 'losses'.
 
-[^2]: Again, this only holds asymptotically
-
 From this, we can compute a confidence interval as
 $$\log \text{OR}(p_1, p_2)\pm z_{1-\alpha/2}\text{SE}(\log \text{OR}(p_1, p_2))$$
-where $z_{1-\alpha/2}$ is the critical value ($1.96$ for the $95$% confidence interval). We can then exponentiate these values to retrieve a confidence interval for our odds ratios[^3].
+where $z_{1-\alpha/2}$ is the critical value for some confidence vvalue $\alpha$ (e.g., $1.96$ for the $95$% confidence interval). We can then exponentiate these values to retrieve a confidence interval for our odds ratios[^3].
 
-[^3]: Though this has some caveats
+[^3]: Though this has some caveats. It's better to stay in log odds ratio space
 
-To compute a $p$-value, w.r.t. some hypothesized value $H$, we first compute the following effect size,
-$$\frac{\log \text{OR}(p_1, p_2)-H}{\text{SE}(\log \text{OR}(p_1, p_2))}$$
-We know that this quantity is [asymptotically standard normally distributed](https://stats.stackexchange.com/a/467631), $\sim\mathcal{N}(0,1)$. To compute a $p$-value, we plug it into the normal CDF. Effectively, this answers how likely it is to see this effect size under the null hypothesis.
+In turn, this enables statistical hypothesis testing. To compute a $p$-value, w.r.t. some hypothesized value $H$, we can use the [$z$-test](https://en.wikipedia.org/wiki/Z-test). We first compute the following effect size,
+$$z=\frac{\log \text{OR}(p_1, p_2)-H}{\text{SE}(\log \text{OR}(p_1, p_2))}$$
+We know that this quantity is [asymptotically standard normally distributed](https://stats.stackexchange.com/a/467631), $z\sim\mathcal{N}(0,1)$. To compute a $p$-value, we plug it into the normal CDF. Effectively, this answers how likely it is to see this effect size under the null hypothesis.
 
-It is easy enough to do manually, but it is also implemented in the [`statsmodels` Python library](https://www.statsmodels.org/dev/generated/statsmodels.stats.weightstats.ztest.html).
+It is easy enough to do manually, but it is also implemented in the [`statsmodels` Python library](https://www.statsmodels.org/dev/generated/statsmodels.stats.weightstats.ztest.html):
+
+```python
+>>> statsmodels.stats.weightstats.ztest(
+    x1=[0, 1, 1, 1, 1, 0, 1, 1, 1, 0], # samples_1 for r_1=0.7
+    x2=[1, 1, 0, 1, 1, 1, 1, 1, 0, 1], # samples_1 for r_1=0.8
+    alternative="two-sided",
+)
+
+np.float64(-0.49319696191607226), np.float64(0.6218734243307407)
+```
+
+The first number is the test statistic, the second the $p$-value. At the moment, this is very large, likely due to the fact that our sample sizes $N$ are very small. To really be able to leverage frequentist approaches, you ideally have large sample sizes. The smaller the ratios are, the larger the sample sizes need to for statistical significance. The sensitivity of a statistical test to differentiate between real and fictional results is called [power](https://en.wikipedia.org/wiki/Power_(statistics)). For small sample sizes, the $z$-test is relatively underpowered, in which case alternatives like the $t$-test can be considered.
 
 ### Logistic Regression
 
@@ -145,55 +154,46 @@ where $x$ are our rates, and $\text{wasIntervened(x)}$ is dummy variable (one-ho
 
 Parameter $\beta_1$ measures the impact that the intervention has had on the dependent variable. If using standard statistical software, the $z$-test is usually performed automatically.
 
-[This excellent blog post](https://www.countbayesie.com/blog/2021/9/30/the-logit-normal-a-ubitiqutious-but-strange-distribution)[^3] discussed implementations, comparisons to the Bayesian Beta-Binomial model and computing magnitude differences using the spooky [Logit-Normal distribution](https://en.wikipedia.org/wiki/Logit-normal_distribution).
+[This excellent blog post](https://www.countbayesie.com/blog/2021/9/30/the-logit-normal-a-ubitiqutious-but-strange-distribution)[^4] discussed implementations, comparisons to the Bayesian Beta-Binomial model and computing magnitude differences using the spooky [Logit-Normal distribution](https://en.wikipedia.org/wiki/Logit-normal_distribution).
 
-[^3]: Another reason to read this blog post is the philosophical musing at the end: "... many statisticians ... turn to statistics as a tool to hide from the realities of a rapidly changing world, clinging to thin strands of imagined certainty, and hiding doubt in complexity." *chef's kiss*
+[^4]: Another reason to read this blog post is the philosophical musing at the end: "... many statisticians ... turn to statistics as a tool to hide from the realities of a rapidly changing world, clinging to thin strands of imagined certainty, and hiding doubt in complexity." *chef's kiss*
 
-Consider the following example:
-$$
-\begin{align}
-\#\text{hits}=7,\quad N=10,\quad r_1=0.7 \\
-\#\text{hits}=8,\quad N=10,\quad r_2=0.8
-\end{align}
-$$
-We have two models evaluate on the same dataset of 10 samples. One gets 7 correct, the other 8. Using `statsmodels`, we can estimate our logistic regression model as,
+Using `statsmodels`, we can estimate our logistic regression model on the same data as above, as,
 
 ```python
-import numpy as np
-import statsmodels
-import statsmodels.api
+>>> import numpy as np
+>>> import statsmodels
+>>> import statsmodels.api
 
-dependent = np.concatenate([samples_1, samples_2])
+>>> dependent = np.concatenate([samples_1, samples_2])
 
-independent = np.stack(
-    [
-        # A column of 1s for our constant
-        np.concatenate(
-            [np.ones(shape=samples_1.shape), np.ones(shape=samples_2.shape)]
-        ),
-        # A column of 0 or 1 for our dummy variable
-        np.concatenate(
-            [np.zeros(shape=samples_1.shape), np.ones(shape=samples_2.shape)]
-        ),
-    ],
-    axis=1,
-)
+>>> independent = np.stack(
+        [
+            # A column of 1s for our constant
+            np.concatenate(
+                [np.ones(shape=samples_1.shape), np.ones(shape=samples_2.shape)]
+            ),
+            # A column of 0 or 1 for our dummy variable
+            np.concatenate(
+                [np.zeros(shape=samples_1.shape), np.ones(shape=samples_2.shape)]
+            ),
+        ],
+        axis=1,
+    )
 
-log_reg = statsmodels.api.Logit(
-    endog=dependent,
-    exog=independent,
-).fit()
-```
+>>> log_reg = statsmodels.api.Logit(
+        endog=dependent,
+        exog=independent,
+    ).fit()
 
-Running `print(log_reg.summary())` gives the following formatted output.
+>>> print(log_reg.summary())
 
-```txt
                            Logit Regression Results
 ==============================================================================
 Dep. Variable:                      y   No. Observations:                   20
 Model:                          Logit   Df Residuals:                       18
 Method:                           MLE   Df Model:                            1
-...
+                                     ...
 ==============================================================================
                  coef    std err          z      P>|z|      [0.025      0.975]
 ------------------------------------------------------------------------------
@@ -202,28 +202,36 @@ x1             0.5390      1.049      0.514      0.608      -1.518       2.596
 ==============================================================================
 ```
 
-From this, we can read that the second model is $\exp(0.5390)=1.74\quad[0.22,13.41]$ times more likely to make a correct prediction, but that this is not significant at the 95% confidence level ($p=0.608$).
+From this, we see that the second model is $\exp(0.5390)=1.74\quad[0.22,13.41]$ times more likely to make a correct prediction, but that this is not significant at the 95% confidence level ($p=0.608$).
 
 Notice that the `const` variable corresponds to our rate of $\sigma(0.8473)=0.7$ and that the logit of the sum of the coefficients gives us the rate of the second model $\sigma(0.8473+0.5390)=0.8$. Here $\sigma$ denotes the [standard logistic function](https://en.wikipedia.org/wiki/Logistic_function), the inverse of the logistic map we used to convert rates to odds.
 
-The added benefit is that now we can start to analyse *why* the second model does or does not perform better by controlling for different variables. Note however, that we have a **very** small sample size. This likely resulted in non-significance, but it might also violate the assumptions of the $z$-test.
+The added benefit is that now we can start to analyse *why* the second model does or does not perform better by controlling for different variables.
+
+In this simple example, however, we have a **very** small sample sizes. This is likely the main reason behind non-significance. More importantly, however, is that the small samples might violate the assumptions of the $z$-test. As seen in the figure above, for $N=10$, the distributions do not particularly normally distributed. If we want to get around these limitations, we'll have to go to a Bayesian framework.
+
 ## Bayesian Treatment
 
-Bayesian approaches are more complicated, but in this case, it might offer benefits for experiments with small sample sizes and interpretability. Besides, Bayes it has a coolness factor that frequentist approaches just can't touch.
+Bayesian approaches are more complicated, but if done correctly, it could help in cases of small sample sizes and boost interpretability. There is also a 'coolness' factor that frequentist approaches just can't touch.
 
-Assuming the models we'll discuss align with the ratio's actual underlying distributions, we can utilize posterior distributions that are exact models. This means concerns about 'asymptotic' behaviour and small sample sizes go right out the window. 
+Assuming that the models we will discuss align with the ratio's actual underlying distributions, we can utilize posterior distributions that are exact models. This means concerns about 'asymptotic' behaviour and small sample sizes go right out the window. We can also estimate these models directly on the ratios, so we don't have to transform to odds or odds ratios.
 
-Furthermore, for machine learning researchers, dealing with probabilities and Bayesian models might be easier than trying to invoke the often confusing frequentist tradition. One added benefit, we no longer have to convert to odds or odds ratios.
-#### Beta-Binomial Model for Independent Samples Comparison
+### Beta-Binomial Model for Independent Samples Comparison
 
 Recall the definition of our ratio or probability as,
-$$r_1=\frac{\#\text{hits}}{N}$$
+$$r=\frac{\#\text{hits}}{N}$$
 Essentially, we're taking repeated independent draws from a [Bernoulli distribution](https://en.wikipedia.org/wiki/Bernoulli_distribution). A Bayesian model for this scenario is the [Beta-Binomial](https://en.wikipedia.org/wiki/Beta_distribution#Bayesian_inference) distribution. Here the Beta distribution serves as the conjugate prior for the true ratio $\hat{r}$, which we estimate from the Binomial likelihood distribution.
 
 Using some hyperparameters $\alpha, \beta$, the conjugate posterior ratio distribution is,
 $$\text{Beta}(\alpha+rN, \beta+(N-rN))=\text{Beta}(\alpha+\#\text{hits}, \beta+(N-\#\text{hits}))$$
-To derive a distribution for $\Delta(r_1, r_2)=r_2-r_2$, we'd need to utilize the Beta difference distribution. While this [distribution is known in closed form](https://stats.stackexchange.com/a/535748), it's probably easier to just sample from two different distributions and take their difference. The result of this process is depicted in the figure below, with two fixed rates ($0.7$ and $0.8$) but with varying sample sizes. Note how the width of the distribution shrinks with the sample size.
-![[two_betas_and_diff_dist.webp]]
+To derive a distribution for $\Delta(r_1, r_2)=r_2-r_2$, we'd need to utilize the Beta difference distribution. While this [distribution is known in closed form](https://stats.stackexchange.com/a/535748), it's probably easier to just sample from two different distributions and take their difference. The result of this process is depicted in the figure below, with two fixed rates ($0.7$ and $0.8$) but with varying sample sizes. Note how the width of the distribution shrinks with the sample size, just like the frequentist case.
+
+{{< figure-dynamic
+    dark-src="./figures/two_betas_and_diff_dist_dark.webp"
+    light-src="./figures/two_betas_and_diff_dist_light.webp"
+    alt="Histograms of samples from the two Beta-Binomial models (top), along with the MCMC computed difference distribution (bottom)."
+    caption="Histograms of samples from the two Beta-Binomial models (top), along with the MCMC computed difference distribution (bottom)."
+>}}
 
 To estimate the probability that two probabilities are different, we can just count how often, relatively, a sample from one distribution is larger than from the other distribution:
 $$\begin{align}
@@ -235,98 +243,74 @@ If you want some actual summary statistics to report, you could always take the 
 
 If you want to know more about Bayesian hypothesis testing, have a look at [Kruske (2013). *Bayesian Estimation Supersedes the t Test*](https://jkkweb.sitehost.iu.edu/articles/Kruschke2013JEPG.pdf) or the tutorials in the [`bayestestr`](https://easystats.github.io/bayestestR/) package. Otherwise, Count Bayesie has [another good post about a very similar problem](https://www.countbayesie.com/blog/2015/4/25/bayesian-ab-testing).
 
-#### Dirichlet-Multinomial Model for Paired Samples Comparison
+Some good quantities to estimate include the,
+1. **Probability of Direction**: the amount of mass in the difference distribution greater than 0.0 (as computed above)
+2. **Median Difference**: the median of the difference distribution (here $0.0866$)
+3. **HDI of Difference Distribution**: to compute a [credible interval](https://stats.stackexchange.com/questions/2272/whats-the-difference-between-a-confidence-interval-and-a-credible-interval), just take the locations of the $(1-\alpha)/2\%$ and $1-(1-\alpha)/2\%$ quantiles (here $[-0.2606, 0.4289]$ for $\alpha=0.95$)
 
-The above test is good, but somewhat [underpowered](https://en.wikipedia.org/wiki/Power_(statistics)) for paired samples experiments. Like the [[#The Area Under the Improvement Curve]] section above, in paired experiments we have two different measurements for each instance in the sample, for example, by running different models on the same data point.
+Where the first quantity tells us something about statistical significance, the latter two tell us something about practical significance. In this case, the average difference is quite small, and likely just an artefact of the sampling. For more information, we really need to increase the sample sizes.
 
-[Goutte & Gaussier (2005). A Probabilistic Interpretation of Precision, Recall and F -score, with Implication for Evaluation](https://link.springer.com/chapter/10.1007/978-3-540-31865-1_25) have an interesting approach to this problem. For two competing systems on the same dataset, all predictions can fall into 1 of 3 outcomes:
+### Dirichlet-Multinomial Model for Paired Samples Comparison
+
+One situation where small sample sizes might still yield high statistical significance is if we're running a paired samples experiments. In paired experiments we have two different measurements for each instance in the sample, for example, by running different models on the same data point.
+
+[Goutte & Gaussier (2005)](https://link.springer.com/chapter/10.1007/978-3-540-31865-1_25) have an interesting approach to this problem. For two competing systems on the same dataset, all predictions can fall into 1 of 3 outcomes:
 1. System 1 is correct, while system 2 is incorrect
 2. System 1 is incorrect, while system 2 is correct
 3. Both system 1 and system 2 agree on their decision
 
-Before, we were dealing with a binary encoding scheme; each prediction was either correct or not. Now we're dealing with 3 different outcomes, meaning the Beta-Binomial model is no longer applicable. Luckily, it's multidimensional cousin, the [Dirchlet-Multinomial](https://en.wikipedia.org/wiki/Dirichlet-multinomial_distribution) model is perfect for this.
+Before, we were dealing with a binary encoding scheme; each prediction was either correct or not. Now we're dealing with 3 different outcomes, meaning the Beta-Binomial model is no longer applicable. Luckily, it's multidimensional cousin, the [Dirchlet-Multinomial](https://en.wikipedia.org/wiki/Dirichlet-multinomial_distribution) model is perfect for this. If this distribution is new to you, I'd recommend playing around with [this visualization](https://observablehq.com/@herbps10/dirichlet-distribution).
 
-Using a vector of hyperparameters $\vec{\alpha}$,  the conjugate posterior distribution is,
-$$\text{Dirichlet}(\alpha_{1}+\#p_1>p_2,\alpha_{2}+\#p_1<p_2,\alpha_{3}+\#p_1=p_2)$$
-Unlike the Beta-Binomial model, the probability distribution describing $p(p_2>p_1)$ is not analytically tractable. Doesn't matter though, we can just sample from the fitter posterior distribution, and estimate it as,
+Using a vector of prior parameters $\vec{\alpha}$, the conjugate posterior distribution is,
+
+$$\text{Dirichlet}(\alpha_{1>2}+\#1>2, \alpha_{1<2}+\#1<2, \alpha_{1=2}+\#1=2)$$
+
+where $1>2$ is meant to signify the instances where system 1 beat system 2, $1<2$ instances where system 2 beats system 1, and $1=2$ instances wherethe models agree.
+
+Unlike the Beta-Binomial model, the probability distribution describing $p(r_2>r_1)$ is not analytically tractable. This doesn't matter though, we can just sample from the fitted posterior distribution, and estimate it as,
 $$\begin{align}
-p(p_2>p_1)&\approx \frac{1}{K}\sum_{k=1}^{K}\mathbb{1}(\tilde{p}_{2,k}>\tilde{p}_{1,k}) \\
-\tilde{p}_{1,k},\tilde{p}_{2,k}&\sim\text{Dirichlet}(\alpha_{1}+\#p_1>p_2,\alpha_{2}+\#p_1<p_2,\alpha_{3}+\#p_1=p_2) \\
+p(r_2>r_1)&\approx \frac{1}{K}\sum_{k=1}^{K}\mathbb{1}(\tilde{r}_{2,k}>\tilde{r}_{1,k}) \\
+\tilde{r}_{1,k},\tilde{r}_{2,k}&\sim \text{Dirichlet}(\ldots)
 \end{align}$$
-Other methods for describing the difference include computing the mean, mode or the mean log odds ratio (there it is again!) of the Dirichlet distribution, all of which are available in closed form.
+where $k$ are the number of samples we draw from the posterior distribution.
 
-Relative to the independent Beta-Binomial model discussed above, this test should have more statistical power. This means that for paired setups, it should be far more sensitive to differences in between the distributions.
+Other methods for describing the difference include computing the mean, mode or the mean log odds ratio (there it is again!) of the Dirichlet distribution, all of which *are* available in closed form.
 
-In other words, you need far fewer samples to detect the same effect.
+Relative to the independent Beta-Binomial model discussed above, this test should have more statistical power. This means that for paired setups, you need far fewer samples to detect the same effect.
 
-## Other Approaches
+## Comparing Many Ratios
 
-The log odds ratio is probably a good choice if you care about correctness, but less so if you care about interpretability. Newspaper headlines sometimes state things like “dog owners are twice as likely to get into car accidents”, which are usually statements about odds ratios, not probabilities. The odds ratio might be 2 (pretty large), but in reality this might represent going from a probability of 1 in a million (1e-6) to 2 in a million (2e-6). Factually correct, but practically meaningless.
+So far we've focused on comparing $2$ ratios against each other. Individually, those ratios might comprise many observations, the number of systems producing these observations is limited. In many cases, however, we have access to many different ratios, each which communicates something distinct about our model's behaviour.
 
-So here I list some other approaches. I start of simple, but slowly dive deeper and deeper into the rabbit hole.
-### Fitting a Simple Logistic Regression Model 
+Statistically speaking, having acess to many smaller ratios can benefit the power of the analysis on the aggregated ratios.
 
-I already mentioned it briefly, but the primary reason the log odds ratio is so well understood, is the prevalence of the logistic regression model. With it, we can regress a dependent variable on the space $[0,1]$ (i.e., a ratio) with a linear model, thanks to the logit transformation. Put in other words, it's just linear regression on the log-odds ratio.
+### Frequentist Meta-Analysis
 
-Unlike some of the other approaches I have or will sugges, using logistic regression is very easy: practically all statistical software has it. In Python, the `statsmodels` library can quickly and effectively estimate logistic regression models.
+In the frequentist framework, there exists an entire (very, very useful) branch of statistics dedicated to generating such aggregated analyses. It's called 'meta-analysis', and has become the norm when working on quantitative systematic reviews[^5].
 
-Specifically, if we take our rates data, we can estimate:
-$$\log(\frac{p}{1-p})\sim \beta_0+\beta_1 \text{wasIntervened(x)}$$
-where $x$ are our rates, and $\text{wasIntervened(x)}$ is dummy variable (one-hot encoded) determining whether the rate comes from our base or intervened model.
+[^5]: For an example from my undergrad, [see here](/unlisted/sleep%20meta%20analysis.pdf). We combined 32 separate studies and found (to no one's surprise) that sleep correlates pretty well with academic performance
 
-Parameter $\beta_1$ measures the impact that the intervention has had on the dependent variable. If using standard statistical software, the $z$-test is usually performed automatically, telling us how likely it is that the value was due to random chance or not.
+While it's too complex to delve into fully here, the simplest fixed-effect model is relatively easy to compute. Assuming the underlying metrics are all normally distributed (hint: use the log odds), we can compute the aggregated effect as the inverse variance weighted distribution.
 
-[This excellent blog post](https://www.countbayesie.com/blog/2021/9/30/the-logit-normal-a-ubitiqutious-but-strange-distribution)[^3] discussed implementations, comparisons to the Bayesian Beta-Binomial model and computing magnitude differences using the spooky [Logit-Normal distribution](https://en.wikipedia.org/wiki/Logit-normal_distribution).
+$$\mathcal{N}(\mu^{\text{(agg.)}}, \sigma^{\text{(agg.)}})=\mathcal{N}\left(\sum_{j=1}^{J}\frac{w_{j}\mu_{j}}{\sum j^\prime w_{j^\prime}}, \frac{1}{\sum_{j=1}^{J}w_{j}}\right)$$
 
-[^3]: Another reason to read this blog post is the philosophical musing at the end: "... many statisticians ... turn to statistics as a tool to hide from the realities of a rapidly changing world, clinging to thin strands of imagined certainty, and hiding doubt in complexity." *chef's kiss*
-### Bayesian Treatments
+where the per study weight, $w_{j}$, corresponds to the study's precision: $\frac{1}{\text{SE}_{j}^2}$. In other words, each 'study' (each independent ratio), is weighted by the expected precision of that study. The aggregate distribution is then formed from weighted average of all studies. Almost always, the variance of the aggregate distribution is much smaller than that of the individual studies. For a deeper dive (with worked examples using the (log) odds ratio as study metric), I can recommend [Borenstein et al. (2021) Introduction to Meta-Analysis](https://www.wiley.com/en-us/Introduction+to+Meta-Analysis%2C+2nd+Edition-p-9781119558354), or the more easily accessible [Harrer et al. (2021). Doing Meta-Analysis with R: A Hands-On Guide.](https://bookdown.org/MathiasHarrer/Doing_Meta_Analysis_in_R/). Implementing this in Python is not too difficult, especially given that the `statsmodels` package has [functions galore for meta-analyses](https://www.statsmodels.org/stable/examples/notebooks/generated/metaanalysis1.html).
 
-Bayesian approaches are more complicated, but in this case, it might offer benefits for experiments with small sample sizes and interpretability.
-#### Beta-Binomial Model for Independent Samples Comparison
+### Bayesian Meta-Analysis
 
-We compute the probabilities or ratios $p$ by taking some number of hits and dividing by the total sample size,
-$$p=\frac{\#\text{hits}}{N}$$
-Essentially, we're taking repeated, independent draws from a [Bernoulli distribution](https://en.wikipedia.org/wiki/Bernoulli_distribution). If we allow for some uncertainty in $p$, i.e., a distribution over possible values instead of a single fixed estimate, we could model this as a [Beta-Binomial](https://en.wikipedia.org/wiki/Beta_distribution#Bayesian_inference) distribution.
-
-Using some hyperparameters $\alpha, \beta$, the conjugate posterior ratio distribution is,
-$$\text{Beta}(\alpha+\#\text{hits}, \beta+(N-\#\text{hits}))=\text{Beta}(\alpha+pN, \beta+(N-pN))$$
-To estimate the probability that two probabilities are different, we need to integrate the beta difference distribution. While this [distribution is known in closed form](https://stats.stackexchange.com/a/535748), it's probably easier to just MCMC estimate this quantity:
+In the Bayesian framework, as usual, things get a little more complicated. How this is usually done is by fitting a hierarchical Bayesian model to the log odds. In such models, it is assumed each individual study has some error, but all share some underlying parameters. The model recommended by [Harrer et al. (2021)](https://bookdown.org/MathiasHarrer/Doing_Meta_Analysis_in_R/bayesian-ma.html) is as follows,
 $$\begin{align}
-p(p_2>p_1)&\approx \frac{1}{K}\sum_{k=1}^{K}\mathbb{1}(\tilde{p}_{2,k}>\tilde{p}_{1,k}) \\
-\tilde{p}_{1,k}&\sim\text{Beta}(\alpha+p_1N_1, \beta+(N_1-p_1N_1)), \\
-\tilde{p}_{2,k}&\sim\text{Beta}(\alpha+p_2N_2, \beta+(N_2-p_2N_2)),
-\end{align}$$
-where $\mathbb{1}$ is the indicator function. To sum up, fit two different beta distributions, draw samples from each, compare against each other and finally take the mean. 
+    \mu &\sim\mathcal{N}(0, 1) \\
+    \tau &\sim\text{HalfCauchy}(0,0.5) \\
+    \theta_{j}&\sim\mathcal{N}(\mu, \tau^2) \\
+    \hat{\theta}_{j}&\sim\mathcal{N}(\theta, \sigma_{k}^2)
+\end{align}
+$$
+where $\mu$ is the aggregated effect size, $\hat{\theta}_{j}$ the observed effect size, $\theta_{j}$ the unobserved effect size, $\sigma_{k}$ the standard error for each study, and $\tau$ a parameter controlling the inter-study heterogeneity. The aggregate distribution is thus parameterised by $\mu, \tau$.
 
-If you want some actual summary statistics to report, you could always take the mean, median or modes and with an HDI (the Bayesian equivalent of the confidence interval) of the separate Beta distributions. These are all available analytically. Computing the same for the difference distribution is likely only possible using samples, as discussed above.
+This is by no means the only such model. In general, partial pooling or multi-level Bayesian models are a dime a dozen, with great tutorials in many places. THE Bayesian bible, [Gelman et al. (2014) Bayesian Data Analysis (3rd ed.)](http://www.stat.columbia.edu/~gelman/book/) discusses Bayesian meta-analysis as a special case in chapter 5.6. Fitting hierarchical models to binomial data (usual baseball hits or basketball free-throws) is also a foundational example for many [probabilisitic programming languages](https://cran.r-project.org/web/packages/rstanarm/vignettes/pooling.html).
 
-This is a relatively simple test, and any machine learning researcher worth their salt should be able to recognize each constituent part.
-
-If you want to know more about Bayesian hypothesis testing, have a look at [Kruske (2013). *Bayesian Estimation Supersedes the t Test*](https://jkkweb.sitehost.iu.edu/articles/Kruschke2013JEPG.pdf) or the tutorials in the [`bayestestr`](https://easystats.github.io/bayestestR/) package. Otherwise, Count Bayesie has [another good post about a very similar problem](https://www.countbayesie.com/blog/2015/4/25/bayesian-ab-testing).
-
-#### Dirichlet-Multinomial Model for Paired Samples Comparison
-
-The above test is good, but somewhat [underpowered](https://en.wikipedia.org/wiki/Power_(statistics)) for paired samples experiments. Like the [[#The Area Under the Improvement Curve]] section above, in paired experiments we have two different measurements for each instance in the sample, for example, by running different models on the same data point.
-
-[Goutte & Gaussier (2005). A Probabilistic Interpretation of Precision, Recall and F -score, with Implication for Evaluation](https://link.springer.com/chapter/10.1007/978-3-540-31865-1_25) have an interesting approach to this problem. For two competing systems on the same dataset, all predictions can fall into 1 of 3 outcomes:
-1. System 1 is correct, while system 2 is incorrect
-2. System 1 is incorrect, while system 2 is correct
-3. Both system 1 and system 2 agree on their decision
-
-Before, we were dealing with a binary encoding scheme; each prediction was either correct or not. Now we're dealing with 3 different outcomes, meaning the Beta-Binomial model is no longer applicable. Luckily, it's multidimensional cousin, the [Dirchlet-Multinomial](https://en.wikipedia.org/wiki/Dirichlet-multinomial_distribution) model is perfect for this.
-
-Using a vector of hyperparameters $\vec{\alpha}$,  the conjugate posterior distribution is,
-$$\text{Dirichlet}(\alpha_{1}+\#p_1>p_2,\alpha_{2}+\#p_1<p_2,\alpha_{3}+\#p_1=p_2)$$
-Unlike the Beta-Binomial model, the probability distribution describing $p(p_2>p_1)$ is not analytically tractable. Doesn't matter though, we can just sample from the fitter posterior distribution, and estimate it as,
-$$\begin{align}
-p(p_2>p_1)&\approx \frac{1}{K}\sum_{k=1}^{K}\mathbb{1}(\tilde{p}_{2,k}>\tilde{p}_{1,k}) \\
-\tilde{p}_{1,k},\tilde{p}_{2,k}&\sim\text{Dirichlet}(\alpha_{1}+\#p_1>p_2,\alpha_{2}+\#p_1<p_2,\alpha_{3}+\#p_1=p_2) \\
-\end{align}$$
-Other methods for describing the difference include computing the mean, mode or the mean log odds ratio (there it is again!) of the Dirichlet distribution, all of which are available in closed form.
-
-Relative to the independent Beta-Binomial model discussed above, this test should have more statistical power. This means that for paired setups, it should be far more sensitive to differences in between the distributions.
-
-In other words, you need far fewer samples to detect the same effect.
+Regardless, going the Bayesian route here is certainly doable, but requires some more effort, and probably some familiarity with probabilistic programming languages like [PyMC](https://www.pymc.io/welcome.html) or [numpyro](https://num.pyro.ai/en/latest/getting_started.html).
 
 ### The Area Under the Improvement Curve
 
@@ -334,17 +318,20 @@ I can't find any citations on this, but it seems like a decent idea. Typically, 
 
 If you plot these in a grid, with the value of the original probabilities $p_1$ along the x-axis and the new (hopefully improved) probabilities $p_2$ along the y-axis, you should get something like the following diagram.
 
-![[area_of_improvement.png]]
+{{< figure-dynamic
+    dark-src="./figures/area_under_improvement_curve_dark.webp"
+    light-src="./figures/area_under_improvement_curve_light.webp"
+    alt="The left figure plots the various ratios on the unit square. The solid line along the diagonal denotes the border between improvement and dissapointment. The dashed line provides the estimated expected improvement value for various value of ratio 1. The right figure converts the raw samples into two regions. In green, the area under the improvement expected curve, and in red the area under the dissapoint diagonal."
+    caption="The left figure plots the various ratios on the unit square. The solid line along the diagonal denotes the border between improvement and dissapointment. The dashed line provides the estimated expected improvement value for various value of ratio 1. The right figure converts the raw samples into two regions. In green, the area under the improvement expected curve, and in red the area under the dissapoint diagonal."
+>}}
 
 In the right corner, under the diagonal, lie all the cases where the probabilities did **not** improve. Given that this right triangle runs from 0 to 1, the area of this 'zone of disappointment' is $0.5$. Everything above the diagonal includes the cases where the probabilities did improve. The further the point is away from the diagonal, the better the improvement.
 
 As a summary statistic, we could figure out what the area is under function that describes the expected improvement, $\mathbb{E}[p_2|p_1]$. This function we can estimate through fitting a complex polynomial using linear regression. Using standard `scipy` functions, we can approximately integrate the regression function, 
 $$\begin{aligned}
 	&\text{AoI}(p_1, p_2)=\int_{p_1=0}^{p_1=1} f(p_1) d p_1 \\
-	&\text{where}\quad f(p_1)=\mathbb{E}[p_2|p_1]\approx \sum_{i=0}^{i=???}\beta_{i}x^{i}
+	&\text{where}\quad f(p_1)=\mathbb{E}[p_2|p_1]\approx \sum_{i=0}\beta_{i}x^{i}
 \end{aligned}$$
 there more this area of improvement deviates from the area of the zone of disappointment (0.5), the greater the improvement. Finally, to ensure no improvement is 0, perfect improvement is 1, and perfect deterioration is -1, you could simply rescale the values as,
 $$\text{ShiftedAoI}(p_1, p_2)=\frac{\text{AoI}(p_1, p_2)-0.5}{1-0.5}=2\text{AoI}(p_1, p_2)-1$$
 The number is still not clearly interpretable, but at least it's paired with a nice visual explanation, and it's easy to create an understanding of system performance.
-### David Barber's 'Hypothesis Testing for Outcome Analysis'
-

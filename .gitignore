@@ -14,3 +14,7 @@ hugo.linux
 
 go.sum
 content/blog/Sampling Maximally Diverse Subsets/clustering_example.ipynb
+
+# pixi environments
+.pixi
+*.egg-info
