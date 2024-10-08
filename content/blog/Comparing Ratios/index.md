@@ -1,5 +1,5 @@
 ---
-title: WIP Comparing Models using Ratios
+title: Comparing Machine-Learning Models using Ratios
 date: 2024-10-01
 tags:
   - statistics
@@ -10,11 +10,13 @@ draft: false
 
 {{< toc >}}
 
-Many machine learning and NLP experiments require comparing various ratios which measure...
+Many machine learning and NLP experiments essentially boil down to comparing ratios between models. We have some baseline model, which scores $r_1$, and some intervened model scoring $r_2$. Assuming the metric for $r$ measures the model quality, if $r_2>r_1$, our intervention clearly helps model performance, right?
+
+Unfortunately, things tend to be trickier than that. In this blog post I detail some approaches to comparing models against each other using ratios. I leave it agnostic to the actual context or definition of $r$, and instead focus on the statistical treatment of the class of such variables. First I give a frequentist treatment, resting upon the (log) odds transformation, before discussing Bayesian alternatives. Finally, I discuss some approaches for extending this analysis to many related ratios.
 
 ## Frequentist Treatment
 
-Let's assume we have two models whose performance we are going to measure through some ratio (e.g., the accuracy score). A ratio is defined as:
+Let's assume we have two models whose performance we are going to measure through some ratio (e.g., the accuracy score). I define a ratio as:
 $$r=\dfrac{\#\text{hits}}{N}$$
 where $N$ is the size of the sample, and $\#\text{hits}$ is the number of times we note a hit or success. The ratio value will be bounded in the interval $[0,1]$, but the possible values it can take will be determined by the value of $N$.
 
@@ -46,7 +48,7 @@ A first, rather obvious weakness of these approaches is that these tend to explo
 
 More importantly, however, the interpretation of a (relative) change in ratios depends on the *direction* of the ratios. Whether I use the ratio $r$ or its complement, $\bar{r}=1-r$ can have a drastic effect on the interpretation of the ratio difference. This is probably best showcased in the [potato paradox](https://en.wikipedia.org/wiki/Potato_paradox), where a simple change in perspective leads to very different results.
 
-To ground the discussion in more familiar machine learning terms, consider a model that goes from an accuracy rate of $0.9$ to $0.99$ after some intervention. In absolute terms, this is a small increase of only $0.09$, or
+To ground the discussion in more familiar machine learning terms, consider a model that goes from an accuracy rate of $0.9$ to $0.99$ after some intervention. In absolute terms, this is a small increase of only $0.09$, or,
 $$\frac{0.99-0.9}{0.9}=+10\%$$
 My gut instinct, however, is that this represents a massive improvement. In fact, the amount of errors (the complement of the accuracy rate) has been reduced by $90\%$!
 $$\frac{(1-0.99)-(1-0.9)}{(1-0.9)}=\frac{0.01-0.1}{0.1}=-90\%$$
@@ -124,9 +126,9 @@ Here $rN$ is a proxy for the number of wins, $\#\text{hits}$, and $N-rN$ for the
 
 From this, we can compute a confidence interval as
 $$\log \text{OR}(p_1, p_2)\pm z_{1-\alpha/2}\text{SE}(\log \text{OR}(p_1, p_2))$$
-where $z_{1-\alpha/2}$ is the critical value for some confidence vvalue $\alpha$ (e.g., $1.96$ for the $95$% confidence interval). We can then exponentiate these values to retrieve a confidence interval for our odds ratios[^3].
+where $z_{1-\alpha/2}$ is the critical value for some confidence value $\alpha$ (e.g., $1.96$ for the $95$% confidence interval). We can then exponentiate these values to retrieve a confidence interval for our odds ratios[^3].
 
-[^3]: Though this has some caveats. It's better to stay in log odds ratio space
+[^3]: Though this has some caveats. It's better to stay in log odds ratio space.
 
 In turn, this enables statistical hypothesis testing. To compute a $p$-value, w.r.t. some hypothesized value $H$, we can use the [$z$-test](https://en.wikipedia.org/wiki/Z-test). We first compute the following effect size,
 $$z=\frac{\log \text{OR}(p_1, p_2)-H}{\text{SE}(\log \text{OR}(p_1, p_2))}$$
@@ -156,7 +158,7 @@ Parameter $\beta_1$ measures the impact that the intervention has had on the dep
 
 [This excellent blog post](https://www.countbayesie.com/blog/2021/9/30/the-logit-normal-a-ubitiqutious-but-strange-distribution)[^4] discussed implementations, comparisons to the Bayesian Beta-Binomial model and computing magnitude differences using the spooky [Logit-Normal distribution](https://en.wikipedia.org/wiki/Logit-normal_distribution).
 
-[^4]: Another reason to read this blog post is the philosophical musing at the end: "... many statisticians ... turn to statistics as a tool to hide from the realities of a rapidly changing world, clinging to thin strands of imagined certainty, and hiding doubt in complexity." *chef's kiss*
+[^4]: Another reason to read this blog post is the philosophical musing at the end: ”… many statisticians … turn to statistics as a tool to hide from the realities of a rapidly changing world, clinging to thin strands of imagined certainty, and hiding doubt in complexity.” *chef's kiss*
 
 Using `statsmodels`, we can estimate our logistic regression model on the same data as above, as,
 
@@ -241,7 +243,7 @@ p(r_2>r_1)&\approx \frac{1}{K}\sum_{k=1}^{K}\mathbb{1}(\tilde{r}_{2,k}>\tilde{r}
 \end{align}$$
 If you want some actual summary statistics to report, you could always take the mean, median or modes and with an HDI (the Bayesian equivalent of the confidence interval) of the separate Beta distributions. These are all available analytically. Computing the same for the difference distribution is likely only possible using samples, as discussed above.
 
-If you want to know more about Bayesian hypothesis testing, have a look at [Kruske (2013). *Bayesian Estimation Supersedes the t Test*](https://jkkweb.sitehost.iu.edu/articles/Kruschke2013JEPG.pdf) or the tutorials in the [`bayestestr`](https://easystats.github.io/bayestestR/) package. Otherwise, Count Bayesie has [another good post about a very similar problem](https://www.countbayesie.com/blog/2015/4/25/bayesian-ab-testing).
+If you want to know more about Bayesian hypothesis testing, have a look at [Kruschke (2013). *Bayesian Estimation Supersedes the t Test*](https://jkkweb.sitehost.iu.edu/articles/Kruschke2013JEPG.pdf){{< cite "kruschkeBayesianEstimationSupersedes2013" >}} or the tutorials in the [`bayestestr`](https://easystats.github.io/bayestestR/) package. Otherwise, Count Bayesie has [another good post about a very similar problem](https://www.countbayesie.com/blog/2015/4/25/bayesian-ab-testing).
 
 Some good quantities to estimate include the,
 1. **Probability of Direction**: the amount of mass in the difference distribution greater than 0.0 (as computed above)
@@ -254,7 +256,7 @@ Where the first quantity tells us something about statistical significance, the 
 
 One situation where small sample sizes might still yield high statistical significance is if we're running a paired samples experiments. In paired experiments we have two different measurements for each instance in the sample, for example, by running different models on the same data point.
 
-[Goutte & Gaussier (2005)](https://link.springer.com/chapter/10.1007/978-3-540-31865-1_25) have an interesting approach to this problem. For two competing systems on the same dataset, all predictions can fall into 1 of 3 outcomes:
+[Goutte & Gaussier (2005)](https://link.springer.com/chapter/10.1007/978-3-540-31865-1_25){{< cite "goutteProbabilisticInterpretationPrecision2005" >}} have an interesting approach to this problem. For two competing systems on the same dataset, all predictions can fall into 1 of 3 outcomes:
 1. System 1 is correct, while system 2 is incorrect
 2. System 1 is incorrect, while system 2 is correct
 3. Both system 1 and system 2 agree on their decision
@@ -265,7 +267,7 @@ Using a vector of prior parameters $\vec{\alpha}$, the conjugate posterior distr
 
 $$\text{Dirichlet}(\alpha_{1>2}+\#1>2, \alpha_{1<2}+\#1<2, \alpha_{1=2}+\#1=2)$$
 
-where $1>2$ is meant to signify the instances where system 1 beat system 2, $1<2$ instances where system 2 beats system 1, and $1=2$ instances wherethe models agree.
+where $1>2$ is meant to signify the instances where system 1 beat system 2, $1<2$ instances where system 2 beats system 1, and $1=2$ instances where the models agree.
 
 Unlike the Beta-Binomial model, the probability distribution describing $p(r_2>r_1)$ is not analytically tractable. This doesn't matter though, we can just sample from the fitted posterior distribution, and estimate it as,
 $$\begin{align}
@@ -294,11 +296,11 @@ While it's too complex to delve into fully here, the simplest fixed-effect model
 
 $$\mathcal{N}(\mu^{\text{(agg.)}}, \sigma^{\text{(agg.)}})=\mathcal{N}\left(\sum_{j=1}^{J}\frac{w_{j}\mu_{j}}{\sum j^\prime w_{j^\prime}}, \frac{1}{\sum_{j=1}^{J}w_{j}}\right)$$
 
-where the per study weight, $w_{j}$, corresponds to the study's precision: $\frac{1}{\text{SE}_{j}^2}$. In other words, each 'study' (each independent ratio), is weighted by the expected precision of that study. The aggregate distribution is then formed from weighted average of all studies. Almost always, the variance of the aggregate distribution is much smaller than that of the individual studies. For a deeper dive (with worked examples using the (log) odds ratio as study metric), I can recommend [Borenstein et al. (2021) Introduction to Meta-Analysis](https://www.wiley.com/en-us/Introduction+to+Meta-Analysis%2C+2nd+Edition-p-9781119558354), or the more easily accessible [Harrer et al. (2021). Doing Meta-Analysis with R: A Hands-On Guide.](https://bookdown.org/MathiasHarrer/Doing_Meta_Analysis_in_R/). Implementing this in Python is not too difficult, especially given that the `statsmodels` package has [functions galore for meta-analyses](https://www.statsmodels.org/stable/examples/notebooks/generated/metaanalysis1.html).
+where the per study weight, $w_{j}$, corresponds to the study's precision: $\frac{1}{\text{SE}_{j}^2}$. In other words, each 'study' (each independent ratio), is weighted by the expected precision of that study. The aggregate distribution is then formed from weighted average of all studies. Almost always, the variance of the aggregate distribution is much smaller than that of the individual studies. For a deeper dive (with worked examples using the (log) odds ratio as study metric), I can recommend [Borenstein et al. (2021) Introduction to Meta-Analysis](https://www.wiley.com/en-us/Introduction+to+Meta-Analysis%2C+2nd+Edition-p-9781119558354){{< cite "borensteinIntroductionMetaanalysis2013" >}}, or the more easily accessible [Harrer et al. (2021). Doing Meta-Analysis with R: A Hands-On Guide.](https://bookdown.org/MathiasHarrer/Doing_Meta_Analysis_in_R/) {{< cite "harrerWelcomeDoingMetaAnalysis" >}}. Implementing this in Python is not too difficult, especially given that the `statsmodels` package has [functions galore for meta-analyses](https://www.statsmodels.org/stable/examples/notebooks/generated/metaanalysis1.html).
 
 ### Bayesian Meta-Analysis
 
-In the Bayesian framework, as usual, things get a little more complicated. How this is usually done is by fitting a hierarchical Bayesian model to the log odds. In such models, it is assumed each individual study has some error, but all share some underlying parameters. The model recommended by [Harrer et al. (2021)](https://bookdown.org/MathiasHarrer/Doing_Meta_Analysis_in_R/bayesian-ma.html) is as follows,
+In the Bayesian framework, as usual, things get a little more complicated. How this is usually done is by fitting a hierarchical Bayesian model to the log odds. In such models, it is assumed each individual study has some error, but all share some underlying parameters. The model recommended by [Harrer et al. (2021)](https://bookdown.org/MathiasHarrer/Doing_Meta_Analysis_in_R/bayesian-ma.html) {{< cite "harrerWelcomeDoingMetaAnalysis" >}} is as follows,
 $$\begin{align}
     \mu &\sim\mathcal{N}(0, 1) \\
     \tau &\sim\text{HalfCauchy}(0,0.5) \\
@@ -308,15 +310,15 @@ $$\begin{align}
 $$
 where $\mu$ is the aggregated effect size, $\hat{\theta}_{j}$ the observed effect size, $\theta_{j}$ the unobserved effect size, $\sigma_{k}$ the standard error for each study, and $\tau$ a parameter controlling the inter-study heterogeneity. The aggregate distribution is thus parameterised by $\mu, \tau$.
 
-This is by no means the only such model. In general, partial pooling or multi-level Bayesian models are a dime a dozen, with great tutorials in many places. THE Bayesian bible, [Gelman et al. (2014) Bayesian Data Analysis (3rd ed.)](http://www.stat.columbia.edu/~gelman/book/) discusses Bayesian meta-analysis as a special case in chapter 5.6. Fitting hierarchical models to binomial data (usual baseball hits or basketball free-throws) is also a foundational example for many [probabilisitic programming languages](https://cran.r-project.org/web/packages/rstanarm/vignettes/pooling.html).
+This is by no means the only such model. In general, partial pooling or multi-level Bayesian models are a dime a dozen, with great tutorials in many places. THE Bayesian bible, [Gelman et al. (2014) Bayesian Data Analysis (3rd ed.)](http://www.stat.columbia.edu/~gelman/book/) {{< cite "gelmanBayesianDataAnalysis2013" >}}discusses Bayesian meta-analysis as a special case in chapter 5.6. Fitting hierarchical models to binomial data (usual baseball hits or basketball free-throws) is also a foundational example for many [probabilisitic programming languages](https://cran.r-project.org/web/packages/rstanarm/vignettes/pooling.html).
 
 Regardless, going the Bayesian route here is certainly doable, but requires some more effort, and probably some familiarity with probabilistic programming languages like [PyMC](https://www.pymc.io/welcome.html) or [numpyro](https://num.pyro.ai/en/latest/getting_started.html).
 
 ### The Area Under the Improvement Curve
 
-I can't find any citations on this, but it seems like a decent idea. Typically, when comparing probabilities or ratios, we're working in a paired experiment. We have some value $p_1$ which denotes our baseline, and some value $p_2$ which represents performance under a different situation.
+Either of these approaches will let you estimate aggregate distributions, which we can use for inference. However, unlike the simple cases we discussed earlier, none of these allow for modelling joint setups. This might lead to loss of statistical power.
 
-If you plot these in a grid, with the value of the original probabilities $p_1$ along the x-axis and the new (hopefully improved) probabilities $p_2$ along the y-axis, you should get something like the following diagram.
+The following analysis is not something I've seen described in any literature, but to me it seems like a decent idea. If we have a paired experimental setup, each experiment will come with two ratios, $r_1$ and $r_2$. Here $r_1$ is the baseline and $r_2$ is the performance after some intervention. If we plot these on a grid, with the original $r_1$ along on the x-axis, and the hopefully improved $r_2$ on the y-axis, you should see a scatter of points that hopefully bulges away from the main diagonal. This is shown in the left panel of the following figure. The closer to the ceiling, the better $r_2$ is, but this is constrained by the value of $r_1$.
 
 {{< figure-dynamic
     dark-src="./figures/area_under_improvement_curve_dark.webp"
@@ -325,13 +327,43 @@ If you plot these in a grid, with the value of the original probabilities $p_1$ 
     caption="The left figure plots the various ratios on the unit square. The solid line along the diagonal denotes the border between improvement and dissapointment. The dashed line provides the estimated expected improvement value for various value of ratio 1. The right figure converts the raw samples into two regions. In green, the area under the improvement expected curve, and in red the area under the dissapoint diagonal."
 >}}
 
-In the right corner, under the diagonal, lie all the cases where the probabilities did **not** improve. Given that this right triangle runs from 0 to 1, the area of this 'zone of disappointment' is $0.5$. Everything above the diagonal includes the cases where the probabilities did improve. The further the point is away from the diagonal, the better the improvement.
+The dashed line shows the expected improvement for each value of $r_1$, estimated using kernel regression. We can effectively separate this plot into two areas: an area where $r_2$ is expected to improve over $r_1$, and an area where $r_2$ is only as good or worse than $r_1$ (which I dub the 'Zone of Dissapointment'). A 'good' intervention should see the expected improvement curve to move far away from the 'Zone of Dissapointment'.
 
-As a summary statistic, we could figure out what the area is under function that describes the expected improvement, $\mathbb{E}[p_2|p_1]$. This function we can estimate through fitting a complex polynomial using linear regression. Using standard `scipy` functions, we can approximately integrate the regression function, 
+Can we use this to come up with a single measure for the holistic quality of the intervention's improvement?
+
+Well, we know that the 'Zone of Dissapointment' is a right angle triangle with range and domain of $[0,1]$, and thus has an area of $0.5$. The area under the line of expected improvement is a bit harder to estimate,
 $$\begin{aligned}
-	&\text{AoI}(p_1, p_2)=\int_{p_1=0}^{p_1=1} f(p_1) d p_1 \\
-	&\text{where}\quad f(p_1)=\mathbb{E}[p_2|p_1]\approx \sum_{i=0}\beta_{i}x^{i}
+    &\text{AoI}(r_1, r_2)=\int_{r_1=0}^{r_1=1} \mathbb{E}[r_2|r_1] d r_1 \\
+    &\text{where}\quad \mathbb{E}[r_2|r_1]=f(r_1)
 \end{aligned}$$
-there more this area of improvement deviates from the area of the zone of disappointment (0.5), the greater the improvement. Finally, to ensure no improvement is 0, perfect improvement is 1, and perfect deterioration is -1, you could simply rescale the values as,
-$$\text{ShiftedAoI}(p_1, p_2)=\frac{\text{AoI}(p_1, p_2)-0.5}{1-0.5}=2\text{AoI}(p_1, p_2)-1$$
-The number is still not clearly interpretable, but at least it's paired with a nice visual explanation, and it's easy to create an understanding of system performance.
+
+If we had used polynomial regression, finding the integral would have been relatively easy, but such methods struggle to generalize well to regions with few points. Since I used kernel regression, we can use [Simpson's trapezoidal rule](https://en.wikipedia.org/wiki/Trapezoidal_rule) to estimate the area using the predictions:
+
+```python
+>>> import scipy.integrate
+
+>>> scipy.integrate.simpson(y=predictions, x=samples_r1)
+np.float64(0.6267495287200159)
+```
+
+Finally, to compare this to an intervention that does not improve $r_1$, we just shift and scale this area,
+$$\begin{aligned}
+    &\text{ExcessAoI}(r_1, r_2)=\frac{\text{AoI}(r_1, r_2)-0.5}{1-0.5}=2\text{AoI}(r_1, r_2)-1\\
+    &\text{ExcessAoI}(r_1, r_2)\in [-1, 1]
+\end{aligned}$$
+
+For the above example, this value is $\approx 0.25$. In other words, the intervened model improves upon $r_1$ by roughly 25% across the entire region of possible values.
+
+The number is still not clearly interpretable, but at least it's paired with a nice visual explanation, and it's easy to create an understanding of system performance. Besides, using area under some curve feels very 'machine-learning'.
+
+## Final Remarks
+
+I've introduced quite a few approaches to handling model comparisons using ratios. Some have decades of statistical tradition backing them, others not so much. Hopefully you've come away with a better appreciation of the (log) odds.
+
+One caveat to keep in mind is that these methods are only valid for ratios of the form,
+$$r=\dfrac{\#\text{hits}}{N}$$
+Simple metrics like accuracy, precision, recall, etc. probably satisfy this definition, but more complex metrics (e.g., F1, MCC, BA, etc.) likely do not. Some of these can act like ratio, being bounded between $[0, 1]$, but their sampling distributions can be much more complicated. For example, both [Goutte & Gaussier (2005)](https://link.springer.com/chapter/10.1007/978-3-540-31865-1_25) {{< cite "goutteProbabilisticInterpretationPrecision2005" >}} and [Takahashi et al. (2022) Confidence interval for micro-averaged F1 and macro-averaged F1 scores](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8936911/) {{< cite "takahashiConfidenceIntervalMicroaveraged2022" >}} dedicate papers to finding exact distributions for the F1-score. Handling such cases generally, probably involves running [permutation tests](https://en.wikipedia.org/wiki/Permutation_test) or [bootstrapping](https://en.wikipedia.org/wiki/Bootstrapping_(statistics)).
+
+## References
+
+{{< references >}}
