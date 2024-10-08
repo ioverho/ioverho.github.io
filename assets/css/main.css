@@ -10,12 +10,36 @@ html {
     */
     overflow-y: auto;
     scrollbar-gutter: stable;
-}
+    /* font-family:
+        Avenir,
+        avenir next lt pro,
+        Montserrat,
+        Corbel,
+        urw gothic,
+        source-sans-pro,
+        sans-serif,
+        apple color emoji,
+        segoe ui emoji,
+        segoe ui symbol,
+        noto color emoji; */
+    }
 
 body {
     min-height: 60vh;
     max-width: var(--max-width);
     position: relative;
+    font-family:
+    "Hind Siliguri",
+    "Open Sans",
+    Corbel,
+    ui-sans-serif,
+    system-ui,
+    source-sans-pro,
+    sans-serif,
+    "Apple Color Emoji",
+    "Segoe UI Emoji",
+    "Segoe UI Symbol",
+    "Noto Color Emoji";
 }
 
 header,
@@ -51,7 +75,6 @@ main {
     }
 
     body {
-        font-family: Corbel;
         padding-top: 4rem;
         padding-bottom: 4rem;
         padding-left: 2rem;
