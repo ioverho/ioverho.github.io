@@ -9,7 +9,7 @@ tags:
   - PhD
 ---
 
-{{< icons/icon vendor=simple name="arXiv" className="logo arxiv" >}}[ArXiv](https://arxiv.org/abs/2404.01822) | {{< icons/icon vendor=bootstrap name="link" className="logo" >}}[ACL Anthology](https://aclanthology.org/2024.findings-naacl.30/) | {{< icons/icon vendor=simple name="github" className="github logo" >}}[Github](https://github.com/rahelbeloch/meta-learning-gnns)
+{{< icons/icon vendor=simple name="arxiv" className="logo arxiv" >}}[arXiv](https://arxiv.org/abs/2404.01822) | {{< icons/icon vendor=bootstrap name="link" className="logo" >}}[ACL Anthology](https://aclanthology.org/2024.findings-naacl.30/) | {{< icons/icon vendor=simple name="github" className="github logo" >}}[Github](https://github.com/rahelbeloch/meta-learning-gnns)
 
 ## Abstract
 
@@ -18,13 +18,23 @@ Community models for malicious content detection, which take into account the co
 ## Citation
 
 ```bibtex
-@misc{verhoeven2024morerealisticevaluationsetup,
-      title={A (More) Realistic Evaluation Setup for Generalisation of Community Models on Malicious Content Detection},
-      author={Ivo Verhoeven and Pushkar Mishra and Rahel Beloch and Helen Yannakoudakis and Ekaterina Shutova},
-      year={2024},
-      eprint={2404.01822},
-      archivePrefix={arXiv},
-      primaryClass={cs.LG},
-      url={https://arxiv.org/abs/2404.01822},
+@inproceedings{verhoeven-etal-2024-realistic,
+    title = "A (More) Realistic Evaluation Setup for Generalisation of Community Models on Malicious Content Detection",
+    author = "Verhoeven, Ivo  and
+      Mishra, Pushkar  and
+      Beloch, Rahel  and
+      Yannakoudakis, Helen  and
+      Shutova, Ekaterina",
+    editor = "Duh, Kevin  and
+      Gomez, Helena  and
+      Bethard, Steven",
+    booktitle = "Findings of the Association for Computational Linguistics: NAACL 2024",
+    month = jun,
+    year = "2024",
+    address = "Mexico City, Mexico",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2024.findings-naacl.30",
+    doi = "10.18653/v1/2024.findings-naacl.30",
+    pages = "437--463",
 }
 ```
