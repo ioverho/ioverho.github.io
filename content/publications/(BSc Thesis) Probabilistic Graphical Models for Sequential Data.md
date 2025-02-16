@@ -2,8 +2,7 @@
 title: (BSc Thesis) Probabilistic Graphical Models for Sequential Data
 date: 2020-05-11
 tags:
-  - machine learning
-  - speech-recognition
+  - machine-learning
   - math
   - BSc
 ---

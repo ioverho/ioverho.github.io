@@ -1,11 +1,10 @@
 ---
 title: Efficient Vocabulary Generation for Very Large Corpora
 date: 2024-04-10
-tags:
-  - nlp
-  - code
 math: true
 draft: false
+tags:
+    - nlp
 ---
 
 {{< toc >}}

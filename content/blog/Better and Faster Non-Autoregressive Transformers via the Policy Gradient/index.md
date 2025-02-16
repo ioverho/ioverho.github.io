@@ -3,7 +3,6 @@ title: DRAFT Better and Faster Non-Autoregressive Transformers via the Policy Gr
 date: 2022-10-27
 tags:
   - nlp
-  - reinforcement-learning
   - machine-translation
 math: true
 draft: false
@@ -15,9 +14,12 @@ During a master's project, supervised by [Evegeniia Tokarchuk](https://evgeniia.
 
 The goal of machine translation, similar to standard language modelling, is to estimate a probability distribution over possible continuations of a target string, $y_t$, conditioned on a source string $x$ and all preceding target string context, $y_{t-}$. Naturally, it is assumed that strings $x$ and $y$ are in different languages.
 
-Symbolically we can reduce this to $$
+Symbolically we can reduce this to
+
+$$
 p_{\theta}(y_t|x, y_{t-})
 $$
+
 where $\theta$ corresponds to the architecture we're using. With *neural* machine translation systems, the predominant architectural structure is an encoder-decoder system; the encoder takes the soure text $x$ and encodes it, $f_{\theta}^{\text{(enc)}}(x)$, while the decoder takes as input the encoded source text and the preceding target text, $f_{\theta}^{\text{(dec)}}(y_{t-},f_{\theta}^{\text{(enc)}}(x))$.
 
 Encoding the source text can[^can] occur relatively quickly, as it is sequence length independent. Short or long, we only need to pass the source text through our model once. This is not the case for decoder at inference time. To sample a translation, we have to produce each token, from beginning to end, and append each continuation to $y_{t-}$ to form the context for the next continuation: $p_{\theta}(y_{t+1}|x, y_{t-}\cup y_{t})$. This is called auto-regression, a situation where each step depends on the model's output at previous steps.
@@ -44,9 +46,23 @@ The explosive popularity of BERT and its descendants is proof enough that unsupe
 
 [^denoising]: this form of masking and learnt unmasking can be seen as a specific form of denoising, a concept Lee et al. {{< cite "leeDeterministicNonAutoregressiveNeural2018" >}} specifically reference. Denoising has been around for a while, and with diffusion models, has hit the mainstream in areas other than NLP
 
-At inference time, their models perform two steps. First, they predict the sequence length of the target text,$$\hat{T}\sim p_{\theta}(T|x)$$ and then sample $\hat{T}$ tokens from $$\hat{y}_{0}\sim_{\hat{T}} p_{\theta}(y|x, \emptyset)$$
+At inference time, their models perform two steps. First, they predict the sequence length of the target text,
 
-Rather understandably, $\hat{y}_{0}$ tends to be poor. Each of the $\hat{T}$ tokens was sampled without known anything about the other tokens, other than their existence (hence the conditioning on $\emptyset$). In order to produce better translations, Lee et al. {{< cite "leeDeterministicNonAutoregressiveNeural2018" >}} propose iterative refinement. Just repeat the decoding process $i_{\text{dec}}$ times, using the preceding generation as a conditioning element, $$\hat{y}_i\sim_{\hat{T}} p_{\theta}(y|x, \hat{y}_{i-1})$$
+$$
+\hat{T}\sim p_{\theta}(T|x)
+$$
+
+and then sample $\hat{T}$ tokens from
+
+$$
+\hat{y}_{0}\sim_{\hat{T}} p_{\theta}(y|x, \emptyset)
+$$
+
+Rather understandably, $\hat{y}_{0}$ tends to be poor. Each of the $\hat{T}$ tokens was sampled without known anything about the other tokens, other than their existence (hence the conditioning on $\emptyset$). In order to produce better translations, Lee et al. {{< cite "leeDeterministicNonAutoregressiveNeural2018" >}} propose iterative refinement. Just repeat the decoding process $i_{\text{dec}}$ times, using the preceding generation as a conditioning element,
+
+$$
+\hat{y}_i\sim_{\hat{T}} p_{\theta}(y|x, \hat{y}_{i-1})
+$$
 
 At each step, the translation has access to better and better base translations, and tends to improve. This process does saturate though, tend to reach an inflection point at 10 steps. Anything beyond that results in marginal gains.
 
@@ -68,7 +84,13 @@ We would ideally like to minimize, or at least mitigate, this exposure bias. Wan
 
 Minimum Risk Training (MRT) has been around for while. It leverages a techique from reinforcement learning[^reinforce] to get a learning signal from a potentially undifferentiable risk function. By aligning the risk function with our decoding algorithm, we can introduce the model to its own output after utilising an undifferentiable decoding algorithm.
 
-Specifically, if we sample $K$ candidate translation from the decoding algorithm applied to our model, $\tilde{y}_{k}$, we can approximate our gradient as, $$\nabla \mathbb{E}\left[R(\tilde{y}, y)\right]\approx\frac{1}{K}\sum_{k=1}^K R(\tilde{y}_k, y)\log p_{\theta}(\tilde{y}|x)$$ where $R(\tilde{y}_k, y)$ is a risk function which provides high scores when $\tilde{y}_k$ is poor and low scores when it is good. An NMT example of a risk function could be the complement of the BLEU score, $1-\text{BLEU}(\tilde{y}_k, y)$.
+Specifically, if we sample $K$ candidate translation from the decoding algorithm applied to our model, $\tilde{y}_{k}$, we can approximate our gradient as,
+
+
+\nabla \mathbb{E}\left[R(\tilde{y}, y)\right]\approx\frac{1}{K}\sum_{k=1}^K R(\tilde{y}_k, y)\log p_{\theta}(\tilde{y}|x)
+$$
+
+where $R(\tilde{y}_k, y)$ is a risk function which provides high scores when $\tilde{y}_k$ is poor and low scores when it is good. An NMT example of a risk function could be the complement of the BLEU score, $1-\text{BLEU}(\tilde{y}_k, y)$.
 
 ## Improving NATs
 

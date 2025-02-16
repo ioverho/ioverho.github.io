@@ -2,9 +2,9 @@
 title: (MSc Thesis) Inductive Biases for Morphologically Informed Neural Machine Translation
 date: 2022-08-03
 tags:
-  - meta-learning
   - machine-translation
-  - morphology
+  - meta-learning
+  - nlp
   - MSc
 ---
 

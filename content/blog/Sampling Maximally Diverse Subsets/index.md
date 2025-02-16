@@ -3,7 +3,7 @@ title: Sampling Maximally Diverse Subsets
 date: 2021-08-26
 tags:
   - machine-learning
-  - code
+  - statistics
 math: true
 draft: false
 ---
@@ -13,11 +13,13 @@ draft: false
 Applied machine-learning often requires reasoning about points in high-dimensional spaces, where distances encode some form of information. A few times now I've needed to summarize such semantically rich spaces using a very small subset of samples. In such cases, ideally you want samples that come from diverse, non-overlapping regions in the space, maximizing the information content per sample.
 
 Symbolically, we can express this as an optimization problem of the following form:
+
 $$
 \begin{align}
     \underset{\mathcal{X}}{\operatorname{arg max}}\quad&\min\quad\{d(x, x^\prime)|x, x^{\prime}\in\mathcal{X}, x\not= x^\prime\}\\ &\text{s.t.}\quad|\mathcal{X}|=k
 \end{align}
 $$
+
 Put otherwise, we want to find a subset $\mathcal{X}$ of size $k$, where the nearest neighbours are as distant from each other as possible. From the left image to the right.
 
 ![A visual depiction of maximally diverse subsampling of a uniformly distributed square.](figures/some_points.svg)
@@ -108,11 +110,13 @@ While a WSP space-filling design gives us a subset that 'feels' right, it assume
 Since we have access to a set of candidate points though, we can do this efficiently by running a binary search over the list of unique pairwise distances, and then selecting the solution that best approximates our desired batch size $k$.
 
 Specifically, for a sample of $N$ points, there are $\binom{N}{2}=\frac{N!}{2!(N-2)!}$ possible pairwise combinations, meaning with binary search, the solution can be found in
+
 $$
 \begin{align}
     \mathcal{O}\left(\log_{2}\frac{N!}{2!(N-2)!}\right)&=\mathcal{O}\left(\log_{2}\frac{N!}{(N-2)!}-1\right)
 \end{align}
 $$
+
 time. Asymptotically, using [Stirling's approximation](https://en.wikipedia.org/wiki/Stirling%27s_approximation), this is roughly as expensive as sorting the distances list ($\mathcal{O}(N\log_2N)$). The extended algorithm looks something like this:
 
 ```txt

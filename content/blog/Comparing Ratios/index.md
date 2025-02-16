@@ -2,8 +2,8 @@
 title: Comparing Machine-Learning Models using Ratios
 date: 2024-10-01
 tags:
-  - statistics
-  - machine-learning
+    - statistics
+    - machine-learning
 math: true
 draft: false
 ---
@@ -17,10 +17,13 @@ Unfortunately, things tend to be trickier than that. In this blog post I detail 
 ## Frequentist Treatment
 
 Let's assume we have two models whose performance we are going to measure through some ratio (e.g., the accuracy score). I define a ratio as:
+
 $$r=\dfrac{\#\text{hits}}{N}$$
+
 where $N$ is the size of the sample, and $\#\text{hits}$ is the number of times we note a hit or success. The ratio value will be bounded in the interval $[0,1]$, but the possible values it can take will be determined by the value of $N$.
 
 When *comparing* ratios, we care less about the values of the individual ratios, and more about some *difference* in ratios. If system 2 has an accuracy of $0.8$, while the baseline system 1 has a score of $0.7$, we know a lot more about the system that if we had just been looking at each value in isolation. In short, we want to define some function that quantifies how large or small the difference between the two ratios are:
+
 $$\Delta(r_1, r_2)=???$$
 
 Many such ratio difference functions exist, and I list some common ones below. Most of these come from the biomedical field, hence the somewhat morbid naming conventions.
@@ -61,40 +64,51 @@ Achieving this with raw ratios is likely not possible, but there is a closely re
 ### Odds & Odds Ratios
 
 [Odds](https://en.wikipedia.org/wiki/Odds) are defined as the ratio of a probability to its complement,
+
 $$\text{Odds}(x)=\frac{p}{1-p}$$
 
 While this might seem cumbersome initially, their interpretation is actually quite intuitive. One area where odds are used frequently is in gambling, where the payout of a bet is proportional to the odds of that bet succeeding. For example, if a horse has a 40% chance of winning a race, the odds are,
+
 $$p=\frac{2}{5}\mapsto \text{Odds}(p)=\frac{2}{3}$$
+
 If you win, you would make €300 on a €200 stake.
 
 When comparing ratios, however, the odds and odds ratio has another appealing property. Namely, probability complements give odds reciprocals.
 
 Consider the same problem as before, where a model increases its accuracy score from $0.9$ to $0.99$. Expressed as odds, an accuracy of $0.9$ and its complement are,
+
 $$
 \begin{align*}
-	\text{Odds}(0.9)&=\frac{0.9}{0.1}=9 \\
+    \text{Odds}(0.9)&=\frac{0.9}{0.1}=9 \\
     \text{Odds}(1-0.9)&=\frac{0.1}{0.9}=\frac{1}{9}
 \end{align*}
 $$
+
 Shifting our perspective now gives a clear relationship between the two situations.
 
 The canonical method for comparing two odds is the odds ratio. It is defined as,
+
 $$\text{OR}(r_1, r_2)=\frac{\text{Odds}(r_2)}{\text{Odds}(r_1)}=\frac{p_1(1-p_2)}{p_2(1-p_1)}$$
 
 Notice how the same property holds. If we let $r_2=0.99$ and $r_1=0.90$ be the system ratios, the odds ratios we get are:
+
 $$\text{OR}(r_1, r_2)=\frac{99}{9}=11,\quad \text{OR}(\bar{r_1}, \bar{r_2})=\frac{1/99}{1/9}=\frac{9}{99}=\frac{1}{11}$$
 
 Finally, to retrieve the desired relationship of $\Delta(p_1, p_2)=-\Delta(1-p_1,1-p_2)$, we just throw some logarithms at it,
+
 $$\log \text{OR}(0.9, 0.99)=\log11, \quad\log\text{OR}(0.1, 0.01)=\log\frac{1}{11}=-\log11$$
+
 *Et voilà*, the only thing hat changes when we shift perspective from a ratio to its complement, is that we add a minus sign in front. Purely based on this property, the **log odds ratio** is the ratio differencing function we want.
 
 ### Log Odds Ratios
 
 This comes at a price though. Any hope for a nicely intuitive metric went out the window as soon as we went to an odds ratio, and adding a logarithm only makes it worse. Odds are already a ratio of ratios, so the log odds ratio is a logarithm of a ratio of ratios of ratios???
 
-The log odds ratio is a good choice if you care about correctness, but indeed less so if you care about interpretability. Newspaper headlines sometimes state things like “dog owners are twice as likely to get into car accidents”. These are usually statements about odds ratios, and can be used to 'lie' with otherwise sound statistics. For example, for a probability of 1 in a million (1e-6) to 2 in a million (2e-6), the odds ratio is $2$ (pretty large). While this is factually correct, it is also practically meaningless.
+The log odds ratio is a good choice if you care about correctness, but less so if you care about interpretability. Newspaper headlines sometimes state things like “dog owners are twice as likely to get into car accidents”. These are usually statements about odds ratios, and can be used to 'lie' with otherwise sound statistics. For example, for a probability of 1 in a million (1e-6) to 2 in a million (2e-6), the odds ratio is $2$ (pretty large). While this is factually correct, it is also practically meaningless.
 
-So why use the (log) odds ratio? Simply because it has [plenty of other properties that make statistical inference very easy](https://stats.stackexchange.com/a/452844).
+For machine learning practitioners, however, there is a simpler intuition. Log-odds are the output of a neural network classifier, before softmax normalization: i.e., the logits.
+
+But why use the (log) odds ratio? Simply because it has [plenty of other properties that make statistical inference very easy](https://stats.stackexchange.com/a/452844).
 
 1. The log odds ratio has access to the entire real line, and can take any value in $[-\infty, \infty]$
 2. The variance of the log odds distribution does **not** depend on the mean[^1]
@@ -121,11 +135,15 @@ As the size of the samples increases, the approximation becomes better and bette
 Regardless, inference with the log odds ratio is easy. All of a sudden, we take a family of difficult quantities, and transport it to the comfortable realm of normally distributed statistics. All of a sudden, means and medians become sensible measures of central tendency; we can compute variances and derive confidence intervals; we can add or subtract under closure; etc. These properties allow us to reason about log odds ratios and ask natural question about their quantity. One important one might whether the value is statistically significant or not. We can achieve this through the $z$-test.
 
 The *asymptotic* standard error for the log odds ratio is defined as,
+
 $$\text{SE}(\log \text{OR}(r_1, r_2))=\sqrt{\frac{1}{r_1N_1}+\frac{1}{N_1-r_1N_1}+\frac{1}{N_2-r_2N_2}+\frac{1}{N_2-r_2N_2}}$$
+
 Here $rN$ is a proxy for the number of wins, $\#\text{hits}$, and $N-rN$ for the number of 'losses'.
 
 From this, we can compute a confidence interval as
+
 $$\log \text{OR}(p_1, p_2)\pm z_{1-\alpha/2}\text{SE}(\log \text{OR}(p_1, p_2))$$
+
 where $z_{1-\alpha/2}$ is the critical value for some confidence value $\alpha$ (e.g., $1.96$ for the $95$% confidence interval). We can then exponentiate these values to retrieve a confidence interval for our odds ratios[^3].
 
 [^3]: Though this has some caveats. It's better to stay in log odds ratio space.
@@ -151,7 +169,9 @@ The first number is the test statistic, the second the $p$-value. At the moment,
 ### Logistic Regression
 
 A more comprehensive, and potentially easier, method for achieving this result, is by running a very simple logistic regression.  We can estimate:
+
 $$\log(\frac{p}{1-p})\sim \beta_0+\beta_1 \text{wasIntervened(x)}$$
+
 where $x$ are our rates, and $\text{wasIntervened(x)}$ is dummy variable (one-hot encoded) determining whether the rate comes from our base or intervened model.
 
 Parameter $\beta_1$ measures the impact that the intervention has had on the dependent variable. If using standard statistical software, the $z$-test is usually performed automatically.
@@ -221,7 +241,9 @@ Assuming that the models we will discuss align with the ratio's actual underlyin
 ### Beta-Binomial Model for Independent Samples Comparison
 
 Recall the definition of our ratio or probability as,
+
 $$r=\frac{\#\text{hits}}{N}$$
+
 Essentially, we're taking repeated independent draws from a [Bernoulli distribution](https://en.wikipedia.org/wiki/Bernoulli_distribution). A Bayesian model for this scenario is the [Beta-Binomial](https://en.wikipedia.org/wiki/Beta_distribution#Bayesian_inference) distribution. Here the Beta distribution serves as the conjugate prior for the true ratio $\hat{r}$, which we estimate from the Binomial likelihood distribution.
 
 Using some hyperparameters $\alpha, \beta$, the conjugate posterior ratio distribution is,
@@ -236,11 +258,13 @@ To derive a distribution for $\Delta(r_1, r_2)=r_2-r_2$, we'd need to utilize th
 >}}
 
 To estimate the probability that two probabilities are different, we can just count how often, relatively, a sample from one distribution is larger than from the other distribution:
+
 $$\begin{align}
 p(r_2>r_1)&\approx \frac{1}{K}\sum_{k=1}^{K}\mathbb{1}(\tilde{r}_{2,k}>\tilde{r}_{1,k}) \\
 \tilde{r}_{1,k}&\sim\text{Beta}(\alpha+r_1N_1, \beta+(N_1-r_1N_1)), \\
 \tilde{r}_{2,k}&\sim\text{Beta}(\alpha+r_2N_2, \beta+(N_2-r_2N_2)),
 \end{align}$$
+
 If you want some actual summary statistics to report, you could always take the mean, median or modes and with an HDI (the Bayesian equivalent of the confidence interval) of the separate Beta distributions. These are all available analytically. Computing the same for the difference distribution is likely only possible using samples, as discussed above.
 
 If you want to know more about Bayesian hypothesis testing, have a look at [Kruschke (2013). *Bayesian Estimation Supersedes the t Test*](https://jkkweb.sitehost.iu.edu/articles/Kruschke2013JEPG.pdf){{< cite "kruschkeBayesianEstimationSupersedes2013" >}} or the tutorials in the [`bayestestr`](https://easystats.github.io/bayestestR/) package. Otherwise, Count Bayesie has [another good post about a very similar problem](https://www.countbayesie.com/blog/2015/4/25/bayesian-ab-testing).
@@ -270,10 +294,12 @@ $$\text{Dirichlet}(\alpha_{1>2}+\#1>2, \alpha_{1<2}+\#1<2, \alpha_{1=2}+\#1=2)$$
 where $1>2$ is meant to signify the instances where system 1 beat system 2, $1<2$ instances where system 2 beats system 1, and $1=2$ instances where the models agree.
 
 Unlike the Beta-Binomial model, the probability distribution describing $p(r_2>r_1)$ is not analytically tractable. This doesn't matter though, we can just sample from the fitted posterior distribution, and estimate it as,
+
 $$\begin{align}
 p(r_2>r_1)&\approx \frac{1}{K}\sum_{k=1}^{K}\mathbb{1}(\tilde{r}_{2,k}>\tilde{r}_{1,k}) \\
 \tilde{r}_{1,k},\tilde{r}_{2,k}&\sim \text{Dirichlet}(\ldots)
 \end{align}$$
+
 where $k$ are the number of samples we draw from the posterior distribution.
 
 Other methods for describing the difference include computing the mean, mode or the mean log odds ratio (there it is again!) of the Dirichlet distribution, all of which *are* available in closed form.
@@ -301,6 +327,7 @@ where the per study weight, $w_{j}$, corresponds to the study's precision: $\fra
 ### Bayesian Meta-Analysis
 
 In the Bayesian framework, as usual, things get a little more complicated. How this is usually done is by fitting a hierarchical Bayesian model to the log odds. In such models, it is assumed each individual study has some error, but all share some underlying parameters. The model recommended by [Harrer et al. (2021)](https://bookdown.org/MathiasHarrer/Doing_Meta_Analysis_in_R/bayesian-ma.html) {{< cite "harrerWelcomeDoingMetaAnalysis" >}} is as follows,
+
 $$\begin{align}
     \mu &\sim\mathcal{N}(0, 1) \\
     \tau &\sim\text{HalfCauchy}(0,0.5) \\
@@ -308,6 +335,7 @@ $$\begin{align}
     \hat{\theta}_{j}&\sim\mathcal{N}(\theta, \sigma_{k}^2)
 \end{align}
 $$
+
 where $\mu$ is the aggregated effect size, $\hat{\theta}_{j}$ the observed effect size, $\theta_{j}$ the unobserved effect size, $\sigma_{k}$ the standard error for each study, and $\tau$ a parameter controlling the inter-study heterogeneity. The aggregate distribution is thus parameterised by $\mu, \tau$.
 
 This is by no means the only such model. In general, partial pooling or multi-level Bayesian models are a dime a dozen, with great tutorials in many places. THE Bayesian bible, [Gelman et al. (2014) Bayesian Data Analysis (3rd ed.)](http://www.stat.columbia.edu/~gelman/book/) {{< cite "gelmanBayesianDataAnalysis2013" >}}discusses Bayesian meta-analysis as a special case in chapter 5.6. Fitting hierarchical models to binomial data (usual baseball hits or basketball free-throws) is also a foundational example for many [probabilisitic programming languages](https://cran.r-project.org/web/packages/rstanarm/vignettes/pooling.html).
@@ -332,6 +360,7 @@ The dashed line shows the expected improvement for each value of $r_1$, estimate
 Can we use this to come up with a single measure for the holistic quality of the intervention's improvement?
 
 Well, we know that the 'Zone of Dissapointment' is a right angle triangle with range and domain of $[0,1]$, and thus has an area of $0.5$. The area under the line of expected improvement is a bit harder to estimate,
+
 $$\begin{aligned}
     &\text{AoI}(r_1, r_2)=\int_{r_1=0}^{r_1=1} \mathbb{E}[r_2|r_1] d r_1 \\
     &\text{where}\quad \mathbb{E}[r_2|r_1]=f(r_1)
@@ -347,6 +376,7 @@ np.float64(0.6267495287200159)
 ```
 
 Finally, to compare this to an intervention that does not improve $r_1$, we just shift and scale this area,
+
 $$\begin{aligned}
     &\text{ExcessAoI}(r_1, r_2)=\frac{\text{AoI}(r_1, r_2)-0.5}{1-0.5}=2\text{AoI}(r_1, r_2)-1\\
     &\text{ExcessAoI}(r_1, r_2)\in [-1, 1]
@@ -361,8 +391,10 @@ The number is still not clearly interpretable, but at least it's paired with a n
 I've introduced quite a few approaches to handling model comparisons using ratios. Some have decades of statistical tradition backing them, others not so much. Hopefully you've come away with a better appreciation of the (log) odds.
 
 One caveat to keep in mind is that these methods are only valid for ratios of the form,
+
 $$r=\dfrac{\#\text{hits}}{N}$$
-Simple metrics like accuracy, precision, recall, etc. probably satisfy this definition, but more complex metrics (e.g., F1, MCC, BA, etc.) likely do not. Some of these can act like ratio, being bounded between $[0, 1]$, but their sampling distributions can be much more complicated. For example, both [Goutte & Gaussier (2005)](https://link.springer.com/chapter/10.1007/978-3-540-31865-1_25) {{< cite "goutteProbabilisticInterpretationPrecision2005" >}} and [Takahashi et al. (2022) Confidence interval for micro-averaged F1 and macro-averaged F1 scores](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8936911/) {{< cite "takahashiConfidenceIntervalMicroaveraged2022" >}} dedicate papers to finding exact distributions for the F1-score. Handling such cases generally, probably involves running [permutation tests](https://en.wikipedia.org/wiki/Permutation_test) or [bootstrapping](https://en.wikipedia.org/wiki/Bootstrapping_(statistics)).
+
+Simple metrics like accuracy, precision, recall, etc. probably satisfy this definition, but more complex metrics (e.g., F1, MCC, BA, etc.) likely do not. Some of these can act like ratio, being bounded between $[0, 1]$, but their sampling distributions can be much more complicated. For example, both [Goutte & Gaussier (2005)](https://link.springer.com/chapter/10.1007/978-3-540-31865-1_25) {{< cite "goutteProbabilisticInterpretationPrecision2005" >}} and [Takahashi et al. (2022)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8936911/) {{< cite "takahashiConfidenceIntervalMicroaveraged2022" >}} dedicate papers to finding exact distributions for the F1-score. Handling such cases generally, probably involves running [permutation tests](https://en.wikipedia.org/wiki/Permutation_test) or [bootstrapping](https://en.wikipedia.org/wiki/Bootstrapping_(statistics)).
 
 ## References
 
