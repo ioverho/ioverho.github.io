@@ -26,6 +26,8 @@ inline = [['$', '$']]
 [markup.goldmark.parser]
 [markup.goldmark.parser.attribute]
 block = true
+[markup.goldmark.renderer]
+ unsafe = true
 
 [markup.highlight]
 lineNos = true
@@ -114,7 +116,7 @@ tableOfContents = false
 # link by using a `hideReply` param in front matter.
 [params.author]
 name = "Ivo Verhoeven" # Your name as shown in the RSS feed metadata
-#email = "verhio@mailbox.org" # Added to the footer so readers can reply to posts
+#email = "i.o.verhoeven@uva.nl" # Added to the footer so readers can reply to posts
 
 [module]
 [[module.imports]]

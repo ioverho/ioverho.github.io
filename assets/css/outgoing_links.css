@@ -1,8 +1,11 @@
+/* CSS for all outgoing links */
 a:not(
 	[href^="#"],
 	[href^="/"],
 	[href*="localhost"],
-	[href*="ivoverhoeven.com"]
+	[href*="ivoverhoeven.com"],
+    [href*="ivoverhoeven.nl"],
+    [href*="192.168"]
 ):not(
     .footer_socials a
 ):not(
