@@ -1,5 +1,5 @@
 # Basic config
-baseURL = "https://ivoverhoeven.com"
+baseURL = "https://ivoverhoeven.nl"
 theme = ["hugo-bearcub", "hugo-simplecite"]
 copyright = "This work is licensed as CC BY 4.0"
 defaultContentLanguage = "en"

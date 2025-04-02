@@ -11,6 +11,6 @@ I sometimes serve as a TA for NLP courses at the UvA, as part of my PhD responsi
 
 For the 2025 edition, for the introductory lecture 'Attention and Transformers', I have revamped my slide deck using [Slidev](https://sli.dev/). These can now be viewed as a single page app.
 
-I've embedded the slides below, but they can also be seen in [full screen](https://www.ivoverhoeven.com/attention_and_transformers).
+I've embedded the slides below, but they can also be seen in [full screen](https://www.ivoverhoeven.nl/attention_and_transformers).
 
-<iframe src="https://www.ivoverhoeven.com/attention_and_transformers" width="100%" style="aspect-ratio: 16 / 9;"></iframe>
+<iframe src="https://www.ivoverhoeven.nl/attention_and_transformers" width="100%" style="aspect-ratio: 16 / 9;"></iframe>
