@@ -1,0 +1,30 @@
+[
+    {
+        "id": "bishopPatternRecognitionMachine2006",
+        "author": [
+            {
+                "family": "Bishop",
+                "given": "Christopher M."
+            }
+        ],
+        "call-number": "Q327 .B52 2006",
+        "citation-key": "bishopPatternRecognitionMachine2006",
+        "collection-title": "Information science and statistics",
+        "event-place": "New York",
+        "ISBN": "978-0-387-31073-2",
+        "issued": {
+            "date-parts": [
+                [
+                    "2006"
+                ]
+            ]
+        },
+        "language": "en",
+        "number-of-pages": "738",
+        "publisher": "Springer",
+        "publisher-place": "New York",
+        "source": "Library of Congress ISBN",
+        "title": "Pattern recognition and machine learning",
+        "type": "book"
+    }
+]

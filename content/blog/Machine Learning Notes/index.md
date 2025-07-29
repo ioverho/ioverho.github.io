@@ -241,3 +241,91 @@ Or simply put, marry all parents and knock of any heads. This is shown in the fo
 Converting MRFs to BNs is generally not possible. If a **perfect elimination ordering** exists, however, it is possible to generate candidate (non-unique) BNs that factorize as the MRF. Some information is lost in the translation process.
 
 ## To be continued ...
+
+## Appendix
+
+### Properties of Gaussians
+
+The multivariate Gaussian is defined as:
+$$\mathcal{N}(\mathbf{\mu}, \mathbf{\Sigma})=\dfrac{1}{(2\pi)^{D/2}}\dfrac{1}{|\mathbf{\Sigma}|^{\frac{1}{2}}}\exp\left\{-\frac{1}{2}(\mathbf{x}-\mathbf{\mu})^\intercal \mathbf{\Sigma}^{-1}(\mathbf{x}-\mathbf{\mu})\right\}$$
+where $\mathbf{\mu}\in\mathbb{R}^{D}$ is the mean vector, and $\mathbf{\Sigma}\in\mathbb{R}^{D\times D}$ is the covariance matrix.
+
+Sometimes it is more convenient to rewrite it using a precision matrix $\mathbf{\Lambda}=\mathbf{\Sigma}^{-1}$.
+
+#### Gaussian conditionals & marginals
+
+If two sets of variables, $\mathbf{x}_{a}$ and $\mathbf{x}_{b}$ are both Gaussian distributions, then both their conditional probability distribution, $p(\mathbf{x}_{a}|\mathbf{x}_{b})$, and the marginals, $p(\mathbf{x}_{a}$ are Gaussian distributions. 
+
+Let their joint distribution be defined as
+$$p(\mathbf{x}_{a}, \mathbf{x}_{b})=\mathcal{N}(\mathbf{x}|\mathbf{\mu}, \mathbf{\Lambda}^{-1})=\mathcal{N}\left(\pmatrix{\mathbf{x}_a \\ \mathbf{x}_b}\vert\pmatrix{\mathbf{\mu}_a \\ \mathbf{\mu}_b}, \pmatrix{\mathbf{\Lambda}_{aa} & \mathbf{\Lambda}_{ab} \\ \mathbf{\Lambda}_{ba} & \mathbf{\Lambda}_{bb}}^{-1}\right)$$
+where we use $\mathbf{\Lambda}$ as the precision matrix. Here we use $\pmatrix{a\\b}$ to signify a [partitioned or block matrix](https://en.wikipedia.org/wiki/Block_matrix). The inverse of a block matrix is not the matrix of the inverse of the blocks, so $\mathbf{\Sigma}_{aa}\not= \mathbf{\Lambda}_{aa}^{-1}$. They are related, however, through the [Schur complement](https://en.wikipedia.org/wiki/Schur_complement). Specifically,
+$$\begin{aligned}
+\mathbf{\Sigma}_{aa}&=~~~(\mathbf{\Lambda}_{aa}-\mathbf{\Lambda}_{ab}\mathbf{\Lambda}_{bb}^{-1}\mathbf{\Lambda}_{ba})^{-1} \\
+\mathbf{\Lambda}_{aa}&=~~~(\mathbf{\Sigma}_{aa}-\mathbf{\Sigma}_{ab}\mathbf{\Sigma}_{bb}^{-1}\mathbf{\Sigma}_{ba})^{-1} \\
+\mathbf{\Lambda}_{ab}&=-(\mathbf{\Sigma}_{aa}-\mathbf{\Sigma}_{ab}\mathbf{\Sigma}_{bb}^{-1}\mathbf{\Sigma}_{ba})^{-1}\mathbf{\Sigma}_{ab}\mathbf{\Sigma}_{bb}^{-1}
+\end{aligned}$$
+
+Then the conditional distribution $p(\mathbf{x}_{a}|\mathbf{x}_{b})$ is given as,
+$$\begin{aligned}
+p(\mathbf{x}_{a}|\mathbf{x}_{b})&=\mathcal{N}(\mathbf{x}|\mathbf{\mu}_{a|b},\mathbf{\Lambda}_{aa}) \\
+\mathbf{\mu}_{a|b}&=\mathbf{\mu}_{a}-\mathbf{\Lambda}_{aa}^{-1}\mathbf{\Lambda}_{ab}(\mathbf{x}_{b}-\mathbf{\mu}_{b})
+\end{aligned}$$
+
+Similarly, the marginal distribution $p(\mathbf{x}_{a})$ is given by,
+$$p(\mathbf{x}_{a})=\mathcal{N}(\mathbf{x}|\mathbf{\mu}_{a},\mathbf{\Sigma}_{aa})$$
+
+The given block matrix inverses allow for translating between the variance and precision defintions.
+
+For derivation, see Bishop's PRnML {{< cite "bishopPatternRecognitionMachine2006" >}} sections 2.3.1.and 2.3.2.
+
+#### Gaussian composition
+
+Given two distributions,
+$$\begin{aligned}
+p(\mathbf{y}|\mathbf{x})&=\mathcal{N}(\mathbf{y}|\mathbf{A}\mathbf{x}+\mathbf{b}, \mathbf{\Sigma}) \\
+p(\mathbf{z}|\mathbf{y})&=\mathcal{N}(\mathbf{z}|\mathbf{C}\mathbf{y}+\mathbf{d}, \mathbf{\Gamma})
+\end{aligned}$$
+we want to compute the conditional probability distribution $p(\mathbf{y}|\mathbf{x})$. We can find it by performing,
+$$
+p(\mathbf{z}|\mathbf{x})=\int p(\mathbf{z}|\mathbf{y})p(\mathbf{y}|\mathbf{x})d\mathbf{y}
+$$
+
+This is essentially the composition of two linear regression models; first we regress $\mathbf{x}$ onto $\mathbf{y}$, and then we regress $\mathbf{y}$ onto $\mathbf{z}$. Econometricians do this when performing [instrumental variables](https://en.wikipedia.org/wiki/Instrumental_variables_estimation), and Bayesian statisticians might do this for computing Bayes' theorem (see below).
+
+Luckily, no integration is necessary. The joint conditional distribution, $p(\mathbf{z}, \mathbf{y}|\mathbf{x})$, that we marginalize over in the above integral, is given as:
+$$
+p(\mathbf{z}, \mathbf{y}|\mathbf{x})=\mathcal{N}\left(
+\pmatrix{
+    \mathbf{z} \\
+    \mathbf{y}}
+|
+\pmatrix{
+    \mathbf{C}\mathbf{A}\mathbf{x}+\mathbf{C}\mathbf{b}+\mathbf{d} \\
+    \mathbf{A}\mathbf{x}+\mathbf{b}},
+\pmatrix{
+    \mathbf{\Gamma}+\mathbf{A}\mathbf{\Sigma}\mathbf{A}^{\intercal} &
+    \mathbf{C}\mathbf{\Sigma} \\
+    \mathbf{\Sigma}\mathbf{C}^\intercal &
+    \mathbf{\Sigma}
+}
+\right)
+$$
+
+[From the previous result](#gaussian-conditionals--marginals), we can now just read off the marginal $p(\mathbf{z}|\mathbf{x})$ as,
+$$p(\mathbf{z}|\mathbf{x})=\mathcal{N}(\mathbf{z}|\mathbf{C}\mathbf{A}\mathbf{x}+\mathbf{C}\mathbf{b}+\mathbf{d}|\mathbf{\Gamma}+\mathbf{A}\mathbf{\Sigma}\mathbf{A}^{\intercal})$$
+
+Thus, the composition of Gaussian provides a joint distribution that is Gaussian, and thus marginal that is also Gaussian.
+
+#### Bayes' theorem with Gaussians
+
+Similarly to above, we now have access to two distributions. A marginal distribution, $p(\mathbf{y})$, that serves as our prior, and a conditonal distribution $p(\mathbf{z}|\mathbf{y})$ that serves as the likelihood. Using Bayes' theorem, we want to compute the inverse conditional probability (the posterior) as:
+$$p(\mathbf{y}|\mathbf{z})=p(\mathbf{z}|\mathbf{y})\dfrac{p(\mathbf{y})}{p(\mathbf{z})}$$
+
+Assuming that all involved probability distributions are Gaussians, then we can combine the results of the [composition of two Gaussian](#gaussian-composition) and that of the [conditional from a joint Gaussian distribution](#gaussian-conditionals--marginals) to find the posterior distribution as:
+$$
+p(\mathbf{y}|\mathbf{z})=\mathcal{N}\left(\mathbf{y}|(\mathbf{\Gamma}+\mathbf{A}^\intercal)^{-1} \right)
+$$
+
+## References
+
+{{< references >}}
