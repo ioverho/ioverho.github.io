@@ -1,5 +1,5 @@
 ---
-title: DRAFT Better and Faster Non-Autoregressive Transformers via the Policy Gradient
+title: Better and Faster Non-Autoregressive Transformers via the Policy Gradient
 date: 2022-10-27
 tags:
   - nlp
