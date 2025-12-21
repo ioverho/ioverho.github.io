@@ -1,5 +1,5 @@
 ---
-title: Attention and Transformers
+title: Lecture - Attention and Transformers
 date: 2025-03-31
 tags:
   - nlp
