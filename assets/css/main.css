@@ -22,23 +22,23 @@ html {
         segoe ui emoji,
         segoe ui symbol,
         noto color emoji; */
-    }
+}
 
 body {
     min-height: 60vh;
     max-width: var(--max-width);
     position: relative;
     font-family:
-    "Open Sans",
-    Corbel,
-    ui-sans-serif,
-    system-ui,
-    source-sans-pro,
-    sans-serif,
-    "Apple Color Emoji",
-    "Segoe UI Emoji",
-    "Segoe UI Symbol",
-    "Noto Color Emoji";
+        "Open Sans",
+        Corbel,
+        ui-sans-serif,
+        system-ui,
+        source-sans-pro,
+        sans-serif,
+        "Apple Color Emoji",
+        "Segoe UI Emoji",
+        "Segoe UI Symbol",
+        "Noto Color Emoji";
 }
 
 header,
@@ -134,6 +134,10 @@ div.footer_socials {
 svg.footer_social {
     width: 20px;
     height: 20px;
+
+    path {
+        fill: var(--color-text);
+    }
 }
 
 a.footer_social {

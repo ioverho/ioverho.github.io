@@ -40,11 +40,11 @@ code:not(pre code) {
 }
 
 /* Fill of SVG icons */
-svg {
+/* svg {
     path {
         fill: var(--color-text);
     }
-}
+} */
 
 /* Table */
 table,
