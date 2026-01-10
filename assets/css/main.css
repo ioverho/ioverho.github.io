@@ -29,9 +29,9 @@ body {
     max-width: var(--max-width);
     position: relative;
     /* System UI */
-    /* font-family: system-ui, sans-serif; */
+    font-family: system-ui, sans-serif;
     /* Humanist */
-    font-family: Seravek, 'Gill Sans Nova', Ubuntu, Calibri, 'DejaVu Sans', source-sans-pro, sans-serif;
+    /* font-family: Seravek, 'Gill Sans Nova', Ubuntu, Calibri, 'DejaVu Sans', source-sans-pro, sans-serif; */
     /* Geometric Humanist */
     /* font-family: Avenir, Montserrat, Corbel, 'URW Gothic', source-sans-pro, sans-serif; */
 }
