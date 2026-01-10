@@ -50,6 +50,7 @@ $$
 $$
 
 Note that the first term (1) tends to 0 for both the upper and lower integration bounds. The integral in the second term is simply the Gamma function evaluated at $(z-1)$, the recurrence relation is found.
+
 $$
     \Gamma(z)=(z-1)\Gamma(z-1)\implies \Gamma(z+1)=z\Gamma(z)
 $$
@@ -57,11 +58,13 @@ $$
 ### The Beta Function
 
 The Beta function is very closely related to the Gamma function, in both origin and definition. In fact, Euler first derived the Beta function before coming to the Gamma function. In Legendre notation {{< cite "davisLeonhardEulersIntegral1959" >}}.
+
 $$
     \operatorname{B}(\alpha,\beta)=\int^1_0x^{\alpha-1}(1-x)^{\beta-1}dx
 $$
 
 [We can rewrite the Beta function as a quotient of Gamma functions evaluated at $\alpha$ and $\beta$](https://mathworld.wolfram.com/BetaFunction.html).
+
 $$
     \operatorname{B}(\alpha,\beta)=\frac{\Gamma(\alpha)\Gamma(\beta)}{\Gamma(\alpha+\beta)}
 $$
@@ -127,6 +130,7 @@ Where the Gamma function interpolates the factorial function, the Beta function 
 ### The Beta Distribution
 
 The Beta distribution can be defined as:
+
 $$
 \begin{align*}
     \operatorname{Beta}(x;\alpha,\beta)&=\frac{x}{x+y}\\
@@ -136,6 +140,7 @@ $$
 $$
 
 The Gamma distribution is defined as,
+
 $$
     \operatorname{Gamma}(x;\alpha,\theta)=\frac{1}{\Gamma(\alpha)\theta^\alpha}x^{\alpha-1}e^{-x/\theta}
 $$
@@ -206,6 +211,7 @@ $$
 $$
 
 Without Gamma distributions, the PDF for the Beta distribution is:
+
 $$
 \begin{align*}
     \operatorname{Beta}(x;\alpha,\beta)&=\frac{\Gamma(\alpha+\beta)}{\Gamma(\alpha)\Gamma(\beta)}x^{\alpha-1}(1-x)^{\beta-1} \\
@@ -214,6 +220,7 @@ $$
 $$
 
 Integrating from 0 to some $x_i<1$ gives the CDF of the Beta distribution as,
+
 $$
 \begin{align}
     \operatorname{BETA}(x;\alpha,\beta)&=\frac{1}{\text{B}(\alpha,\beta)}\int^x_0x^{\alpha-1}(1-x)^{\beta-1}\\
@@ -237,9 +244,10 @@ Generally, as the values for $\alpha$ and $\beta$ increase, so does it precision
 
 ## Statistical Properties
 
-### Normalisation
+### Normalization
 
 From the definition of the cumulative Beta density function, $\operatorname{BETA}$, the proof of normalisation becomes trivial.
+
 $$
 \begin{align}
     &\int_{0}^{1}\operatorname{BETA}(x;\alpha,\beta)dx\\
@@ -248,6 +256,7 @@ $$
     &=1
 \end{align}
 $$
+
 In other words, computing the probability of some $x\sim \text{Beta}(\alpha,\beta)$ is simply computing the Beta function for the integration range of 0 to some $x<1$ divided by the Beta function computed over the whole possible domain.
 
 ### Mode
@@ -286,6 +295,7 @@ The mode of the Beta distribution, is thus at $\frac{\alpha-1}{\alpha+\beta-2}$.
 ### Mean
 
 Let the mean of x, $\mu_x$ be defined by the first expectation value. Taking X to follow a Beta distribution, the mean of X can be calculated as follows.
+
 $$
 \begin{align*}
     \mathbb{E}[x]&=\int_X x\cdot p(x) dx \\
@@ -295,10 +305,13 @@ $$
 $$
 
 Note that the above integral closely approximates the definition of the Beta function with $\alpha+1$ as its first parameter. This allows for rewriting the mean as
+
 $$
 \mathbb{E}[x]=\frac{1}{B(\alpha,\beta)} B(\alpha+1,\beta)
 $$
+
 Recall the relation of the Gamma function to the Beta function. Rewriting the mean in terms of the Gamma function rather than the Beta function provides a result that is more easily simplified.
+
 $$
 \begin{align*}
     \mathbb{E}[x]&=\frac{B(\alpha+1,\beta)}{B(\alpha,\beta)}\\
@@ -306,11 +319,15 @@ $$
     &=\frac{\Gamma(\alpha+1)\Gamma(\beta)\Gamma(\alpha+\beta)}{\Gamma(\alpha)\Gamma(\beta)\Gamma(\alpha+\beta+1)}
 \end{align*}
 $$
+
 Recall that the Gamma function can be defined using a recurrence relationship:
+
 $$
     \Gamma(x+1)=x\Gamma(x)
 $$
+
 The mean of $X$ can then easily be found by rewriting in terms of $\Gamma(\alpha)$ and $\Gamma(\beta)$ and simplifying.
+
 $$
 \begin{align*}
     \mathbb{E}[x]&=\frac{{\color{red} \Gamma(\alpha+1)}\Gamma(\beta)\Gamma(\alpha+\beta)}{\Gamma(\alpha)\Gamma(\beta){\color{green}\Gamma(\alpha+\beta+1)}}\\
@@ -318,11 +335,13 @@ $$
     &=\frac{\alpha}{\alpha+\beta}
 \end{align*}
 $$
+
 Given that both $\alpha$ and $\beta$ are strictly positive reals, it follows that for all values of these parameters the mean of x will fall within the $[0,1]$ domain.
 
 ### Variance
 
 Let the variance of x, $\operatorname{var}[x]$, be the difference of the expected value of $X^2$ and the squared mean: $\mathbb{E}[x^2]-\mathbb{E}[x]^2$. Due to the repetitive nature of this derivation, some steps explained in the derivation of $\mathbb{E}[x]$ will be applied but not shown or highlighted.
+
 $$
 \begin{align*}
     \mathbb{E}[x^2]&=\frac{1}{B(\alpha,\beta)} \int^1_0 x^2x^{\alpha-1}(1-x)^{\beta-1}dx \\
@@ -332,7 +351,9 @@ $$
     &=\frac{\alpha(\alpha+1)}{(\alpha+\beta)(\alpha+\beta+1)}
 \end{align*}
 $$
+
 The variance then follows as:
+
 $$
 \begin{align*}
     \operatorname{var}[x]&=\mathbb{E}[x^2]-\mathbb{E}[x]^2\\
@@ -341,7 +362,9 @@ $$
     &=\frac{\alpha^3+\alpha^2\beta+\alpha^2+\alpha\beta-\alpha^3-\alpha^2\beta-\alpha^2}{(\alpha+\beta)^2(\alpha+\beta+1)}
 \end{align*}
 $$
+
 After simplifying we end up with:
+
 $$
 \operatorname{var}[x]=\frac{\alpha\beta}{(\alpha+\beta)^2(\alpha+\beta+1)}
 $$
@@ -349,6 +372,7 @@ $$
 ### Moment Generating Function
 
 The moment generating function (MGF) is defined as the expectation value of the Laplace transform of the probability density function. One important use is the calculation of the PDF's moments, through computing the n-th derivative at $t=0$ for the n-th moment.
+
 $$
 \begin{align*}
     m_X(t)&=\mathbb{E}[e^{tx}]\\
@@ -358,6 +382,7 @@ $$
 $$
 
 Next, we apply the Taylor series approximation of $e^{tx}$:
+
 $$
 \begin{align*}
     m_X(t)&=\frac{1}{\text{B}(\alpha,\beta)}\int^1_0(\sum^\infty_{k=0}\frac{t^k x^k}{k!})\cdot x^{\alpha-1}(1-x)^{\beta-1}\\
@@ -366,6 +391,7 @@ $$
 $$
 
 Now apply the definition of the Beta function:
+
 $$
 \begin{align*}
     m_X(t)&=\sum^\infty_{k=0}\frac{t^k}{k!}\frac{\text{B}(\alpha+k,\beta)}{\text{B}(\alpha,\beta)}\\
@@ -374,6 +400,7 @@ $$
 $$
 
 The quotient of these Beta functions can be solved when inserting the Gamma functions, using the Beta-Gamma function relation. The final result is the [confluent hypergeometric function of the first kind](https://en.wikipedia.org/wiki/Confluent_hypergeometric_function).
+
 $$
     m_X(t)=1+\sum^\infty_{k=1}\frac{t^k}{k!}\prod^{k-1}_{n=0}\frac{\alpha+n}{\alpha+\beta+n}
 $$
@@ -383,6 +410,7 @@ $$
 ### Method of Moments Estimation
 
 The method of moments estimators (MoME) derivation requires setting the moments of the PDF equal to the moments derived from a data set of length $N$, $x_1,x_2,\dots,x_N$. We set the first two moments, the mean and variance as derived above, to the sample mean and variance,
+
 $$
 \begin{gather*}
     \mathbb{E}[x]=\overline{x},~~\operatorname{var}[x]=s^2_x\implies \\
@@ -392,6 +420,7 @@ $$
 $$
 
 These relations can then be reformulated to describe the parameters $\alpha$ and $\beta$ solely in terms of the sample mean and variance. For the sample mean, this follows as,
+
 $$
 \begin{align*}
     \overline{x}&=\frac{\alpha}{\alpha+\beta}\\
@@ -402,6 +431,7 @@ $$
 $$
 
 Attempting the same for the sample variance will yield an expression independent of $\beta$ for $\alpha$.
+
 $$
 \begin{align*}
     s^2&=\frac{\alpha\beta}{(\alpha+\beta)^2(\alpha+\beta+1)}\\
@@ -415,6 +445,7 @@ $$
 $$
 
 All that remains is expressing $\beta$ using the result for $\alpha$,
+
 $$
 \begin{align*}
     \beta&=\frac{\alpha}{\overline{x}}-\alpha\\
@@ -429,6 +460,7 @@ This estimator is unbiased. Assuming the sample mean and variance to be unbiased
 ### Maximum Likelihood Estimation
 
 The maximum likelihood estimators (MLE) requires the calculation of the likelihood of the parameters based on an i.i.d. data set from sampled the target distribution. The likelihood function is defined as the product of the probabilities of each value within the data set given the distribution in terms of its unknown parameters. For the Beta distribution the likelihood function follows as,
+
 $$
 \begin{align*}
    \mathcal{L}(\alpha,\beta)&=\prod^N_{i=1}\frac{\Gamma(\alpha+\beta)}{\Gamma(\alpha)\Gamma(\beta)}x_i^{\alpha-1}(1-x_i)^{\beta-1}\\
@@ -437,6 +469,7 @@ $$
 $$
 
 Typically, rather than maximising the likelihood function, we use the log-likelihood. This often making subsequent calculations much simpler, and does not affect the maximizers. For the Beta distribution, this is,
+
 $$
 \begin{align*}
    \mathcal{l}(\alpha,\beta)&=\log(\frac{\Gamma(\alpha+\beta)}{\Gamma(\alpha)\Gamma(\beta)})^N\prod^N_{i=1}x_i^{\alpha-1}(1-x_i)^{\beta-1} \\
@@ -446,6 +479,7 @@ $$
 $$
 
 To maximise the likelihood, the partial derivatives in terms of $\alpha$ and $\beta$ are set to 0 and solved for $\hat{\alpha}$ and $\hat{\beta}$. The functions that need to be solved are displayed below.
+
 $$
 \begin{align*}
     \frac{\partial}{\partial\alpha}l(\alpha,\beta)&=N(\frac{\Gamma^{(1)}(\alpha+\beta)}{\Gamma(\alpha+\beta)})-N(\frac{\Gamma^{(1)}(\alpha)}{\Gamma(\alpha)})+\sum^N_{i=1}\log(x_i) \\
@@ -456,6 +490,7 @@ $$
 Immediately the interdependence of this system become obvious: one can't solve for $\alpha$ without $\beta$, and vice versa. A closed form solution does not exist, however an iterative method can be applied to approximate the values for $\alpha$ and $\beta${{< cite "owenParameterEstimationBeta2008" >}}.
 
 The [digamma function](https://en.wikipedia.org/wiki/Digamma_function) is defined as the derivative of the natural logarithm of the Gamma function. This makes notation much easier.
+
 $$
     \psi(x)=\frac{d}{dx}\log(\Gamma(x))=\frac{\Gamma^{(1)}(x)}{\Gamma(x)}
 $$
@@ -463,6 +498,7 @@ $$
 Its derivatives, $\psi^{(i)}(x)$ are known as the [polygamma functions](https://en.wikipedia.org/wiki/Polygamma_function).
 
 Owen{{< cite "owenParameterEstimationBeta2008" >}} recommends applying the two-dimensional Newton-Raphson method to root finding of the system defined above. Let $\vec{g}$ be the vector with these equations, rewritten in terms of the digamma function, and $\vec{G}$ be the Hessian matrix (the matrix containing all second-order derivatives)[^mean_instead_of_sum].
+
 $$
 \begin{align*}
     \vec{g}&=
@@ -484,24 +520,29 @@ $$
 [^mean_instead_of_sum]: Note that this implicitly divides the log-likelihood derivates by $N$. This does not affect the outcome, since this would cancel out anyways, but dividing beforehand does make the algorithm more numerically stable.
 
 The parameters can then be approximated by iteratively subtracting the product of the inverse Hessian matrix ($\vec{G}^{-1}$) and the system of differential equations ($\vec{g}$) from the current estimate:
+
 $$
     \{\hat{\alpha},\hat{\beta}\}_{i+1}=\{\hat{\alpha},\hat{\beta}\}_{i}-\vec{G}^{-1}\cdot\vec{g}
 $$
+
 As $i\rightarrow\infty$, the estimate converges to $\hat{\alpha}_{\text{MLE}}$ and $\hat{\beta}_{\text{MLE}}$. Empirically, 10 iterations proved sufficient for most cases, especially when good starting conditions were chosen.
 
 ### Efficiency
 
 The Cramer-Rao Lower Bound (CRLB) states that the variance of an estimator is always above or at the inverse of the Fisher information of the parameters. Under the assumption that $\theta$ is an unbiased estimator of the true parameter, it follows as
+
 $$
     \operatorname{var}[\hat{\theta}]\geq\frac{1}{I_X(\theta)}
 $$
 
 Here $I_X(\theta)$ is the Fisher information function in terms of $\theta$, defined as,
+
 $$
     I_X(\theta)=-\mathbb{E}[\frac{\partial^2}{\partial^2\theta}\log l(x;\theta)]
 $$
 
 The log-likelihood functions were derived in the preceding sections. Their derivatives, in terms of $\alpha$ and $\beta$, are independent in terms of $x_i$. These are given by the main-diagonal elements of the above computed Hessian matrix.
+
 $$
 \begin{align}
     I(\alpha)&=N(\psi^{(1)}(\alpha)-\psi^{(1)}(\alpha+\beta)) \\
@@ -523,6 +564,12 @@ To simulate the properties of the MoME and MLE estimators, a $\operatorname{Beta
 >}}
 
 The results are depicted in the graph above. Both the MoME and MLE estimators are consistent, as their bias tends to $0$ as $N\rightarrow \infty$. Furthermore, estimator variance clearly decreases with sample size. While neither estimator is efficient (their variance for a given $N$ never approaches the CRLB), the MLE estimator does tend to be a little more efficient. That said, the quality of the MLE solution is dependent on starting conditions. As such, a good strategy combining both is to use the MoME estimate as the initial estimate which refined by several MLE iterations.
+
+### Code
+
+I've put a copy of the notebook used to generate these figures in a [public GitHub gist](https://gist.github.com/ioverho/9b4809b37637d86ba20fc5048fa1f98e):
+
+{{< gist ioverho 9b4809b37637d86ba20fc5048fa1f98e >}}
 
 ## References
 
