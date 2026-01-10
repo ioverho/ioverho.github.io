@@ -28,17 +28,12 @@ body {
     min-height: 60vh;
     max-width: var(--max-width);
     position: relative;
-    font-family:
-        "Open Sans",
-        Corbel,
-        ui-sans-serif,
-        system-ui,
-        source-sans-pro,
-        sans-serif,
-        "Apple Color Emoji",
-        "Segoe UI Emoji",
-        "Segoe UI Symbol",
-        "Noto Color Emoji";
+    /* System UI */
+    /* font-family: system-ui, sans-serif; */
+    /* Humanist */
+    font-family: Seravek, 'Gill Sans Nova', Ubuntu, Calibri, 'DejaVu Sans', source-sans-pro, sans-serif;
+    /* Geometric Humanist */
+    /* font-family: Avenir, Montserrat, Corbel, 'URW Gothic', source-sans-pro, sans-serif; */
 }
 
 header,
@@ -54,6 +49,33 @@ main {
 /* Remove link styling from footnote back to content icons */
 a.footnote-backref {
     text-decoration: none;
+}
+
+/* =============================================================================
+| Font size
+============================================================================= */
+p {
+    font-size: 1.8rem;
+}
+
+h1 {
+    font-size: 3.4rem;
+}
+
+h2 {
+    font-size: 2.8rem;
+}
+
+h3 {
+    font-size: 2.4rem;
+}
+
+h4 {
+    font-size: 1.8rem;
+}
+
+code {
+    font-size: 1.4rem;
 }
 
 /* =============================================================================
@@ -81,27 +103,27 @@ main {
     }
 
     p {
-        font-size: 1.6rem;
+        font-size: 1.8rem;
     }
 
     h1 {
-        font-size: 3.2rem;
+        font-size: 3.4rem;
     }
 
     h2 {
-        font-size: 2.6rem;
+        font-size: 2.8rem;
     }
 
     h3 {
-        font-size: 2.2rem;
+        font-size: 2.4rem;
     }
 
     h4 {
-        font-size: 1.6rem;
+        font-size: 1.8rem;
     }
 
     code {
-        font-size: 1.2rem;
+        font-size: 1.4rem;
     }
 
 }
@@ -182,6 +204,6 @@ a.blog-tags {
 | Blog posts
 ============================================================================= */
 ul.blog-posts li a {
-    font-weight: 100;
+    font-weight: 400;
     text-decoration: none;
 }
