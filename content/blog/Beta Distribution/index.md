@@ -63,7 +63,7 @@ $$
     \operatorname{B}(\alpha,\beta)=\int^1_0x^{\alpha-1}(1-x)^{\beta-1}dx
 $$
 
-[We can rewrite the Beta function as a quotient of Gamma functions evaluated at $\alpha$ and $\beta$](https://mathworld.wolfram.com/BetaFunction.html).
+We can rewrite the Beta function as a [quotient of Gamma functions](https://mathworld.wolfram.com/BetaFunction.html) evaluated at $\alpha$ and $\beta$.
 
 $$
     \operatorname{B}(\alpha,\beta)=\frac{\Gamma(\alpha)\Gamma(\beta)}{\Gamma(\alpha+\beta)}
@@ -125,7 +125,7 @@ $$
 \Gamma(\alpha)\Gamma(\beta)=B(\alpha,\beta)\Gamma(\alpha+\beta)\implies B(\alpha,\beta)=\frac{\Gamma(\alpha)\Gamma(\beta)}{\Gamma(\alpha+\beta)}
 $$
 
-Where the Gamma function interpolates the factorial function, the Beta function is [proportional to the inverse binomial coefficients at integer valued $\alpha$ and $\beta$](https://en.wikipedia.org/wiki/Beta_function#Properties).
+Where the Gamma function interpolates the factorial function, the Beta function is proportional to the [inverse binomial coefficients](https://en.wikipedia.org/wiki/Beta_function#Properties) at integer valued $\alpha$ and $\beta$.
 
 ### The Beta Distribution
 
