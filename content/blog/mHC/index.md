@@ -4,7 +4,7 @@ date: 2026-02-14
 tags:
   - machine-learning
 math: true
-draft: true
+draft: false
 ---
 
 {{< toc >}}
@@ -17,21 +17,21 @@ This post comes from a read-group style presentation I gave to my [NLU lab-mates
 
 ## Introduction
 
-Zhu et al.'s {{< cite "zhuHyperConnections2025" >}} Hyper-Connections and the recent follow-up work by Xie et al. {{< cite "xieMHCManifoldConstrainedHyperConnections2026" >}} on Manifold-Constrained Hyper-Connections represent some of the most exciting architectural design work in machine-learning that we've seen in a long time. It touches upon a lot of fundamental ideas in deep learning, and proposes a very elegant framework for massively increasing the topologocial complexity of any contained neural network with minimal additional parameters or computational overhead.
+Zhu et al.'s {{< cite "zhuHyperConnections2025" >}} Hyper-Connections (HC) and the recent follow-up work by Xie et al. {{< cite "xieMHCManifoldConstrainedHyperConnections2026" >}} on Manifold-Constrained Hyper-Connections (mHC) represent some of the most exciting architectural design work in machine-learning that we've seen in a long time. It touches upon a lot of fundamental ideas in deep learning, and proposes a very elegant framework for massively increasing the topologocial complexity of any contained neural network with minimal additional parameters or computational overhead.
 
 In the following sections I'll start by discussing residual connections, and why they led to deep learning taking off, before starting with Hyper-Connections and finishing with Manifold-Constrained Hyper-Connections.
 
 I've tried to align the notation between the papers and sections. This can make it more difficult to go from article to article. Here's a conversion table:
  
-| Name                      |       This Article        |        HC        |             mHC             |
-| :------------------------ | :-----------------------: | :--------------: | :-------------------------: |
-| Input                     |            $x$            |        -         |              -              |
-| Hidden state              |            $z$            |       $h$        |             $x$             |
-| Hyper Hidden Matrix       |       $\mathbf{Z}$        |   $\mathbf{H}$   |        $\mathbf{X}$         |
-| Operation/Function        |            $f$            |  $\mathcal{T}$   |        $\mathcal{F}$        |
-| Residual connections      | $\boldsymbol{\alpha}_{r}$ | $\mathbf{A}_{r}$ | $\mathcal{H}^{\text{res}}$  |
-| $z^{l-1}$-$f^{l}$ connections   | $\boldsymbol{\alpha}_{m}$ | $\mathbf{A}_{m}$ | $\mathcal{H}^{\text{pre}}$  |
-| $f^{l}$-$z^{l}$ connections |   $\boldsymbol{\beta}$    |   $\mathbf{B}$   | $\mathcal{H}^{\text{post}}$ |
+| Name                          |       This Article        |        HC        |             mHC             |
+| :---------------------------- | :-----------------------: | :--------------: | :-------------------------: |
+| Input                         |            $x$            |        -         |              -              |
+| Hidden state                  |            $z$            |       $h$        |             $x$             |
+| Hyper Hidden Matrix           |       $\mathbf{Z}$        |   $\mathbf{H}$   |        $\mathbf{X}$         |
+| Operation/Function            |            $f$            |  $\mathcal{T}$   |        $\mathcal{F}$        |
+| Residual connections          | $\boldsymbol{\alpha}_{r}$ | $\mathbf{A}_{r}$ | $\mathcal{H}^{\text{res}}$  |
+| $z^{l-1}$-$f^{l}$ connections | $\boldsymbol{\alpha}_{m}$ | $\mathbf{A}_{m}$ | $\mathcal{H}^{\text{pre}}$  |
+| $f^{l}$-$z^{l}$ connections   |   $\boldsymbol{\beta}$    |   $\mathbf{B}$   | $\mathcal{H}^{\text{post}}$ |
 
 ## Residual Connections
 
@@ -159,7 +159,7 @@ There are various other empirical trade-offs between the two model archetypes. I
 
 ## Hyper-Connections
 
-What if we could let the model optimize the structure of residual connections? This is the guiding idea behind Hyper-Connections (HC) {{< cite "zhuHyperConnections2025" >}}.
+What if we could let the model optimize the structure of residual connections? This is the guiding idea behind Hyper-Connections {{< cite "zhuHyperConnections2025" >}}.
 
 A Hyper-Connections based-architecture augments a standard Transformer[^architecture_agnostic] with multiple residual streams which are constructed from weighted combinations of the previous layer's output and the sublayer output, allowing the model to optimize its own residual paths between layers.
 
