@@ -40,8 +40,8 @@ $$z^{l}=f^{l}(z^{l-1})+z^{l-1}$$
 Graphically, we can depict this as follows:
 
 {{< figure-dynamic
-    dark-src="./figures/residual_connections.svg"
-    light-src="./figures/residual_connections.svg"
+    dark-src="./figures/residual_connections_dark.svg"
+    light-src="./figures/residual_connections_light.svg"
     alt="A residual connection as a network diagram."
 >}}
 
@@ -64,8 +64,8 @@ $$
 Graphically, we can represent this recurrence relation as:
 
 {{< figure-dynamic
-	dark-src="./figures/residual_connections_unrolled.svg"
-	light-src="./figures/residual_connections_unrolled.svg"
+	dark-src="./figures/residual_connections_unrolled_dark.svg"
+	light-src="./figures/residual_connections_unrolled_light.svg"
 	alt="A residual connection as an unrolled network diagram."
 	target="residual_connections_unrolled"
 	attr="Adapted from veitResidualNetworksBehave2016"
@@ -138,16 +138,16 @@ $$\begin{align}
 Ang graphically we can depict this as:
 
 {{< figure-dynamic
-    dark-src="figures/pre_and_post_norm.svg"
-    light-src="figures/pre_and_post_norm.svg"
+    dark-src="figures/pre_and_post_norm_dark.svg"
+    light-src="figures/pre_and_post_norm_light.svg"
     alt="Pre- and post-norm residual blocks in a Transformer."
 >}}
 
 Note that in post-norm model, the residual stream is not a true residual stream, as the sub-layer output and input are scaled by the inverse standard deviation of their sum ($\sigma(z^{l-1}+z^{l})^{-1}$) after each sublayer operation. Given that each $z^{l-1}$ is $\mathtt{LayerNorm}$ normalized, we may assume that $\sigma(z^{l-1}+z^{l})>1$, and that this scaling decreases the influence of $z^{l-1}$ to the representations at subsequent layers. This can be clearly seen in Zhu et al.'s {{< cite "zhuHyperConnections2025" >}} Figure 7:
  
 {{< figure-dynamic
-    dark-src="figures/baseline_connection_pattern.svg"
-    light-src="figures/baseline_connection_pattern.svg"
+    dark-src="figures/baseline_connection_pattern_dark.svg"
+    light-src="figures/baseline_connection_pattern_light.svg"
     alt="Contribution of earlier layers to later layers in a Transformer with pre- or post-norm residual blocks."
 >}}
 
@@ -189,8 +189,8 @@ where the first row corresponds to connections from the output of the sublayer o
 This makes $\mathcal{E}_{\mathtt{HC}}$ the adjacency matrix for a graph with $N+1$ nodes. Graphically, for $N=2$, it should look something like this:
 
 {{< figure-dynamic
-    dark-src="figures/hc_n2_base_plain.svg"
-    light-src="figures/hc_n2_base_plain.svg"
+    dark-src="figures/hc_n2_base_plain_dark.svg"
+    light-src="figures/hc_n2_base_plain_light.svg"
     alt="The Hyper-Connections residual network graph for $N=2$."
 >}}
 
@@ -229,8 +229,8 @@ The benefit of a Hyper-Connections augmented neural network seem clear. With min
 But does theory translate to practise? At least according to Zhu et al. {{< cite "zhuHyperConnections2025" >}}, yes. When looking at the connectivity patterns of the Hyper-Connections network we see rich, non-uniform connections between layers, with many long-range dependencies.
 
 {{< figure-dynamic
-    dark-src="figures/hc_connectivity_pattern.svg"
-    light-src="figures/hc_connectivity_pattern.svg"
+    dark-src="figures/hc_connectivity_pattern_dark.svg"
+    light-src="figures/hc_connectivity_pattern_light.svg"
     alt="Learned connectivity patterns for different HC residual streams."
 	attr="Adapted from Appendix F Figure 13 in zhuHyperConnections2025"
 >}}
@@ -240,8 +240,8 @@ More importantly, when we compare the different residual streams against each ot
 Converting this to actual performance, when pre-training an OLMo-1B model augmented with an HC network, we see lower training loss for $N>2$ and fewer loss spikes. 
 
 {{< figure-dynamic
-    dark-src="figures/hc_training_loss.svg"
-    light-src="figures/hc_training_loss.svg"
+    dark-src="figures/hc_training_loss_dark.svg"
+    light-src="figures/hc_training_loss_light.svg"
     alt="The loss during training an HC augmented OLMo-1B model."
 	attr="Adapted from Figure 5 in zhuHyperConnections2025"
 >}}
@@ -365,8 +365,8 @@ $$
 The benefits of the manifold-constraints are immediately obvious. In the following figure, Xie et al. {{< cite "xieMHCManifoldConstrainedHyperConnections2026" >}} compare the magnitude of the maximum element in the cumulative (product) forward and backward signals. On the left facet are the standard HC connections (unconstrained), and on the right are the mHC connections. Where HC is prone to exploding representations and especially gradients, the mHC representations remain more or less constant (note the logarithmic axis on the left).
 
 {{< figure-dynamic
-    dark-src="figures/mhc_forward_backward_gain.svg"
-    light-src="figures/mhc_forward_backward_gain.svg"
+    dark-src="figures/mhc_forward_backward_gain_dark.svg"
+    light-src="figures/mhc_forward_backward_gain_light.svg"
     alt="The maximum absolute value of the forward and backward signal in an HC or mHC model."
 	attr="Adapted from Figures 3 & 7 in xieMHCManifoldConstrainedHyperConnections2026"
 	width=1000
@@ -375,8 +375,8 @@ The benefits of the manifold-constraints are immediately obvious. In the followi
 We can see this even more clearly when inspecting the $\boldsymbol{\alpha}_{r}^{l}$ and $\prod_{l=1}^{L}\boldsymbol{\alpha}_{r}^{l}$ matrices directly.
 
 {{< figure-dynamic
-    dark-src="figures/mhc_heatmap.svg"
-    light-src="figures/mhc_heatmap.svg"
+    dark-src="figures/mhc_heatmap_dark.svg"
+    light-src="figures/mhc_heatmap_light.svg"
     alt="Various residual connection matrices and their products."
 	attr="Adapted from Figure 8 in xieMHCManifoldConstrainedHyperConnections2026"
 	width=1000
@@ -391,8 +391,8 @@ With mHC residual connections, we do not see this. The individual $\boldsymbol{\
 Of course, at the end of the day, what we care about most is the actual performance of an mHC augmented LLM. 
 
 {{< figure-dynamic
-    dark-src="figures/mhc_loss_grad.svg"
-    light-src="figures/mhc_loss_grad.svg"
+    dark-src="figures/mhc_loss_grad_dark.svg"
+    light-src="figures/mhc_loss_grad_light.svg"
     alt="The loss during training an HC augmented OLMo-1B model."
 	attr="Adapted from Figure 8 in xieMHCManifoldConstrainedHyperConnections2026"
 	width=1000
@@ -418,4 +418,5 @@ Another application I'm excited about is the use of mHC as a PEFT technique. Tak
 [2026-01-19] First draft
 [2026-02-12] Presentation added
 [2026-02-14] Finished the write up
+[2026-02-15] Added dark mode figures
 ```
