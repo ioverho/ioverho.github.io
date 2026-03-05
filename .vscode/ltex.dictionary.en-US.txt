@@ -1,3 +1,7 @@
 toc
 UvA
 Kumaraswamy
+mHC
+Xie
+Double-Stochasticity
+Sinkhorn-Knopp

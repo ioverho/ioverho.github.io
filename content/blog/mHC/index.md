@@ -119,7 +119,7 @@ In some sense, this enforces a generalization effect on the network. This was fa
     alt="Loss surface of ResNet with and without residual connections."
 >}}
 
-A [ResNet](https://en.wikipedia.org/wiki/Residual_neural_network) {{< cite "heDeepResidualLearning2016" >}} with residual connections has a much smoother loss landscape than an equivalent model without those connections. This leads to easier (i.e., more convex) optimization, and usually to broader minima. This latter property is often associated with improved generalization. [DenseNet](https://pytorch.org/hub/pytorch_vision_densenet/) {{< cite "huangDenselyConnectedConvolutional2017a" >}}, a succesor to ResNet with residual connections from each layer to **all** succeeding layer, shows an even smoother, more convex loss landscape.
+A [ResNet](https://en.wikipedia.org/wiki/Residual_neural_network) {{< cite "heDeepResidualLearning2016" >}} with residual connections has a much smoother loss landscape than an equivalent model without those connections. This leads to easier (i.e., more convex) optimization, and usually to broader minima. This latter property is often associated with improved generalization. [DenseNet](https://pytorch.org/hub/pytorch_vision_densenet/) {{< cite "huangDenselyConnectedConvolutional2017" >}}, a succesor to ResNet with residual connections from each layer to **all** succeeding layer, shows an even smoother, more convex loss landscape.
 
 ### Theoretical Guarantees
 
@@ -408,6 +408,21 @@ It wouldn't surprise me if we'd see a lot of Hyper-Connections start to appear g
 
 Another application I'm excited about is the use of mHC as a PEFT technique. Take a pre-trained LLM, and simply fine-tune the Hyper-Connections residual network around it. This would be *extremely* parameter efficient, and easily combined with other PEFT techniques.
 
+## Extra: Double-Stochasticity without Sinkhorn-Knopp
+While Xie et al. {{< cite "xieMHCManifoldConstrainedHyperConnections2026" >}} claim that with their GPU kernels the overhead of Sinkhorn-Knopp is minimal, ultimately this still adds a sequential bottleneck to the GPU. Furthermore, by limiting the total number of Sinkhorn-Knopp iterations, the doubly-stochastic matrices will not be exactly doubly-stochastic, which runs the risk of re-introducing the training instabilities we worked so hard on eliminating.
+
+Ideally, we'd to find some parallelizable GEMM method for producing doubly-stochastic matrices.
+
+Since the release of mHC, there are two papers which claim to have found such methods:
+1. Yang & Gao {{< cite "yangMHCliteYouDont2026" >}} leverage the [Birkhoff-von Neumann Theorem](https://en.wikipedia.org/wiki/Doubly_stochastic_matrix#Birkhoff%E2%80%93von_Neumann_theorem), and represent the residual matrix, $\boldsymbol{\alpha}_{r}$, as a weighted sum of [permutation matrices](https://en.wikipedia.org/wiki/Permutation_matrix). Specifically, they learn an additional dynamic vector $\mathbf{a}^{l}$ such that, $$\boldsymbol{\alpha}_{r}^{l}=\sum_{i=1}^{|\mathcal{P}|} a_{i}^{l}\mathbf{P}_{i}$$ where $\mathcal{P}$ is the set of all permutation matrices of size $N$. Note that this set has size $|\mathcal{P}|=N!$, and thus this approach is only useful for small values of $N$[^factorial].
+2. Zhou et al. {{< cite "zhouKromHCManifoldConstrainedHyperConnections2026" >}} instead represent the residual matrix a series of [Kronecker products](https://en.wikipedia.org/wiki/Kronecker_product) of lower dimensional residual matrices. First they factorize $\boldsymbol{\alpha}_{r}\in (0,1)^{N\times N}$ into a $K$-order tensor, $\boldsymbol{\alpha}_{r}\in (0,1)^{i_{1}\cdot i_{2}\cdot\ldots\cdot i_{K}}$, such that $N=\prod_{k=1}^{K}i_{k}$. The residual stream can then be reconstructed with the following Kronecker product: $$\bigotimes_{k=1}^{K} \mathbf{U}_{k}$$ Each $\mathbf{U}_{k}$ is a residual stream matrix for a lower expansion rate, i.e. $2$, which can be represented as a convex combination of permutation matrices.
+
+	This replaces the intractably expensive linear operation of Yang & Gao {{< cite "yangMHCliteYouDont2026" >}} with a sequence of much cheaper tensor products. Zhou et al. {{< cite "zhouKromHCManifoldConstrainedHyperConnections2026" >}} suggest using $i_{k}=2$ as much as possible, which means that an expansion rate which is a power of $2$ results in $\log_{2}(N)$ Kronecker products.
+
+The first version of mHC released on December 31, 2025. Yang & Gao {{< cite "yangMHCliteYouDont2026" >}} released their pre-print on January 5, 2026, and Zhou et al. {{< cite "zhouKromHCManifoldConstrainedHyperConnections2026" >}} on January 29, 2026. Chapeau! Their work should make training mHC models much easier.
+
+[^factorial]:drive home this point, $4!=24$, $8!=40,320$, $16!=20.9e+12$. Thus, using 8 residual streams is expensive, but doable, anything more quickly brings you into the realm of theoretical intractability.
+
 ## References
 
 {{< references >}}
@@ -419,4 +434,5 @@ Another application I'm excited about is the use of mHC as a PEFT technique. Tak
 [2026-02-12] Presentation added
 [2026-02-14] Finished the write up
 [2026-02-15] Added dark mode figures
+[2026-03-05] Added 'Extra: Double-Stochasticity without Sinkhorn-Knopp'
 ```
