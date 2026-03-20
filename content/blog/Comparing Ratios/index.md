@@ -178,7 +178,7 @@ Parameter $\beta_1$ measures the impact that the intervention has had on the dep
 
 [This excellent blog post](https://www.countbayesie.com/blog/2021/9/30/the-logit-normal-a-ubitiqutious-but-strange-distribution)[^4] discussed implementations, comparisons to the Bayesian Beta-Binomial model and computing magnitude differences using the spooky [Logit-Normal distribution](https://en.wikipedia.org/wiki/Logit-normal_distribution).
 
-[^4]: Another reason to read this blog post is the philosophical musing at the end: ”… many statisticians … turn to statistics as a tool to hide from the realities of a rapidly changing world, clinging to thin strands of imagined certainty, and hiding doubt in complexity.” *chef's kiss*
+[^4]: Another reason to read this blog post is the philosophical musing at the end: "… many statisticians … turn to statistics as a tool to hide from the realities of a rapidly changing world, clinging to thin strands of imagined certainty, and hiding doubt in complexity."
 
 Using `statsmodels`, we can estimate our logistic regression model on the same data as above, as,
 
@@ -228,7 +228,7 @@ From this, we see that the second model is $\exp(0.5390)=1.74\quad[0.22,13.41]$ 
 
 Notice that the `const` variable corresponds to our rate of $\sigma(0.8473)=0.7$ and that the logit of the sum of the coefficients gives us the rate of the second model $\sigma(0.8473+0.5390)=0.8$. Here $\sigma$ denotes the [standard logistic function](https://en.wikipedia.org/wiki/Logistic_function), the inverse of the logistic map we used to convert rates to odds.
 
-The added benefit is that now we can start to analyse *why* the second model does or does not perform better by controlling for different variables.
+The added benefit is that now we can start to analyze *why* the second model does or does not perform better by controlling for different variables.
 
 In this simple example, however, we have a **very** small sample sizes. This is likely the main reason behind non-significance. More importantly, however, is that the small samples might violate the assumptions of the $z$-test. As seen in the figure above, for $N=10$, the distributions do not particularly normally distributed. If we want to get around these limitations, we'll have to go to a Bayesian framework.
 
@@ -236,7 +236,7 @@ In this simple example, however, we have a **very** small sample sizes. This is 
 
 Bayesian approaches are more complicated, but if done correctly, it could help in cases of small sample sizes and boost interpretability. There is also a 'coolness' factor that frequentist approaches just can't touch.
 
-Assuming that the models we will discuss align with the ratio's actual underlying distributions, we can utilize posterior distributions that are exact models. This means concerns about 'asymptotic' behaviour and small sample sizes go right out the window. We can also estimate these models directly on the ratios, so we don't have to transform to odds or odds ratios.
+Assuming that the models we will discuss align with the ratio's actual underlying distributions, we can utilize posterior distributions that are exact models. This means concerns about 'asymptotic' behavior and small sample sizes go right out the window. We can also estimate these models directly on the ratios, so we don't have to transform to odds or odds ratios.
 
 ### Beta-Binomial Model for Independent Samples Comparison
 
@@ -308,9 +308,9 @@ Relative to the independent Beta-Binomial model discussed above, this test shoul
 
 ## Comparing Many Ratios
 
-So far we've focused on comparing $2$ ratios against each other. Individually, those ratios might comprise many observations, the number of systems producing these observations is limited. In many cases, however, we have access to many different ratios, each which communicates something distinct about our model's behaviour.
+So far we've focused on comparing $2$ ratios against each other. Individually, those ratios might comprise many observations, the number of systems producing these observations is limited. In many cases, however, we have access to many different ratios, each which communicates something distinct about our model's behavior.
 
-Statistically speaking, having acess to many smaller ratios can benefit the power of the analysis on the aggregated ratios.
+Statistically speaking, having access to many smaller ratios can benefit the power of the analysis on the aggregated ratios.
 
 ### Frequentist Meta-Analysis
 

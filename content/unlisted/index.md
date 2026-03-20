@@ -10,7 +10,7 @@ This page contains various other writing assignments or papers that I've (mostly
 
 My Bachelor's program put a lot of emphasis on developing writing skills. As a result, even the more technical, scientific courses included a few long-form writing assignments. Despite their age, and my level of 'expertise', I remain quite proud of some of these. Feel free to peruse, just ignore the dates.
 
-1. [The Beta Distribution](theory-of-statistics-and-data-analysis.pdf). May 2019, Mathematics
+1. [The Beta Distribution](/blog/beta-distribution/). May 2019, Mathematics (updated 2025)
 2. [Computational Text Analysis using R](computational-text-analysis-using-r.pdf). June 2019, Computer Science
 3. [Adoption of Solar Panels by Dutch Households](adoption-of-solar-panels-by-dutch-households.pdf). December 2019, Econometrics
 4. [General Collisions of Smooth Spheres](general-collisions-of-smooth-spheres.pdf). May 2020, Physics

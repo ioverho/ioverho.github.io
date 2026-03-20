@@ -7,7 +7,7 @@ tags:
 math: false
 ---
 
-I sometimes serve as a TA for NLP courses at the UvA, as part of my PhD responsibilities. For ['Advanced Topics in Computational Semantics'](https://cl-illc.github.io/semantics-2025/), an advanced MSc Artificial Intelligence course, I also lcture sometimes.
+I sometimes serve as a TA for NLP courses at the UvA, as part of my PhD responsibilities. For ['Advanced Topics in Computational Semantics'](https://cl-illc.github.io/semantics-2025/), an advanced MSc Artificial Intelligence course, I also lecture sometimes.
 
 For the 2025 edition, for the introductory lecture 'Attention and Transformers', I have revamped my slide deck using [Slidev](https://sli.dev/). These can now be viewed as a single page app.
 

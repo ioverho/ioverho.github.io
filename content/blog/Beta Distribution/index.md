@@ -9,7 +9,7 @@ math: true
 
 {{< toc >}}
 
-This article is a rewrite of an undergrad assignment that has proven popular. The original can still be found [here](../../unlisted/theory%20of%20statistics%20and%20data%20analysis.pdf).
+This article is a rewrite of an undergrad assignment that has proven popular.
 
 ## Introduction
 

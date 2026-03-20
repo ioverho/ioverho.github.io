@@ -10,7 +10,7 @@ draft: false
 
 {{< toc >}}
 
-This document contains a (very) condensed variant of notes I took for the 2021 edition of [UvA's Machine Learning 2 course](https://coursecatalogue.uva.nl/xmlpages/page/2021-2022-en/search-course/course/89422). While none of the methods we discussed are 'SoTA' any more, this course was one of the best I've ever had the privilege of taking. The emphasis on bi-weekly exams, meant that besides my lecture notes I also made a lot of summaries. The following is a computer friendly transcription of those summaries.
+This document contains a (very) condensed variant of notes I took for the 2021 edition of [UvA's Machine Learning 2 course](https://coursecatalogue.uva.nl/xmlpages/page/2021-2022-en/search-course/course/89422). While none of the methods we discussed are 'SoTA' anymore, this course was one of the best I've ever had the privilege of taking. The emphasis on bi-weekly exams, meant that besides my lecture notes I also made a lot of summaries. The following is a computer friendly transcription of those summaries.
 
 ## Exponential Families
 
@@ -28,7 +28,7 @@ $$\begin{align}
 A(\nu)=-\log(-\eta),\qquad&h(x)=\mathbb{1}(x>0)
 \end{align}$$ -->
 
-To find the n-th order moment of the distribution, we need only take the n-th order gradient of the log-partition function w.r.t. the natural parameters: $\nabla_{\eta}^{(n)}  A(\eta)$.
+To find the nth order moment of the distribution, we need only take the nth order gradient of the log-partition function w.r.t. the natural parameters: $\nabla_{\eta}^{(n)}  A(\eta)$.
 
 Exponential family distributions all allow for specifying conjugate prior distributions, allowing for a simple Bayesian updating scheme. Let
 
@@ -104,7 +104,7 @@ $$ H[p(x)] = \mathbb{E}_{p(x)}[-\log p(x)]. $$
 
 It can be seen as a non-linear extension of the standard deviation. Entropy is small when the distribution is highly concentrated, and low when highly spread. It is at it's maximum when the distribution is uniform.
 
-The base of the logarithm used can cause some confusion. Usually, for discrete variables, one uses base 2 and talks about *bits*, whereas for continuous distributions one uses base $e$ and talks about *nats*. This also depends on whether you come from a CS or maths background, though.
+The base of the logarithm used can cause some confusion. Usually, for discrete variables, one uses base 2 and talks about *bits*, whereas for continuous distributions one uses base $e$ and talks about *nats*. This also depends on whether you come from a CS or math background, though.
 
 If the variable is discrete, entropy is positive, $H[p(x)] \geq 0.$
 
@@ -214,7 +214,7 @@ Let $A, B, C$ be three sets of nodes. If all possible paths $a\in A\rightarrow v
 
 $$A\perp_{\mathcal{G}} B | C.$$
 
-This extends the notion of d-separation to MRFs. The same separoid axioms apply here, which can be summarised as,
+This extends the notion of d-separation to MRFs. The same separoid axioms apply here, which can be summarized as,
 
 $$A\perp_{\mathcal{G}} B\cup F | C \Leftrightarrow A\perp_{\mathcal{G}} F | C\cup B \wedge A\perp_{\mathcal{G}} B | C.$$
 
@@ -274,7 +274,7 @@ p(\mathbf{x}_{a}|\mathbf{x}_{b})&=\mathcal{N}(\mathbf{x}|\mathbf{\mu}_{a|b},\mat
 Similarly, the marginal distribution $p(\mathbf{x}_{a})$ is given by,
 $$p(\mathbf{x}_{a})=\mathcal{N}(\mathbf{x}|\mathbf{\mu}_{a},\mathbf{\Sigma}_{aa})$$
 
-The given block matrix inverses allow for translating between the variance and precision defintions.
+The given block matrix inverses allow for translating between the variance and precision definitions.
 
 For derivation, see Bishop's PRnML {{< cite "bishopPatternRecognitionMachine2006" >}} sections 2.3.1.and 2.3.2.
 
@@ -318,7 +318,7 @@ Thus, the composition of Gaussian provides a joint distribution that is Gaussian
 
 #### Bayes' theorem with Gaussians
 
-Similarly to above, we now have access to two distributions. A marginal distribution, $p(\mathbf{y})$, that serves as our prior, and a conditonal distribution $p(\mathbf{z}|\mathbf{y})$ that serves as the likelihood. Using Bayes' theorem, we want to compute the inverse conditional probability (the posterior) as:
+Similarly to above, we now have access to two distributions. A marginal distribution, $p(\mathbf{y})$, that serves as our prior, and a conditional distribution $p(\mathbf{z}|\mathbf{y})$ that serves as the likelihood. Using Bayes' theorem, we want to compute the inverse conditional probability (the posterior) as:
 $$p(\mathbf{y}|\mathbf{z})=p(\mathbf{z}|\mathbf{y})\dfrac{p(\mathbf{y})}{p(\mathbf{z})}$$
 
 Assuming that all involved probability distributions are Gaussians, then we can combine the results of the [composition of two Gaussian](#gaussian-composition) and that of the [conditional from a joint Gaussian distribution](#gaussian-conditionals--marginals) to find the posterior distribution as:

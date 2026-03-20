@@ -20,21 +20,21 @@ $$
 p_{\theta}(y_t|x, y_{t-})
 $$
 
-where $\theta$ corresponds to the architecture we're using. With *neural* machine translation systems, the predominant architectural structure is an encoder-decoder system; the encoder takes the soure text $x$ and encodes it, $f_{\theta}^{\text{(enc)}}(x)$, while the decoder takes as input the encoded source text and the preceding target text, $f_{\theta}^{\text{(dec)}}(y_{t-},f_{\theta}^{\text{(enc)}}(x))$.
+where $\theta$ corresponds to the architecture we're using. With *neural* machine translation systems, the predominant architectural structure is an encoder-decoder system; the encoder takes the source text $x$ and encodes it, $f_{\theta}^{\text{(enc)}}(x)$, while the decoder takes as input the encoded source text and the preceding target text, $f_{\theta}^{\text{(dec)}}(y_{t-},f_{\theta}^{\text{(enc)}}(x))$.
 
 Encoding the source text can[^can] occur relatively quickly, as it is sequence length independent. Short or long, we only need to pass the source text through our model once. This is not the case for decoder at inference time. To sample a translation, we have to produce each token, from beginning to end, and append each continuation to $y_{t-}$ to form the context for the next continuation: $p_{\theta}(y_{t+1}|x, y_{t-}\cup y_{t})$. This is called auto-regression, a situation where each step depends on the model's output at previous steps.
 
 [^can]: here the word *can* is operative, as common models do see some form of auto-regression during encoding. I'm trying to stay model agnostic for now
 
-As a result, the decoding process takes $T$ more compute steps to complete, relative to encoding. For example, to translate all text written so far, I'd have to run the model at least ~300 times. Sub-word tokenization is only going to exarcabate this issue.
+As a result, the decoding process takes $T$ more compute steps to complete, relative to encoding. For example, to translate all text written so far, I'd have to run the model at least ~300 times. Sub-word tokenization is only going to exacerbate this issue.
 
-For now, that it a cost we're just going to have to swallow, although it's most likely the single largest contributor to OpenAI's [eye-watering](https://www.businessinsider.com/how-much-chatgpt-costs-openai-to-run-estimate-report-2023-4?international=true&r=US&IR=T) overhead for running GPTx.
+For now, that it's a cost we're just going to have to swallow, although it's most likely the single largest contributor to OpenAI's [eye-watering](https://www.businessinsider.com/how-much-chatgpt-costs-openai-to-run-estimate-report-2023-4?international=true&r=US&IR=T) overhead for running GPTx.
 
 But it doesn't have to be this way. If we can remove or at least restrict the dependency on $y_{t-}$, we can remove the dependency on the target sequence length $T$, and produce (good??) translations at the same cost of encoding the source text. Impossible? Maybe for some, but not for non-autoregressive transformers (NAT).
 
 ## The Promise of Non-Autoregressive Transformers
 
-Transformers are inherently *not* autoregressive models. To allow it become autoregressive, we have to 'trick' it during training time, by masking all antecedent context, $y_{t+}$, a process called 'causal masking' or 'causal decoding'. Encoder only language models, like BERT {{< cite "devlinBERTPretrainingDeep2019a" >}}, get around this by using masked language modelling. Instead of requesting the model completes the string as
+Transformers are inherently *not* autoregressive models. To allow it to become autoregressive, we have to 'trick' it during training time, by masking all antecedent context, $y_{t+}$, a process called 'causal masking' or 'causal decoding'. Encoder only language models, like BERT {{< cite "devlinBERTPretrainingDeep2019a" >}}, get around this by using masked language modelling. Instead of requesting the model completes the string as
 
 > Grad student descent is the best gradient ...
 
@@ -68,11 +68,11 @@ At each step, the translation has access to better and better base translations,
 
 <!-- ![](lee_et_al_refinement_steps.png) -->
 
-As long as $i_{\text{dec}}\ll T$, this is still a much faster decoding process than autoregressive decoding... just not necessarily better. Ultimately, the quality of the translations is key, and especially at low $i_{\text{dec}}$, this lags substantially behind identical autoregressive models. Ever since, NATs have been playing cath-up with the autoregressive counterparts, trying to improve their inference time *quality* while maintaining their speed.
+As long as $i_{\text{dec}}\ll T$, this is still a much faster decoding process than autoregressive decoding... just not necessarily better. Ultimately, the quality of the translations is key, and especially at low $i_{\text{dec}}$, this lags substantially behind identical autoregressive models. Ever since, NATs have been playing catch-up with the autoregressive counterparts, trying to improve their inference time *quality* while maintaining their speed.
 
 ## Exposure Bias or Why Models Can't Understand Themselves
 
-The discussion has so far focused on inference time applications of NMT models. At inference time we do not have access to the ground truth translation (duh!), precisely because we're trying to generate them. This generation is usually more complex than simply sampling from the produced distribution, requiring a *decoding algorithm*. At training time, however, we do have access to those ground truth tranlations, and use those to create a learning signal for the model (no decoding algorithm necessary). During training, the model is thus never *exposed* to the output it produces, only the idealised output.
+The discussion has so far focused on inference time applications of NMT models. At inference time we do not have access to the ground truth translation (duh!), precisely because we're trying to generate them. This generation is usually more complex than simply sampling from the produced distribution, requiring a *decoding algorithm*. At training time, however, we do have access to those ground truth translations, and use those to create a learning signal for the model (no decoding algorithm necessary). During training, the model is thus never *exposed* to the output it produces, only the idealized output.
 
 As a result, models perform worse at inference time. While we train the model's token distribution to approximate, as best it can, the ground-truth distribution, decoding algorithms usually alter these distributions to find *sequences* of high probability[^inadequacy_of_the_mode]. In other words, the model's training objective does not align with its decoding algorithm. When we feed the tokens from the decoding algorithm back into the model, we essentially get a form of domain shift. This problem is somewhat infamous, and is called the exposure bias {{< cite "ranzatoSequenceLevelTraining2016" >}}.
 
@@ -82,11 +82,11 @@ As a result, models perform worse at inference time. While we train the model's 
 
 We would ideally like to minimize, or at least mitigate, this exposure bias. Wang & Sennrich {{< cite "wangExposureBiasHallucination2020" >}} and later Kiegeland & Kreutzer {{< cite "kiegelandRevisitingWeaknessesReinforcement2021" >}} achieve this by adding a minimum risk training component to the training process.
 
-Minimum Risk Training (MRT) has been around for while. It leverages a techique from reinforcement learning[^reinforce] to get a learning signal from a potentially undifferentiable risk function. By aligning the risk function with our decoding algorithm, we can introduce the model to its own output after utilising an undifferentiable decoding algorithm.
+Minimum Risk Training (MRT) has been around for a while. It leverages a technique from reinforcement learning[^reinforce] to get a learning signal from a potentially undifferentiable risk function. By aligning the risk function with our decoding algorithm, we can introduce the model to its own output after utilizing an undifferentiable decoding algorithm.
 
 Specifically, if we sample $K$ candidate translation from the decoding algorithm applied to our model, $\tilde{y}_{k}$, we can approximate our gradient as,
 
-
+$$
 \nabla \mathbb{E}\left[R(\tilde{y}, y)\right]\approx\frac{1}{K}\sum_{k=1}^K R(\tilde{y}_k, y)\log p_{\theta}(\tilde{y}|x)
 $$
 
@@ -141,7 +141,8 @@ while not converged:
   optimizer.step()
 ```
 
-Base on the pseudo-code above, we essentially have 5 degrees of freedom when experimenting:
+Base on the pseudocode above, we essentially have 5 degrees of freedom when experimenting:
+
 1. `select`: the method for converting the probability of tokens to a single token. This could be sampling, sampling with temperature, taking the mode (i.e. argmax) or any of a variety of decoding algorithms (top-k, nucleus sampling, etc.)
 2. `compute_risk`: the risk function. For this task, we want to compare two sentences on their translation quality. We chose BLEU, GLEU, ChrF2++. All of these are relatively cheap to compute, but in theory we could use more expensive methods like COMET, BLEURT, etc.
 3. `risk_baseline`: a method for estimating the baseline risk. Can reduce the variance of the risk, accelerating training. Methods for computing this baseline could include a running mean or a separate critic model. In our case, this gives the benefit of increasing the strength of the learning of very good or very poor translations, while minimizing those close to baseline
@@ -166,12 +167,13 @@ First things first, we want to make sure the add MRT fine-tuning does not harm t
 The columns give various corpus-level NMT quality estimates and their standard error. These metrics all have a different central tendency, and should not be compared against each other. I've bolded the maximum value per column, and any value whose mean + 2 std. errors is within the maximum.
 
 We can already draw two conclusions:
+
 1. MRT finetuning at the very least does not hurt performance at $i_{\text{dec}}=10$, and in fact, looks to slightly improve it
 2. The actual choice of metric does not seem to matter so much, although a noisy metric (Constant) hurts a little
 
 ### MRT finetuning can significantly speed up decoding
 
-The following table provides a slightly different view. Here all MRT models are trained with `argmax` sampling and BLEU as the risk function. Two baselibes are considered, the same as earlier. Rather than just measuring performance, we focus on the ChrF2++ score, and how many refinement iterations each model needs to reach its maximum score. We also show how steps are needed to beat the pre-trained model. The fewer steps, the better.
+The following table provides a slightly different view. Here all MRT models are trained with `argmax` sampling and BLEU as the risk function. Two baselines are considered, the same as earlier. Rather than just measuring performance, we focus on the ChrF2++ score, and how many refinement iterations each model needs to reach its maximum score. We also show how steps are needed to beat the pre-trained model. The fewer steps, the better.
 
 | Model         | Maximum          | Iterations | Iterations Pretrained |
 | ------------- | :--------------: | :--------: | :-------------------: |

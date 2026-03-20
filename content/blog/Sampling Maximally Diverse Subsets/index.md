@@ -101,7 +101,7 @@ We can nicely visualize this as below. You can identify each seed point as the o
 
 ![Some WSP space-filling designs](figures/some_wsp_solutions.svg)
 
-At the moment, the starting position has a significant effect on the overal structure of the different solutions, but this will decrease as the distance becomes smaller. To simplify things, from now on, I only use the point nearest to the origin, i.e. the  as the original seed point (right most figure).
+At the moment, the starting position has a significant effect on the overall structure of the different solutions, but this will decrease as the distance becomes smaller. To simplify things, from now on, I only use the point nearest to the origin, i.e. as the original seed point (right most figure).
 
 ## Binary Searching a Solution
 

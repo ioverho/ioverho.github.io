@@ -58,7 +58,7 @@ madeWith = "Made with [Bear Cub](https://github.com/clente/hugo-bearcub)"
 description = "Ivo Verhoeven's personal page"
 
 # The path to your favicon
-favicon = "favicon.ico"
+favicon = "favicon.png"
 
 # These images will show up when services want to generate a preview of a link
 # to your site. Ignored if `generateSocialCard = true`. For more information
