@@ -9,15 +9,13 @@ draft: false
 
 {{< toc >}}
 
-This post comes from a read-group style presentation I gave to my [NLU lab-mates](https://www.shutova.org/home/people). You can find the embedded slides below, or by [following this link](https://www.ivoverhoeven.nl/mHC). The rest of this post is a more detailed write up of notes.
+This post comes from a talk I gave to my [NLU lab-mates](https://www.shutova.org/home/people) explaining mHC. You can find the embedded slides below, or by [following this link](https://www.ivoverhoeven.nl/mHC). The rest of this post is a write-up of my notes and thoughts.
 
 <iframe src="https://www.ivoverhoeven.nl/mHC" width="100%" style="aspect-ratio: 16 / 9;"></iframe>
 
-<!-- <hr style="margin-top: 1em; margin-bottom: 1em;"> -->
-
 ## Introduction
 
-Zhu et al.'s {{< cite "zhuHyperConnections2025" >}} Hyper-Connections (HC) and the recent follow-up work by Xie et al. {{< cite "xieMHCManifoldConstrainedHyperConnections2026" >}} on Manifold-Constrained Hyper-Connections (mHC) represent some of the most exciting architectural design work in machine-learning that we've seen in a long time. It touches upon a lot of fundamental ideas in deep learning, and proposes a very elegant framework for massively increasing the topologocial complexity of any contained neural network with minimal additional parameters or computational overhead.
+Zhu et al.'s {{< cite "zhuHyperConnections2025" >}} Hyper-Connections (HC) and the recent follow-up work by Xie et al. {{< cite "xieMHCManifoldConstrainedHyperConnections2026" >}} on Manifold-Constrained Hyper-Connections (mHC) represent some of the most exciting architectural design work in machine-learning that we've seen in a long time. It touches upon a lot of fundamental ideas in deep learning, and proposes a very elegant framework for massively increasing the topological complexity of any contained neural network with minimal additional parameters or computational overhead.
 
 In the following sections I'll start by discussing residual connections, and why they led to deep learning taking off, before starting with Hyper-Connections and finishing with Manifold-Constrained Hyper-Connections.
 
@@ -48,36 +46,37 @@ Graphically, we can depict this as follows:
 When we apply a residual connection in succession, we get:
 $$
 \begin{align*}
-	z^{(1)}&=f^{1}(x)+x \\
-	z^{(2)}&=f^{2}(f^{1}(x)+x)+f^{1}(x)+x \\
-	z^{(3)}&=f^{3}(f^{2}(f^{1}(x)+x)+f^{1}(x)+x)+f^{2}(f^{1}(x)+x)+f^{1}(x)+x \\
-	\vdots
+ z^{1}&=f^{1}(x)+x \\
+ z^{2}&=f^{2}(f^{1}(x)+x)+f^{1}(x)+x \\
+ z^{3}&=f^{3}(f^{2}(f^{1}(x)+x)+f^{1}(x)+x)+f^{2}(f^{1}(x)+x)+f^{1}(x)+x \\
+ \vdots
 \end{align*}$$
 
 Simply put, the representation at layer $l$ is always constructed from [the sum of the previous $l$ layer representations](https://en.wikipedia.org/wiki/Residual_neural_network#Forward_propagation):
 $$
 \begin{align*}
-	z^{l}&=x+\sum_{i=1}^{l-1}f^{i}(z^{i-1}) \\
-	&x=z^{(0)}
+ z^{l}&=x+\sum_{i=1}^{l-1}f^{i}(z^{i-1}) \\
+ &x=z^{0}
 \end{align*}
 $$
 Graphically, we can represent this recurrence relation as:
 
 {{< figure-dynamic
-	dark-src="./figures/residual_connections_unrolled_dark.svg"
-	light-src="./figures/residual_connections_unrolled_light.svg"
-	alt="A residual connection as an unrolled network diagram."
-	target="residual_connections_unrolled"
-	attr="Adapted from veitResidualNetworksBehave2016"
+ dark-src="./figures/residual_connections_unrolled_dark.svg"
+ light-src="./figures/residual_connections_unrolled_light.svg"
+ alt="A residual connection as an unrolled network diagram."
+ target="residual_connections_unrolled"
 >}}
+
+<small><i>Adapted from {{< cite "veitResidualNetworksBehave2016" >}}</i></small>
 
 Applied in succession, this gives:
 $$
 \begin{align*}
-	z^{(1)}&=f_{1}(x)+x \\
-	z^{(2)}&=f_{2}(f_{1}(x)+x)+f_{1}(x)+x \\
-	z^{(3)}&=f_{3}(f_{2}(f_{1}(x)+x)+f_{1}(x)+x)+f_{2}(f_{1}(x)+x)+f_{1}(x)+x \\
-	\vdots
+ z^{1}&=f^{1}(x)+x \\
+ z^{2}&=f^{2}(f^{1}(x)+x)+f^{1}(x)+x \\
+ z^{3}&=f^{3}(f^{2}(f^{1}(x)+x)+f^{1}(x)+x)+f^{2}(f^{1}(x)+x)+f^{1}(x)+x \\
+ \vdots
 \end{align*}$$
 
 The advantages of residual connections are numerous.
@@ -96,20 +95,20 @@ If the norm of these gradients are too small or too large, the backprop signal p
 
 $$
 \begin{align*}
-	\frac{\partial }{\partial x}\mathcal{L}(z^{l}) &= \frac{\partial}{\partial z^{l}}\mathcal{L}(z^{l})\frac{\partial}{\partial x}z^{l} & \text{(chain rule)}\\
-	&= \frac{\partial}{\partial z^{l}}\mathcal{L}(z^{l})\left(\frac{\partial}{\partial x} x +\frac{\partial}{\partial x}\sum_{i=1}^{L-1}f_{i}(z^{(i-1)})\right) & \text{(linearity)}\\
-	&= \frac{\partial}{\partial z^{l}}\mathcal{L}(z^{l}) + \frac{\partial}{\partial z^{l}}\mathcal{L}(z^{l})\sum_{i=1}^{L-1}\frac{\partial}{\partial x}f_{i}(z^{(i-1)}) & \text{(linearity)}\\
-	&= \frac{\partial}{\partial z^{l}}\mathcal{L}(z^{l}) + \frac{\partial}{\partial z^{l}}\mathcal{L}(z^{l})\left(\frac{\partial}{\partial x}f_{1}(x) + \frac{\partial}{\partial x}f_{2}(z_{1})+\ldots\right)
+ \frac{\partial }{\partial x}\mathcal{L}(z^{l}) &= \frac{\partial}{\partial z^{l}}\mathcal{L}(z^{l})\frac{\partial}{\partial x}z^{l} & \text{(chain rule)}\\
+ &= \frac{\partial}{\partial z^{l}}\mathcal{L}(z^{l})\left(\frac{\partial}{\partial x} x +\frac{\partial}{\partial x}\sum_{i=1}^{L-1}f_{i}(z^{(i-1)})\right) & \text{(linearity)}\\
+ &= \frac{\partial}{\partial z^{l}}\mathcal{L}(z^{l}) + \frac{\partial}{\partial z^{l}}\mathcal{L}(z^{l})\sum_{i=1}^{L-1}\frac{\partial}{\partial x}f_{i}(z^{(i-1)}) & \text{(linearity)}\\
+ &= \frac{\partial}{\partial z^{l}}\mathcal{L}(z^{l}) + \frac{\partial}{\partial z^{l}}\mathcal{L}(z^{l})\left(\frac{\partial}{\partial x}f^{1}(x) + \frac{\partial}{\partial x}f^{2}(z_{1})+\ldots\right)
 \end{align*}
 $$
 
-This mitigates the effect of vanishing/exploding gradients, because from the representations at each layer's output, there is always a direct path to the lowest layer inputs. To convinve yourself of this, take another look at the figure above.
+This mitigates the effect of vanishing/exploding gradients, because from the representations at each layer's output, there is always a direct path to the lowest layer inputs. To convince yourself of this, take another look at the figure above.
 
 <!-- Thus, residual connections mitigate the effect of [vanishing gradients](https://en.wikipedia.org/wiki/Vanishing_gradient_problem) in (arbitrarily) deep neural networks. This intuition led to the [ResNet](https://en.wikipedia.org/wiki/Residual_neural_network) architecture, which remains one of the most highly cited deep learning papers ever, and heralded in the new deep learning age {{< cite "heDeepResidualLearning2016" >}}. -->
 
 ### Ensembles of Networks & Generalization
 
-Another suspected benefit of residual connections is that it forces complete neural net to act as an ensemble of sub-layers, rather than just a composition. This means later, more specialised representations still have access to the representations of earlier, more general layers, and that earlier layers are equally responsible for the final output as the later layers.
+Another suspected benefit of residual connections is that it forces complete neural net to act as an ensemble of sub-layers, rather than just a composition. This means later, more specialized representations still have access to the representations of earlier, more general layers, and that earlier layers are equally responsible for the final output as the later layers.
 
 In some sense, this enforces a generalization effect on the network. This was famously visualized by Li et al. (2018) {{< cite "liVisualizingLossLandscape2018" >}}:
 
@@ -119,7 +118,9 @@ In some sense, this enforces a generalization effect on the network. This was fa
     alt="Loss surface of ResNet with and without residual connections."
 >}}
 
-A [ResNet](https://en.wikipedia.org/wiki/Residual_neural_network) {{< cite "heDeepResidualLearning2016" >}} with residual connections has a much smoother loss landscape than an equivalent model without those connections. This leads to easier (i.e., more convex) optimization, and usually to broader minima. This latter property is often associated with improved generalization. [DenseNet](https://pytorch.org/hub/pytorch_vision_densenet/) {{< cite "huangDenselyConnectedConvolutional2017" >}}, a succesor to ResNet with residual connections from each layer to **all** succeeding layer, shows an even smoother, more convex loss landscape.
+<small><i>Adapted from {{< cite "liVisualizingLossLandscape2018" >}}</i></small>
+
+A [ResNet](https://en.wikipedia.org/wiki/Residual_neural_network) {{< cite "heDeepResidualLearning2016" >}} with residual connections has a much smoother loss landscape than an equivalent model without those connections. This leads to easier (i.e., more convex) optimization, and usually to broader minima. This latter property is often associated with improved generalization. [DenseNet](https://pytorch.org/hub/pytorch_vision_densenet/) {{< cite "huangDenselyConnectedConvolutional2017" >}}, a successor to ResNet with residual connections from each layer to **all** succeeding layer, shows an even smoother, more convex loss landscape.
 
 ### Theoretical Guarantees
 
@@ -127,7 +128,7 @@ According to [D2L](https://d2l.ai/chapter_convolutional-modern/resnet.html#funct
 
 ## Residual Connections in Transformers
 
-In short, residual connections are a pretty good idea when training deep neural networks. It is no surprise, then, that [Transformers](https://en.wikipedia.org/wiki/Transformer_(deep_learning)) {{< cite "vaswaniAttentionAllYou2017" >}} make extensive use of residual connections. These come in two flavours: pre- and post-norm. With pre-norm the $\mathtt{LayerNorm}$ operation comes before the sublayer operations ($\mathtt{MHA}$ followed by $\mathtt{FFNN}$), whereas in post-norm architectures the $\mathtt{LayerNorm}$ comes after those sublayer operations and the addition with the residual stream.
+In short, residual connections are a pretty good idea when training deep neural networks. It is no surprise, then, that [Transformers](https://en.wikipedia.org/wiki/Transformer_(deep_learning)) {{< cite "vaswaniAttentionAllYou2017" >}} make extensive use of residual connections. These come in two flavors: pre- and post-norm. With pre-norm the $\mathtt{LayerNorm}$ operation comes before the sublayer operations ($\mathtt{MHA}$ followed by $\mathtt{FFNN}$), whereas in post-norm architectures the $\mathtt{LayerNorm}$ comes after those sublayer operations and the addition with the residual stream.
 
 Symbolically, we would denote this as:
 $$\begin{align}
@@ -135,7 +136,7 @@ $$\begin{align}
     &\mathtt{LayerNorm}(f^l(z^{l-1})+z^{l-1}) &\text{(post-norm)}
 \end{align}$$
 
-Ang graphically we can depict this as:
+And graphically we can depict this as:
 
 {{< figure-dynamic
     dark-src="figures/pre_and_post_norm_dark.svg"
@@ -143,19 +144,21 @@ Ang graphically we can depict this as:
     alt="Pre- and post-norm residual blocks in a Transformer."
 >}}
 
-Note that in post-norm model, the residual stream is not a true residual stream, as the sub-layer output and input are scaled by the inverse standard deviation of their sum ($\sigma(z^{l-1}+z^{l})^{-1}$) after each sublayer operation. Given that each $z^{l-1}$ is $\mathtt{LayerNorm}$ normalized, we may assume that $\sigma(z^{l-1}+z^{l})>1$, and that this scaling decreases the influence of $z^{l-1}$ to the representations at subsequent layers. This can be clearly seen in Zhu et al.'s {{< cite "zhuHyperConnections2025" >}} Figure 7:
- 
+Note that in post-norm model, the residual stream is not a true residual stream, as the sub-layer output and input are scaled by the inverse standard deviation of their sum ($\sigma(z^{l-1}+z^{l})^{-1}$) after each sublayer operation. Given that each $z^{l-1}$ is $\mathtt{LayerNorm}$ normalized, we may assume that $\sigma(z^{l-1}+z^{l})>1$, and that this scaling decreases the influence of $z^{l-1}$ to the representations at subsequent layers.
+
 {{< figure-dynamic
     dark-src="figures/baseline_connection_pattern_dark.svg"
     light-src="figures/baseline_connection_pattern_light.svg"
     alt="Contribution of earlier layers to later layers in a Transformer with pre- or post-norm residual blocks."
 >}}
 
-In a pre-norm model, the contribution of earlier layers to later layers exponentially decays, resulting in each representation being consructed primarily from the closest ancestor layers. In pre-norm, which does use a 'true' residual connection, this does not happen: each layer contributes an equal amount to the representation of each later layer.
+<small><i>Adapted from {{< cite "zhuHyperConnections2025" >}}, Figure 7</i></small>
 
-Either architecture flavour comes with its own benefits and downsides. With pre-norm, the model ensures a stable and consistent residual stream, resulting in strong gradients even in very deep models. This comes at the cost of model representation collapse. Since earlier layers essentially have an $L-l$ times greater impact on the final representations, later layers have to accomodate for this and tend to produce increasingly smaller changes to the input. As a result, the token representations between different layers start to become too similar. Post-norm models suffer from the opposite problem. The impact of earlier layers is dimished (due to the $\mathtt{LayerNorm}$) scaling, reducing the occurence of representation collapse, but at the cost of incurring vanishing gradients.
+In a post-norm model, the contribution of earlier layers to later layers exponentially decays, resulting in each representation being constructed primarily from the closest ancestor layers. In pre-norm, which does use a 'true' residual connection, this does not happen: each layer contributes an equal amount to the representation of each later layer.
 
-There are various other empirical trade-offs between the two model archetypes. Importantly, the macroscopic architecture of the model is a hyper-parameter determined beforehand, and remains fixed for all tasks to which we apply the pre-trained model.
+Either architecture flavor comes with its own benefits and downsides. With pre-norm, the model ensures a stable and consistent residual stream, resulting in strong gradients even in very deep models. This comes at the cost of model representation collapse. Since earlier layers essentially have an $L-l$ times greater impact on the final representations, later layers have to accommodate for this and tend to produce increasingly smaller changes to the input. As a result, the token representations between different layers start to become too similar. Post-norm models suffer from the opposite problem. The impact of earlier layers is diminished (due to $\mathtt{LayerNorm}$ scaling), reducing the occurrence of representation collapse, but at the cost of incurring vanishing gradients.
+
+There are various other empirical trade-offs between the two model archetypes. Importantly, the macroscopic architecture of the model is a hyperparameter determined beforehand, and remains fixed for all tasks to which we apply the pre-trained model.
 
 ## Hyper-Connections
 
@@ -163,7 +166,7 @@ What if we could let the model optimize the structure of residual connections? T
 
 A Hyper-Connections based-architecture augments a standard Transformer[^architecture_agnostic] with multiple residual streams which are constructed from weighted combinations of the previous layer's output and the sublayer output, allowing the model to optimize its own residual paths between layers.
 
-[^architecture_agnostic]: Strictly speaking, Hyper-Connections seems to be architecture agnostic, althought the paper only discusses Transformers.
+[^architecture_agnostic]: Strictly speaking, Hyper-Connections seems to be architecture agnostic, although the paper only discusses Transformers.
 
 Specifically, an $\mathtt{HC}$ block consists of a sublayer operation (e.g., $\mathtt{MHA}$) and a residual network with $N$ separate residual streams.
 
@@ -177,10 +180,10 @@ Each residual stream is allowed to transfer weighted information from itself to 
 
 $$
 \begin{align*}
-	\mathcal{E}_{\mathtt{HC}}=\begin{pmatrix}
-		\boldsymbol{0_{1\times 1}} & \boldsymbol{\beta} \\
-		\boldsymbol{\alpha}_{m} & \boldsymbol{\alpha}_{r} \\
-	\end{pmatrix}
+ \mathcal{E}_{\mathtt{HC}}=\begin{pmatrix}
+  \boldsymbol{0_{1\times 1}} & \boldsymbol{\beta} \\
+  \boldsymbol{\alpha}_{m} & \boldsymbol{\alpha}_{r} \\
+ \end{pmatrix}
 \end{align*}
 $$
 
@@ -197,8 +200,8 @@ This makes $\mathcal{E}_{\mathtt{HC}}$ the adjacency matrix for a graph with $N+
 We can equivalently represent all of this as a series of matrix products:
 $$
 \begin{align*}
-	\mathbf{Z}^{l} &= \boldsymbol{\beta}f_{l}(\boldsymbol{\alpha_{m}}^{\intercal}\mathbf{Z}^{l-1})+\boldsymbol{\alpha}_{r}\mathbf{Z}^{l-1} \\
-	\mathbf{Z}^0&=\begin{bmatrix}z^0 & z^0 & \ldots & z^0\end{bmatrix}
+ \mathbf{Z}^{l} &= \boldsymbol{\beta}f_{l}(\boldsymbol{\alpha_{m}}^{\intercal}\mathbf{Z}^{l-1})+\boldsymbol{\alpha}_{r}\mathbf{Z}^{l-1} \\
+ \mathbf{Z}^0&=\begin{bmatrix}z^0 & z^0 & \ldots & z^0\end{bmatrix}
 \end{align*}
 $$
 
@@ -206,7 +209,7 @@ Note the similarity to the original formulation of a residual connection!
 
 ### Dynamic Hyper-Connections
 
-So far, $\mathcal{E}_{\mathtt{HC}}$ is depedent on the training task. While the structure of the residual network will change as we change pre-training tasks, it remain input independent. Howevever, we can easily make the $\boldsymbol{\alpha}_{m}, \boldsymbol{\alpha}_{r}, \boldsymbol{\beta}$ matrices a function of $\mathbf{Z}$. This makes the macro-scopic structure of the architecture input dependent: the particular flow of information will change for each input to the model.
+So far, $\mathcal{E}_{\mathtt{HC}}$ is dependent on the training task. While the structure of the residual network will change as we change pre-training tasks, it remains input independent. However, we can easily make the $\boldsymbol{\alpha}_{m}, \boldsymbol{\alpha}_{r}, \boldsymbol{\beta}$ matrices a function of $\mathbf{Z}$. This makes the macroscopic structure of the architecture input dependent: the particular flow of information will change for each input to the model.
 
 Zhu et al. {{< cite "zhuHyperConnections2025" >}} achieve this by adding the following weights:
 $$
@@ -217,23 +220,24 @@ $$
 \boldsymbol{\alpha}^{l}_{r}(\bar{\mathbf{Z}}^{l})&=\mathbf{S}_{\alpha_{r}}^{l}\odot\mathtt{tanh}(\bar{\mathbf{Z}}^{l})+\mathbf{B}_{\alpha_{r}}^{l} & \in\mathbb{R}^{N\times N}
 \end{align*}
 $$
-Note that despite the $\mathtt{tanh}\in(-1, 1)$, these matrices are unbounded due to the scaling and bias factors. THis has major implications for the stability of Hyper-Connections in deep networks.
+Note that despite the $\mathtt{tanh}\in(-1, 1)$, these matrices are unbounded due to the scaling and bias factors. This has major implications for the stability of Hyper-Connections in deep networks.
 
 ### Results
 #### The Good
 
-The benefit of a Hyper-Connections augmented neural network seem clear. With minimal additional parameters ($N^2 + 2N$ for each layer), and an $N$ times larger memory footprint of the intermediate reprsentations[^memory_footprint], we get a substantially more topologically complex architecture that should make the model more expressive while also reducing optimization issues like vanishing or exploding gradients.
+The benefit of a Hyper-Connections augmented neural network seem clear. With minimal additional parameters ($N^2 + 2N$ for each layer), and an $N$ times larger memory footprint of the intermediate representations[^memory_footprint], we get a substantially more topologically complex architecture that should make the model more expressive while also reducing optimization issues like vanishing or exploding gradients.
 
 [^memory_footprint]: Note that this only affects the intermediate representations. The input to the sublayer operations (which dominate memory, especially with attention) are summed over the residual stream dimension.
 
-But does theory translate to practise? At least according to Zhu et al. {{< cite "zhuHyperConnections2025" >}}, yes. When looking at the connectivity patterns of the Hyper-Connections network we see rich, non-uniform connections between layers, with many long-range dependencies.
+But does theory translate to practice? At least according to Zhu et al. {{< cite "zhuHyperConnections2025" >}}, yes. When looking at the connectivity patterns of the Hyper-Connections network we see rich, non-uniform connections between layers, with many long-range dependencies.
 
 {{< figure-dynamic
     dark-src="figures/hc_connectivity_pattern_dark.svg"
     light-src="figures/hc_connectivity_pattern_light.svg"
     alt="Learned connectivity patterns for different HC residual streams."
-	attr="Adapted from Appendix F Figure 13 in zhuHyperConnections2025"
 >}}
+
+<small><i>Adapted from {{< cite "zhuHyperConnections2025" >}}, Appendix F Figure 13</i></small>
 
 More importantly, when we compare the different residual streams against each other (see above figure), we see differentiation. Each stream is retaining different types of information. For example, the left most stream seems to gather information from the nearest layers, whereas the middle stream seems to prioritize the MLP layers.
 
@@ -243,16 +247,17 @@ Converting this to actual performance, when pre-training an OLMo-1B model augmen
     dark-src="figures/hc_training_loss_dark.svg"
     light-src="figures/hc_training_loss_light.svg"
     alt="The loss during training an HC augmented OLMo-1B model."
-	attr="Adapted from Figure 5 in zhuHyperConnections2025"
 >}}
+
+<small><i>Adapted from {{< cite "zhuHyperConnections2025" >}}, Figure 5</i></small>
 
 In their appendix they show that this benefit extends to a plethora of downstream tasks, and in other domains as well.
 
 #### The Bad
 
-What should immediately jump out at you though, is that an HC augmented OLMo with $N=1$ actually performns *worse* than a standard residual stream OLMo. This seems counterintuitive at first. With $N=1$, the HC network is just a standard residual connection with some additional learned scaling and shifting parameters. Why would this minimal addition cause such a degradation in performance?
+What should immediately jump out at you though, is that an HC augmented OLMo with $N=1$ actually performs *worse* than a standard residual stream OLMo. This seems counterintuitive at first. With $N=1$, the HC network is just a standard residual connection with some additional learned scaling and shifting parameters. Why would this minimal addition cause such a degradation in performance?
 
-Zhu et al. {{< cite "zhuHyperConnections2025" >}} only expend a little ink discussing this surprising result (bottom of page 23). They suggest the fault lies with a missing conection from layer 17 to subsequent layers, indicative of vanishing gradients. This is a somewhat unsatisfying conclusion, especially considering that residual connections were supposed to mitigate this behaviour.
+Zhu et al. {{< cite "zhuHyperConnections2025" >}} expend little ink discussing this surprising result (bottom of page 23). They suggest the fault lies with a missing connection from layer 17 to subsequent layers, indicative of vanishing gradients. This is a somewhat unsatisfying conclusion, especially considering that residual connections were supposed to mitigate this behavior.
 
 Could there be something more fundamental going on?
 
@@ -278,11 +283,11 @@ $$
 \end{align*}
 $$
 
-Instead of a nice summation, we get a series of long product chains, which tend to explode or vanish, depending on the norm of $\boldsymbol{\alpha}_{r}$. This re-introduces the exact problem we tried to mitigate with residual connections in the first place. If we were to set $\boldsymbol{\alpha}_{r}=\mathbf{I}$, we recover the residual connetion, and given that $\mathbf{I}\mathbf{I}=\mathbf{I}$ the nasty product term collapses into a much friendlier summation again:
+Instead of a nice summation, we get a series of long product chains, which tend to explode or vanish, depending on the norm of $\boldsymbol{\alpha}_{r}$. This re-introduces the exact problem we tried to mitigate with residual connections in the first place. If we were to set $\boldsymbol{\alpha}_{r}=\mathbf{I}$, we recover the residual connection, and given that $\mathbf{I}\mathbf{I}=\mathbf{I}$ the nasty product term collapses into a much friendlier summation again:
 
 $$\mathbf{Z}^{l}=\mathbf{I}\mathbf{Z}^{0}+\sum_{i=1}^{L-1}\mathbf{I}\boldsymbol{\beta}^{i}f^{i}\left(\left(\boldsymbol{\alpha}^{i}_{m}\right)^{\intercal}\mathbf{Z}^{i-1}\right)$$
 
-Obviously, we don't actually want to set $\boldsymbol{\alpha}_{r}=\mathbf{I}$ as it severly restricts the expressivity of our model. Instead, we can set a constraint on $\boldsymbol{\alpha}_{r}$ such that the norm of its product is equal to that of an identity matrix:
+Obviously, we don't actually want to set $\boldsymbol{\alpha}_{r}=\mathbf{I}$ as it severely restricts the expressivity of our model. Instead, we can set a constraint on $\boldsymbol{\alpha}_{r}$ such that the norm of its product is equal to that of an identity matrix:
 
 $$\|\prod_{l=1}^{L} \boldsymbol{\alpha}^{l}_{r}\|_{2}=\|\prod_{l=1}^{L} \mathbf{I}\|_{2}=1$$
 
@@ -296,17 +301,17 @@ $$A_{i,j}>0\wedge\sum_{i=1}^{N}\mathbf{A}_{i,j}=\sum_{j=1}^{N}\mathbf{A}_{i,j}=1
 
 For our purposes, doubly stochastic matrices have two very important properties:
 
-1. **Norm**: the $1$- and $\infty$-norm $\|\mathbf{A}\|_{1}=\|\mathbf{A}\|_{\infty}=1$. More importantly, the spectral/Frobenius norm is also 1: $\|\mathbf{A}\|_2=1$. The former is trivial to prove, but the latter is much less obvious, and the mHC paper glosses over the details. I reccomend the following sources: {{< cite "jiangSpectralNormDoubly2024" >}} and {{< cite "nylenNumericalRangeDoubly1991" >}}
+1. **Norm**: the $1$- and $\infty$-norm $\|\mathbf{A}\|_{1}=\|\mathbf{A}\|_{\infty}=1$. More importantly, the spectral/Frobenius norm is also 1: $\|\mathbf{A}\|_2=1$. The former is trivial to prove, but the latter is much less obvious, and the mHC paper glosses over the details. I recommend the following sources: {{< cite "jiangSpectralNormDoubly2024" >}} and {{< cite "nylenNumericalRangeDoubly1991" >}}
 2. **Closure under Multiplication**: the product of two doubly-stochastic matrices is [another doubly-stochastic matrix](https://en.wikipedia.org/wiki/Doubly_stochastic_matrix#Properties). This [proof is relatively easy](https://math.stackexchange.com/a/2221823), and follows from the fact that the product of a doubly stochastic matrix preserves the 1- and $\infty$-norms.
 
 Together, this gives us exactly the type of matrix we were looking for. If $\boldsymbol{\alpha}_{r}^{l}$ is doubly stochastic for all $l\in\{1,\ldots,L\}$, then their product has constant norm, $\|\prod_{l=1}^{L} \boldsymbol{\alpha}^{l}_{r}\|_{2}=1$.
 
-The space of all possible doubly-stochastic matrices of size $N$ is called the Birkhoff polytope, which is an $N-1$ manifold in $N$ dimensional space. Thus, enforcing double stochasticity on  $\boldsymbol{\alpha}_{r}$ is tantamount to constraining it to the Birkhoff polytope manifold (hence, **Manifold-Constrained**).
+The space of all possible doubly-stochastic matrices of size $N$ is called the Birkhoff polytope, which is an $N-1$ manifold in $N$ dimensional space. Thus, enforcing double stochasticity on $\boldsymbol{\alpha}_{r}$ is tantamount to constraining it to the Birkhoff polytope manifold (hence, **Manifold-Constrained**).
 
 > [!abstract]+ The Birkhoff Polytope
 > The Birkhoff polytope is an $N-1$ manifold containing all $N\times N$ doubly-stochastic matrices (a [polytope](https://en.wikipedia.org/wiki/Polytope) being a geometric object with flat faces). The nodes/vertices of the polytope (i.e., the corners) represent the doubly-stochastic matrices where exactly 1 non-zero value is present in each row and column. These are the [permutation matrices](https://en.wikipedia.org/wiki/Permutation_matrix). The n-gon faces (always either triangles or rectangles) of the polytope represent convex mixtures of these permutation matrices.
 > 
-> The [Birkhoff-von Neumann Theorem](https://en.wikipedia.org/wiki/Doubly_stochastic_matrix#Birkhoff%E2%80%93von_Neumann_theorem) states that on the inside of the of the Birkhoff lie all possible $N\times N$ doubly-stochastic matrices.
+> The [Birkhoff-von Neumann Theorem](https://en.wikipedia.org/wiki/Doubly_stochastic_matrix#Birkhoff%E2%80%93von_Neumann_theorem) states that on the inside of the Birkhoff lie all possible $N\times N$ doubly-stochastic matrices.
 >
 > [Linear Algebra for Programmers](https://www.linearalgebraforprogrammers.com/series/permutation_sinkhorn/0_permutation_cycles) provides a very nice tutorial on permutation matrices and the Birkhoff-von Neumann theorem.
 
@@ -318,21 +323,21 @@ Thus, if we want to convert our $\boldsymbol{\alpha}_{r}$ to a doubly stochastic
 
 ```python
 def sinkhorn_knopp(
-	A: Float[np.ndarray, "N N"],
+ A: Float[np.ndarray, "N N"],
 ) -> Float[np.ndarray, "N N"]:
-	while True:
-		row_sum = np.sum(A, axis=1, keepdims=True)
-		
-		A /= row_sum
-		
-		col_sum = np.sum(A, axis=0, keepdims=True)
-		
-		A /= col_sum
-		
-		# Check for convergence
-		...
-	
-	return A
+ while True:
+  row_sum = np.sum(A, axis=1, keepdims=True)
+  
+  A /= row_sum
+  
+  col_sum = np.sum(A, axis=0, keepdims=True)
+  
+  A /= col_sum
+  
+  # Check for convergence
+  ...
+ 
+ return A
 ```
 
 This is also known as [Iterative Proportional Fitting](https://en.wikipedia.org/wiki/Iterative_proportional_fitting), and is guaranteed to converge.
@@ -341,8 +346,8 @@ Thus, to convert an arbitrary matrix to a doubly stochastic one (i.e., constrain
 
 $$
 \begin{align*}
-	^{+}\boldsymbol{\alpha}_{r}^{l}(\bar{\mathbf{Z}}^l)&=\exp(\boldsymbol{\alpha}_{r}^{l}(\bar{\mathbf{Z}}^l)) \\
-	^{\text{DS}}\boldsymbol{\alpha}_{r}^{l}(\bar{\mathbf{Z}}^l)&=\mathtt{SinkhornKnopp}(^{+}\boldsymbol{\alpha}_{r}^{l}(\bar{\mathbf{Z}}^l), 20) 
+ ^{+}\boldsymbol{\alpha}_{r}^{l}(\bar{\mathbf{Z}}^l)&=\exp(\boldsymbol{\alpha}_{r}^{l}(\bar{\mathbf{Z}}^l)) \\
+ ^{\text{DS}}\boldsymbol{\alpha}_{r}^{l}(\bar{\mathbf{Z}}^l)&=\mathtt{SinkhornKnopp}(^{+}\boldsymbol{\alpha}_{r}^{l}(\bar{\mathbf{Z}}^l), 20) 
 \end{align*}
 $$
 
@@ -368,9 +373,10 @@ The benefits of the manifold-constraints are immediately obvious. In the followi
     dark-src="figures/mhc_forward_backward_gain_dark.svg"
     light-src="figures/mhc_forward_backward_gain_light.svg"
     alt="The maximum absolute value of the forward and backward signal in an HC or mHC model."
-	attr="Adapted from Figures 3 & 7 in xieMHCManifoldConstrainedHyperConnections2026"
-	width=1000
+ 	width=1000
 >}}
+
+<small><i>Adapted from {{< cite "xieMHCManifoldConstrainedHyperConnections2026" >}}, Figures 3 & 7</i></small>
 
 We can see this even more clearly when inspecting the $\boldsymbol{\alpha}_{r}^{l}$ and $\prod_{l=1}^{L}\boldsymbol{\alpha}_{r}^{l}$ matrices directly.
 
@@ -378,15 +384,16 @@ We can see this even more clearly when inspecting the $\boldsymbol{\alpha}_{r}^{
     dark-src="figures/mhc_heatmap_dark.svg"
     light-src="figures/mhc_heatmap_light.svg"
     alt="Various residual connection matrices and their products."
-	attr="Adapted from Figure 8 in xieMHCManifoldConstrainedHyperConnections2026"
-	width=1000
+ 	width=1000
 >}}
+
+<small><i>Adapted from {{< cite "xieMHCManifoldConstrainedHyperConnections2026" >}}, Figure 8</i></small>
 
 In the figure above, the top row has these matrices for HC, and the bottom row corresponds to mHC. The first three columns provide $\boldsymbol{\alpha}_{r}^{l}$ at different layers (1, 30, 60) and the right three columns provide several products of $\boldsymbol{\alpha}_{r}^{l}$, (1-30, 30-61, 1-61).
 
 The HC residual connection matrices are unbounded and tend to be dominated by a single residual stream. These problems are exacerbated in the HC model, with large absolute values, dominated by one or two residual streams.
 
-With mHC residual connections, we do not see this. The individual $\boldsymbol{\alpha}_{r}^{l}$ remain bounded are tend to look more like identity matrices. Furthermore, their product remains similarly bounded, and sees a more uniform distribution of residual connections. This latter finding suggests that the model is mixing the different residual streams more effectively.
+With mHC residual connections, we do not see this. The individual $\boldsymbol{\alpha}_{r}^{l}$ remain bounded and tend to look more like identity matrices. Furthermore, their product remains similarly bounded, and sees a more uniform distribution of residual connections. This latter finding suggests that the model is mixing the different residual streams more effectively.
 
 Of course, at the end of the day, what we care about most is the actual performance of an mHC augmented LLM. 
 
@@ -394,9 +401,10 @@ Of course, at the end of the day, what we care about most is the actual performa
     dark-src="figures/mhc_loss_grad_dark.svg"
     light-src="figures/mhc_loss_grad_light.svg"
     alt="The loss during training an HC augmented OLMo-1B model."
-	attr="Adapted from Figure 8 in xieMHCManifoldConstrainedHyperConnections2026"
-	width=1000
+ 	width=1000
 >}}
+
+<small><i>Adapted from {{< cite "xieMHCManifoldConstrainedHyperConnections2026" >}}, Figure 8</i></small>
 
 The answer here is another resounding yes. The loss is smaller throughout training and especially at later stages where the HC model tends towards the baseline. This occurs right around the time that the gradients of the HC model diverges, while the mHC gradients tend to follow much more stable pattern indicative of convergence. Additionally, we also see far fewer gradient spikes, implying that the training process is made more robust.
 
@@ -411,21 +419,25 @@ Another application I'm excited about is the use of mHC as a PEFT technique. Tak
 ## Extra: Double-Stochasticity without Sinkhorn-Knopp
 While Xie et al. {{< cite "xieMHCManifoldConstrainedHyperConnections2026" >}} claim that with their GPU kernels the overhead of Sinkhorn-Knopp is minimal, ultimately this still adds a sequential bottleneck to the GPU. Furthermore, by limiting the total number of Sinkhorn-Knopp iterations, the doubly-stochastic matrices will not be exactly doubly-stochastic, which runs the risk of re-introducing the training instabilities we worked so hard on eliminating.
 
-Ideally, we'd to find some parallelizable GEMM method for producing doubly-stochastic matrices.
+Ideally, we'd like to find some parallelizable GEMM method for producing doubly-stochastic matrices.
 
 Since the release of mHC, there are two papers which claim to have found such methods:
 1. Yang & Gao {{< cite "yangMHCliteYouDont2026" >}} with `mHC-lite` leverage the [Birkhoff-von Neumann Theorem](https://en.wikipedia.org/wiki/Doubly_stochastic_matrix#Birkhoff%E2%80%93von_Neumann_theorem), and represent the residual matrix, $\boldsymbol{\alpha}_{r}$, as a weighted sum of [permutation matrices](https://en.wikipedia.org/wiki/Permutation_matrix). Specifically, they learn an additional dynamic vector $\mathbf{a}^{l}$ such that, $$\boldsymbol{\alpha}_{r}^{l}=\sum_{i=1}^{|\mathcal{P}|} a_{i}^{l}\mathbf{P}_{i}$$ where $\mathcal{P}$ is the set of all permutation matrices of size $N$. Note that this set has size $|\mathcal{P}|=N!$, and thus this approach is only useful for small values of $N$[^factorial].
 2. Zhou et al. {{< cite "zhouKromHCManifoldConstrainedHyperConnections2026" >}} with `KromHC` instead represent the residual matrix a series of [Kronecker products](https://en.wikipedia.org/wiki/Kronecker_product) of lower dimensional residual matrices. First they factorize $\boldsymbol{\alpha}_{r}\in (0,1)^{N\times N}$ into a $K$-order tensor, $\boldsymbol{\alpha}_{r}\in (0,1)^{i_{1}\cdot i_{2}\cdot\ldots\cdot i_{K}}$, such that $N=\prod_{k=1}^{K}i_{k}$. The residual stream can then be reconstructed with the following Kronecker product: $$\bigotimes_{k=1}^{K} \mathbf{U}_{k}$$ Each $\mathbf{U}_{k}$ is a residual stream matrix for a lower expansion rate, i.e. $2$, which can be represented as a convex combination of permutation matrices.
 
-	This replaces the intractably expensive linear operation of Yang & Gao {{< cite "yangMHCliteYouDont2026" >}} with a sequence of much cheaper tensor products. Zhou et al. {{< cite "zhouKromHCManifoldConstrainedHyperConnections2026" >}} suggest using $i_{k}=2$ as much as possible, which means that an expansion rate which is a power of $2$ results in $\log_{2}(N)$ Kronecker products.
+ This replaces the intractably expensive linear operation of Yang & Gao {{< cite "yangMHCliteYouDont2026" >}} with a sequence of much cheaper tensor products. Zhou et al. {{< cite "zhouKromHCManifoldConstrainedHyperConnections2026" >}} suggest using $i_{k}=2$ as much as possible, which means that an expansion rate which is a power of $2$ results in $\log_{2}(N)$ Kronecker products.
 
 The first version of mHC released on December 31, 2025. Yang & Gao {{< cite "yangMHCliteYouDont2026" >}} released their pre-print on January 5, 2026, and Zhou et al. {{< cite "zhouKromHCManifoldConstrainedHyperConnections2026" >}} on January 29, 2026. Chapeau! Their work should make training mHC models much easier.
 
-[^factorial]:drive home this point, $4!=24$, $8!=40,320$, $16!=20.9e+12$. Thus, using 8 residual streams is expensive, but doable, anything more quickly brings you into the realm of theoretical intractability.
+[^factorial]: to drive home this point, $4!=24$, $8!=40,320$, $16!=20.9e+12$. Thus, using 8 residual streams is expensive, but doable, anything more quickly brings you into the realm of intractability.
 
 ## References
 
 {{< references >}}
+
+## Acknowledgements
+
+Thanks [Milan](https://www.illc.uva.nl/People/Staff/person/5804/Milan-Mileti%C4%87) for your corrections and feedback
 
 ## Changelog
 
@@ -435,4 +447,5 @@ The first version of mHC released on December 31, 2025. Yang & Gao {{< cite "yan
 [2026-02-14] Finished the write up
 [2026-02-15] Added dark mode figures
 [2026-03-05] Added 'Extra: Double-Stochasticity without Sinkhorn-Knopp'
+[2026-03-20] Minor corrections
 ```

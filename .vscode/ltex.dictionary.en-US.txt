@@ -5,3 +5,17 @@ mHC
 Xie
 Double-Stochasticity
 Sinkhorn-Knopp
+OLMo
+Frobenius
+Birkhoff
+polytope
+stochasticity
+Polytope
+n-gon
+Sinkhorn
+Densenets
+ResNets
+PEFT
+GEMM
+backprop
+ResNet
