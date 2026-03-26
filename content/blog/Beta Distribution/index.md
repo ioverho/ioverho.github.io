@@ -5,11 +5,14 @@ tags:
   - math
   - statistics
 math: true
+aliases:
+- "/unlisted/theory of statistics and data.pdf"
+- "/unlisted/theory%20of%20statistics%20and%20data.pdf"
 ---
 
 {{< toc >}}
 
-This article is a rewrite of an undergrad assignment that has proven popular.
+This article is a rewrite of an undergrad assignment that has proven popular. Specifically, this was a writing assignment for the UCR course 'Theory of Statistics and Data Analysis' taught by [Richard van den Doel](https://ucr.nl/about-ucr/our-people/richard-van-den-doel/) in the 2019 Spring semester.
 
 ## Introduction
 
@@ -579,4 +582,5 @@ I've put a copy of the notebook used to generate these figures in a [public GitH
 
 ```
 [2025-01-09] Fixed a lot of errors and typos
+[2026-03-26] Added redirect for old links
 ```
