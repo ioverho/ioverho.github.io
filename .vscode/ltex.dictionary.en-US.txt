@@ -32,3 +32,16 @@ softmax
 post-hoc
 antigrams
 neglibe
+Pocock
+Noether
+Brunner-Manzel
+Matsouaka
+Donner
+Zou
+estimands
+Agresti-Coull
+Gaussier
+Goutte
+RoPE
+Frequentist
+Élo

@@ -6,8 +6,8 @@ tags:
   - statistics
 math: true
 aliases:
-- "/unlisted/theory of statistics and data analysis"
-- "/unlisted/theory of statistics and data analysis.pdf"
+#- "/unlisted/theory of statistics and data analysis"
+#- "/unlisted/theory of statistics and data analysis.pdf"
 - "/unlisted/theory%20of%20statistics%20and%20data%20analysis"
 - "/unlisted/theory%20of%20statistics%20and%20data%20analysis.pdf"
 ---
