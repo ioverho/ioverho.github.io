@@ -9,6 +9,8 @@ draft: false
 
 {{< toc >}}
 
+{{< icons/icon vendor=simple name="arxiv" className="logo arxiv" >}}[Check out our work on mHC for PEFT!](https://arxiv.org/abs/2607.18130)
+
 This post comes from a talk I gave to my [NLU lab-mates](https://www.shutova.org/home/people) explaining mHC. You can find the embedded slides below, or by [following this link](https://www.ivoverhoeven.nl/mHC). The rest of this post is a write-up of my notes and thoughts.
 
 <iframe src="https://www.ivoverhoeven.nl/mHC" width="100%" style="aspect-ratio: 16 / 9;"></iframe>
@@ -439,6 +441,8 @@ The first version of mHC released on December 31, 2025. Yang & Gao {{< cite "yan
 
 Thanks [Milan](https://www.illc.uva.nl/People/Staff/person/5804/Milan-Mileti%C4%87) for your corrections and feedback
 
+Thanks Tijn, Floris, Bente Lieve, Nicky, and Stef for your work on using mHC for the purposes of PEFT of LLMs
+
 ## Changelog
 
 ```
@@ -448,4 +452,5 @@ Thanks [Milan](https://www.illc.uva.nl/People/Staff/person/5804/Milan-Mileti%C4%
 [2026-02-15] Added dark mode figures
 [2026-03-05] Added 'Extra: Double-Stochasticity without Sinkhorn-Knopp'
 [2026-03-20] Minor corrections
+[2026-07-20] Added pre-print on mHC for PEFT
 ```
